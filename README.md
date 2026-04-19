@@ -21,7 +21,11 @@ A Python library providing secure cryptographic primitives including SHA-256 has
 ## Installation
 
 ```bash
-pip install qsha256
+python -m venv ~/venvs/qsha
+source ~/venvs/qsha/bin/activate
+git clone https://github.com/icedmoca/qSHA256.git
+cd qSHA256
+pip install .
 ```
 
 ## Quick Start

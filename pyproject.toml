@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qsha256"
+version = "2.0.0"
+description = "Reversible quantum circuit construction and logical resource analysis for SHA-256"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "icedmoca", email = "blazehavenservers@gmail.com" }]
+keywords = [
+    "quantum-computing",
+    "reversible-computing",
+    "sha256",
+    "resource-estimation",
+    "qiskit",
+    "grover",
+    "clifford-t",
+    "fault-tolerance",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "qiskit>=1.2,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.5",
+    "build>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/icedmoca/qSHA256"
+Source = "https://github.com/icedmoca/qSHA256"
+Issues = "https://github.com/icedmoca/qSHA256/issues"
+Documentation = "https://github.com/icedmoca/qSHA256/tree/main/docs"
+Changelog = "https://github.com/icedmoca/qSHA256/blob/main/CHANGELOG.md"
+
+[project.scripts]
+qsha256 = "qsha256.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["qsha256*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "RUF"]
+ignore = [
+    "E741",   # ambiguous variable names: a, b, c, d, e, f, g, h are SHA-256's own names
+    "B905",   # zip(strict=) not available on py3.9-style call sites we keep explicit
+    "RUF005",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+"examples/*" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short"
+markers = [
+    "slow: heavier circuit construction / simulation (deselect with -m 'not slow')",
+    "resource: full-scale resource analysis over 32-bit SHA-256 circuits",
+    "integration: end-to-end pipelines spanning several modules",
+]

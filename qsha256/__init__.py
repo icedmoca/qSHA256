@@ -1,37 +1,7 @@
-"""
-qSHA256 - A cryptographically secure cryptographic library.
+"""qSHA256 -- reversible quantum SHA-256 construction, verification and resource analysis."""
 
-This package provides secure implementations of cryptographic primitives using
-vetted libraries (hashlib, cryptography) for production use.
-"""
+__version__ = "2.0.0"
 
-__version__ = "1.0.0"
-__author__ = "qSHA256 Contributors"
+from .spec import SHA256, SPECS, TOY4, TOY8, ShaSpec, get_spec
 
-from .secure import (
-    secure_sha256,
-    secure_hmac,
-    secure_hmac_verify,
-    generate_key,
-    hkdf_extract_expand,
-    aes_gcm_encrypt,
-    aes_gcm_decrypt,
-    ed25519_generate_keypair,
-    ed25519_sign,
-    ed25519_verify,
-    SecurityError
-)
-
-__all__ = [
-    "secure_sha256",
-    "secure_hmac",
-    "secure_hmac_verify", 
-    "generate_key",
-    "hkdf_extract_expand",
-    "aes_gcm_encrypt",
-    "aes_gcm_decrypt",
-    "ed25519_generate_keypair",
-    "ed25519_sign",
-    "ed25519_verify",
-    "SecurityError"
-]
+__all__ = ["SHA256", "SPECS", "TOY4", "TOY8", "ShaSpec", "get_spec", "__version__"]

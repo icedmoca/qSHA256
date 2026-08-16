@@ -278,3 +278,7 @@ venv/
 env/
 ENV/
 .env
+
+# local virtualenv
+.venv/
+venv/

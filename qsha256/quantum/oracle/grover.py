@@ -48,8 +48,8 @@ References
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
-from typing import Callable, Sequence
 
 from ..primitives.boolean import and_tree_ancilla_count, and_tree_mcx
 from ..registers import CircuitBuilder, Word
@@ -57,11 +57,11 @@ from .predicate import digest_bits, equality_phase_flip
 from .toy import TOY_TINY, ToySpec, build_toy_hash, toy_compress
 
 __all__ = [
-    "grover_iterations",
-    "diffusion",
-    "build_toy_grover",
     "GroverCostEstimate",
+    "build_toy_grover",
+    "diffusion",
     "grover_cost_estimate",
+    "grover_iterations",
 ]
 
 
@@ -70,7 +70,7 @@ def grover_iterations(search_bits: int, solutions: int = 1) -> int:
     n = 2**search_bits
     if not 0 < solutions <= n:
         raise ValueError("solutions must lie in 1..2^search_bits")
-    return max(1, int(math.floor((math.pi / 4) * math.sqrt(n / solutions))))
+    return max(1, math.floor((math.pi / 4) * math.sqrt(n / solutions)))
 
 
 def diffusion(b: CircuitBuilder, registers: Sequence[Word], label: str = "diffusion") -> None:
@@ -180,9 +180,7 @@ def _toy_solutions(target: int, spec: ToySpec, compare_bits: int) -> list[tuple[
     out = []
     space = 1 << (spec.message_words * spec.word_bits)
     for candidate in range(space):
-        words = [
-            (candidate >> (i * spec.word_bits)) & spec.mask for i in range(spec.message_words)
-        ]
+        words = [(candidate >> (i * spec.word_bits)) & spec.mask for i in range(spec.message_words)]
         digest = toy_compress(words, spec)
         full = sum(v << (i * spec.word_bits) for i, v in enumerate(digest))
         if full & mask == target:

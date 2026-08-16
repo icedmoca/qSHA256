@@ -46,13 +46,13 @@ import math
 from dataclasses import dataclass
 
 __all__ = [
-    "ToffoliModel",
-    "TOFFOLI_MODELS",
-    "get_model",
-    "DEFAULT_MODEL",
-    "rz_t_count",
     "CLIFFORD_T_BASIS",
+    "DEFAULT_MODEL",
+    "TOFFOLI_MODELS",
+    "ToffoliModel",
     "clifford_t_cost",
+    "get_model",
+    "rz_t_count",
 ]
 
 #: Gate basis used when a circuit is actually transpiled rather than costed
@@ -156,7 +156,7 @@ def rz_t_count(epsilon: float = 1e-10) -> int:
     """
     if not 0 < epsilon < 1:
         raise ValueError("epsilon must lie in (0, 1)")
-    return int(math.ceil(3 * math.log2(1 / epsilon) + 10))
+    return math.ceil(3 * math.log2(1 / epsilon) + 10)
 
 
 def clifford_t_cost(

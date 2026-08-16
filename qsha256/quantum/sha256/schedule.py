@@ -36,13 +36,12 @@ from abc import ABC, abstractmethod
 
 from ...classical.sha256 import schedule_offsets
 from ...spec import SHA256, ShaSpec
-from ..strategies import DEFAULT, Strategy
 from ..primitives.add import add_into
 from ..primitives.xor import xor_terms
 from ..registers import CircuitBuilder, Word
-from .functions import small_sigma0_into, small_sigma1_into
+from ..strategies import DEFAULT, Strategy
 
-__all__ = ["MessageSchedule", "StoreAllSchedule", "RollingSchedule", "build_schedule"]
+__all__ = ["MessageSchedule", "RollingSchedule", "StoreAllSchedule", "build_schedule"]
 
 
 class MessageSchedule(ABC):

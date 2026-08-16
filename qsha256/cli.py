@@ -1,14 +1,14 @@
 """Command-line interface for qSHA256.
 
-    qsha256 validate      check circuits against the classical reference
-    qsha256 circuit       build a circuit and show or export it
-    qsha256 analyze       measure logical resources
-    qsha256 benchmark     scaling tables across round counts
-    qsha256 search        Pareto search over the design space
-    qsha256 oracle        preimage oracle cost and Grover extrapolation
-    qsha256 physical      fault-tolerant estimate under a hardware model
-    qsha256 leaderboard   comparison against published circuits
-    qsha256 grover-demo   run the toy Grover search for real
+qsha256 validate      check circuits against the classical reference
+qsha256 circuit       build a circuit and show or export it
+qsha256 analyze       measure logical resources
+qsha256 benchmark     scaling tables across round counts
+qsha256 search        Pareto search over the design space
+qsha256 oracle        preimage oracle cost and Grover extrapolation
+qsha256 physical      fault-tolerant estimate under a hardware model
+qsha256 leaderboard   comparison against published circuits
+qsha256 grover-demo   run the toy Grover search for real
 """
 
 from __future__ import annotations

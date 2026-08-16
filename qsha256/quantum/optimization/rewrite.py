@@ -40,8 +40,8 @@ non-deterministic touches it.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Qubit
@@ -49,12 +49,12 @@ from qiskit.circuit import Qubit
 from ..registers import CircuitBuilder
 
 __all__ = [
-    "RewriteResult",
-    "commutes",
-    "cancel_involutions",
-    "constant_fold",
     "REWRITE_PASSES",
+    "RewriteResult",
     "apply_rewrites",
+    "cancel_involutions",
+    "commutes",
+    "constant_fold",
 ]
 
 #: Gates whose action is "X on the target, conditioned on the controls".

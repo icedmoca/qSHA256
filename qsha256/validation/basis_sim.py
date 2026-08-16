@@ -22,7 +22,7 @@ phase is the entire point, the phase-tracking mode below covers diagonal gates
 
 from __future__ import annotations
 
-from typing import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Qubit
@@ -32,9 +32,9 @@ from ..quantum.registers import Word
 __all__ = [
     "BasisSimulator",
     "UnsupportedGate",
+    "set_word_value",
     "simulate_basis",
     "word_value",
-    "set_word_value",
 ]
 
 
@@ -92,7 +92,7 @@ class BasisSimulator:
             raise ValueError(f"expected {self.num_qubits} bits, got {len(bits)}")
         state = list(bits)
         phase = 1
-        OP_X, OP_SWAP, OP_Z = self._OP_X, self._OP_SWAP, self._OP_Z
+        OP_X, OP_Z = self._OP_X, self._OP_Z
         for op, qs in self._program:
             if op == OP_X:
                 # last qubit is the target; all others are controls

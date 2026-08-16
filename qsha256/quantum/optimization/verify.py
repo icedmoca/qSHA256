@@ -31,8 +31,8 @@ and "verified on 200 random inputs" are different claims.
 from __future__ import annotations
 
 import random
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Callable, Sequence
 
 from qiskit import QuantumCircuit
 
@@ -82,9 +82,7 @@ def check_equivalence(
     checked exhaustively over its genuine inputs.
     """
     if reference.num_qubits != candidate.num_qubits:
-        return EquivalenceResult(
-            False, Assurance.STRUCTURAL, 0, "different qubit counts"
-        )
+        return EquivalenceResult(False, Assurance.STRUCTURAL, 0, "different qubit counts")
 
     try:
         ref_sim = BasisSimulator(reference)
@@ -188,10 +186,7 @@ def verify_against_classical(
             leaked = [q for q in ancillas if out[sim.index_of(q)]]
         else:
             touched = (
-                list(expected(assignment))
-                + list(clean)
-                + list(allow_dirty)
-                + list(assignment)
+                list(expected(assignment)) + list(clean) + list(allow_dirty) + list(assignment)
             )
             leaked = sim.nonzero_indices(out, exclude=touched)
         if leaked:

@@ -37,13 +37,13 @@ import qiskit
 from qiskit import QuantumCircuit, transpile
 
 from ...spec import ShaSpec
-from ..strategies import Strategy
 from ..registers import CircuitBuilder
+from ..strategies import Strategy
 from . import clifford_t as ct
-from .depth import DepthMetrics, measure_depth
-from .gates import GateCounts, aggregate, attribute, count_ops
+from .depth import measure_depth
+from .gates import aggregate, attribute, count_ops
 
-__all__ = ["ResourceReport", "analyze", "Provenance", "environment_metadata"]
+__all__ = ["Provenance", "ResourceReport", "analyze", "environment_metadata"]
 
 
 class Provenance:
@@ -242,9 +242,7 @@ def _transpiled_clifford_t(circuit: QuantumCircuit, optimization_level: int) -> 
     ops = dict(decomposed.count_ops())
     return {
         "t_count_transpiled": ops.get("t", 0) + ops.get("tdg", 0),
-        "t_depth_transpiled": decomposed.depth(
-            lambda inst: inst.operation.name in ("t", "tdg")
-        ),
+        "t_depth_transpiled": decomposed.depth(lambda inst: inst.operation.name in ("t", "tdg")),
         "depth_transpiled": decomposed.depth(),
         "cnot_transpiled": ops.get("cx", 0),
         "h_transpiled": ops.get("h", 0),
@@ -265,8 +263,8 @@ def _assumptions(
         "no magic-state factories are included in these counts.",
         "All-to-all connectivity assumed; no routing or SWAP overhead is charged. "
         "Depth on limited-connectivity hardware will be larger.",
-        f"Rotations and shifts are counted as zero-cost wire permutations "
-        f"(see qsha256.quantum.primitives.rotate / .shift for why).",
+        "Rotations and shifts are counted as zero-cost wire permutations "
+        "(see qsha256.quantum.primitives.rotate / .shift for why).",
         f"T-count model: {model.describe()}.",
     ]
     if analytic.get("rotation_gates"):

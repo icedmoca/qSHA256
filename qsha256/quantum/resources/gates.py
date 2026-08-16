@@ -15,7 +15,7 @@ from qiskit import QuantumCircuit
 
 from ..registers import Section
 
-__all__ = ["GateCounts", "count_ops", "count_range", "SectionCost", "attribute", "aggregate"]
+__all__ = ["GateCounts", "SectionCost", "aggregate", "attribute", "count_ops", "count_range"]
 
 
 @dataclass

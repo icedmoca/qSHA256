@@ -26,7 +26,6 @@ import time
 from dataclasses import dataclass, field
 
 from ..classical.sha256 import (
-    add_mod,
     big_sigma0,
     big_sigma1,
     ch,
@@ -39,7 +38,6 @@ from ..classical.sha256 import (
     small_sigma0,
     small_sigma1,
 )
-from ..spec import SHA256, TOY4, TOY8, ShaSpec
 from ..quantum.primitives.add import ADDERS, add_into
 from ..quantum.primitives.boolean import ch_word_into, maj_word_into
 from ..quantum.primitives.xor import xor_terms
@@ -47,6 +45,7 @@ from ..quantum.registers import CircuitBuilder
 from ..quantum.sha256.compression import build_compression
 from ..quantum.sha256.round import build_round_circuit
 from ..quantum.strategies import Strategy
+from ..spec import SHA256, TOY4, TOY8, ShaSpec
 from .basis_sim import BasisSimulator
 from .vectors import NIST_VECTORS
 
@@ -136,8 +135,13 @@ def check_padding() -> Check:
             failures.append(f"length {length}")
         if int.from_bytes(padded[-8:], "big") != length * 8:
             failures.append(f"length field at {length}")
-    return Check("padding: block alignment and length field", not failures,
-                 "; ".join(failures[:3]), cases=cases, exhaustive=True)
+    return Check(
+        "padding: block alignment and length field",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+        exhaustive=True,
+    )
 
 
 # --------------------------------------------------------------------------
@@ -167,8 +171,13 @@ def check_adders() -> Check:
                         or sim.nonzero_indices(out, exclude=[a, t])
                     ):
                         failures.append(f"{name} n={width} {x}+{y}")
-    return Check("reversible adders == (a+b) mod 2^n", not failures,
-                 "; ".join(failures[:3]), cases=cases, exhaustive=True)
+    return Check(
+        "reversible adders == (a+b) mod 2^n",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+        exhaustive=True,
+    )
 
 
 def check_boolean() -> Check:
@@ -192,8 +201,13 @@ def check_boolean() -> Check:
                         sim.read(out, z),
                     ) != (xv, yv, zv):
                         failures.append(f"{label}({xv},{yv},{zv})")
-    return Check("Ch / Maj == classical, inputs preserved", not failures,
-                 "; ".join(failures[:3]), cases=cases, exhaustive=True)
+    return Check(
+        "Ch / Maj == classical, inputs preserved",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+        exhaustive=True,
+    )
 
 
 def check_sigmas() -> Check:
@@ -219,15 +233,18 @@ def check_sigmas() -> Check:
             out, _ = sim.run(sim.load({x: value}))
             if sim.read(out, t) != ref(value, SHA256) or sim.read(out, x) != value:
                 failures.append(f"{label}(0x{value:08x})")
-    return Check("Sigma0/1, sigma0/1 == classical (32-bit)", not failures,
-                 "; ".join(failures[:3]), cases=cases)
+    return Check(
+        "Sigma0/1, sigma0/1 == classical (32-bit)",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+    )
 
 
 def check_inverse() -> Check:
     """U then U-dagger must be the identity -- the property oracles depend on."""
     failures = []
     cases = 0
-    rng = random.Random(3)
     for width in (3, 4):
         b = CircuitBuilder("roundtrip")
         a = b.add_word(width, "a")
@@ -242,8 +259,13 @@ def check_inverse() -> Check:
                 out, _ = sim.run(sim.load({a: x, t: y}))
                 if (sim.read(out, a), sim.read(out, t)) != (x, y):
                     failures.append(f"n={width} ({x},{y})")
-    return Check("U then U-dagger == identity", not failures,
-                 "; ".join(failures[:3]), cases=cases, exhaustive=True)
+    return Check(
+        "U then U-dagger == identity",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+        exhaustive=True,
+    )
 
 
 # --------------------------------------------------------------------------
@@ -279,8 +301,12 @@ def check_schedule(spec: ShaSpec = SHA256) -> Check:
                 if sim.read(out, reg) != expected[offset + i]:
                     failures.append(f"{name} W[{offset + i}]")
                     break
-    return Check("quantum message schedule == classical W[t]", not failures,
-                 "; ".join(failures[:3]), cases=cases)
+    return Check(
+        "quantum message schedule == classical W[t]",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+    )
 
 
 def check_round(spec: ShaSpec = SHA256) -> Check:
@@ -304,7 +330,9 @@ def check_round(spec: ShaSpec = SHA256) -> Check:
                 failures.append(f"{layout} dirty ancilla")
     return Check(
         f"SHA-256 round == classical ({spec.word_bits}-bit, 3 layouts)",
-        not failures, "; ".join(failures[:3]), cases=cases,
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
     )
 
 
@@ -317,9 +345,7 @@ def check_compression(spec: ShaSpec, rounds: int, strategy: Strategy, trials: in
     for _ in range(trials):
         state = [rng.getrandbits(spec.word_bits) for _ in range(8)]
         block = [rng.getrandbits(spec.word_bits) for _ in range(spec.block_words)]
-        out, _ = sim.run(
-            sim.load(dict(zip(comp.state, state)) | dict(zip(comp.message, block)))
-        )
+        out, _ = sim.run(sim.load(dict(zip(comp.state, state)) | dict(zip(comp.message, block))))
         expected = compress(tuple(state), block, reduced)
         if tuple(sim.read(out, r) for r in comp.digest) != expected:
             failures.append("digest mismatch")
@@ -333,7 +359,9 @@ def check_compression(spec: ShaSpec, rounds: int, strategy: Strategy, trials: in
     label = "garbage-free" if comp.uncomputed else "forward"
     return Check(
         f"{spec.name} compression, {rounds} rounds, {label} == classical",
-        not failures, "; ".join(failures[:3]), cases=trials,
+        not failures,
+        "; ".join(failures[:3]),
+        cases=trials,
     )
 
 
@@ -383,8 +411,13 @@ def check_oracle() -> Check:
                 failures.append(f"message not restored for {block}")
             if sim.nonzero_indices(out, exclude=oracle.message):
                 failures.append(f"garbage left for {block}")
-    return Check("preimage oracle phase-flips exactly the preimages", not failures,
-                 "; ".join(failures[:3]), cases=cases, exhaustive=True)
+    return Check(
+        "preimage oracle phase-flips exactly the preimages",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+        exhaustive=True,
+    )
 
 
 # --------------------------------------------------------------------------

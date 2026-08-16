@@ -35,15 +35,15 @@ applied here to SHA-256's multi-operand round additions.
 
 from __future__ import annotations
 
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from typing import Iterator, Sequence
 
 from ..registers import CircuitBuilder, Word
 from .add import add_into
 from .boolean import maj_into
 from .xor import xor_word
 
-__all__ = ["csa_layer", "sum_addends", "csa_toffoli_cost"]
+__all__ = ["csa_layer", "csa_toffoli_cost", "sum_addends"]
 
 
 def csa_layer(b: CircuitBuilder, x: Word, y: Word, z: Word, s: Word, c: Word) -> None:

@@ -21,16 +21,16 @@ from dataclasses import dataclass
 from typing import Literal
 
 __all__ = [
-    "ShaSpec",
     "SHA256",
+    "SPECS",
     "TOY4",
     "TOY8",
-    "SPECS",
-    "get_spec",
+    "ShaSpec",
     "Term",
-    "integer_root",
-    "frac_bits_of_root",
     "first_primes",
+    "frac_bits_of_root",
+    "get_spec",
+    "integer_root",
 ]
 
 # ``("rotr", 7)`` means ROTR^7(x); ``("shr", 3)`` means SHR^3(x).

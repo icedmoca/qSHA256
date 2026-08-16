@@ -18,14 +18,14 @@ rather than an estimate.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Iterable, Iterator, Sequence
 
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Qubit
 
-__all__ = ["Word", "AncillaPool", "CircuitBuilder", "Section"]
+__all__ = ["AncillaPool", "CircuitBuilder", "Section", "Word"]
 
 
 class Word:

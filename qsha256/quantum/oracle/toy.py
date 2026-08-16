@@ -31,14 +31,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ...spec import Term, frac_bits_of_root, first_primes
-from ..strategies import DEFAULT, Strategy
+from ...spec import Term, first_primes, frac_bits_of_root
 from ..primitives.add import add_const_into, add_into
 from ..primitives.boolean import ch_word_into, maj_word_into
 from ..primitives.xor import xor_const, xor_terms
 from ..registers import CircuitBuilder, Word
+from ..strategies import DEFAULT, Strategy
 
-__all__ = ["ToySpec", "TOY_TINY", "toy_compress", "build_toy_hash", "ToyHashCircuit"]
+__all__ = ["TOY_TINY", "ToyHashCircuit", "ToySpec", "build_toy_hash", "toy_compress"]
 
 
 @dataclass(frozen=True)

@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from ..registers import Word
 
-__all__ = ["rotr", "rotl", "rotate_gate_cost", "rotate_in_place_cost"]
+__all__ = ["rotate_gate_cost", "rotate_in_place_cost", "rotl", "rotr"]
 
 
 def rotr(word: Word, n: int) -> Word:

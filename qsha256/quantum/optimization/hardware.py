@@ -20,12 +20,17 @@ logical gate count alone can pick the wrong one.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
-from ..resources.physical import HardwareModel, PhysicalEstimate, estimate_physical, get_hardware_model
+from ..resources.physical import (
+    HardwareModel,
+    PhysicalEstimate,
+    estimate_physical,
+    get_hardware_model,
+)
 
-__all__ = ["ScoredDesign", "HardwareRanking", "rank_for_hardware"]
+__all__ = ["HardwareRanking", "ScoredDesign", "rank_for_hardware"]
 
 
 @dataclass
@@ -74,10 +79,7 @@ class HardwareRanking:
         }
 
     def __str__(self) -> str:
-        header = (
-            f"{'design':<44}{'d':>4}{'phys. qubits':>16}{'runtime':>16}"
-            f"{'qubit-seconds':>18}"
-        )
+        header = f"{'design':<44}{'d':>4}{'phys. qubits':>16}{'runtime':>16}{'qubit-seconds':>18}"
         lines = [
             f"Hardware-Aware Ranking - {self.model_name}  [ASSUMPTION-DEPENDENT]",
             "=" * len(header),

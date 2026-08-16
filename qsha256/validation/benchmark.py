@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
-from ..spec import SHA256, ShaSpec
 from ..quantum.resources.analyzer import ResourceReport, analyze
 from ..quantum.sha256.compression import build_compression
 from ..quantum.strategies import DEFAULT, Strategy
+from ..spec import SHA256, ShaSpec
 
 __all__ = ["run_scaling_benchmark", "run_strategy_benchmark"]
 

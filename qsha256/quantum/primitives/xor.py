@@ -8,12 +8,12 @@ sigma functions -- pure XOR folds of rotations -- carry no Toffoli cost at all.
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from ...spec import Term
 from ..registers import CircuitBuilder, Word
 
-__all__ = ["xor_word", "xor_const", "copy_word", "xor_terms", "swap_words"]
+__all__ = ["copy_word", "swap_words", "xor_const", "xor_terms", "xor_word"]
 
 
 def xor_word(b: CircuitBuilder, src: Word, dst: Word) -> None:

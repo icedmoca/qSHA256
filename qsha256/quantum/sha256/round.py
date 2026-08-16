@@ -41,11 +41,11 @@ garbage produced        none: every temporary is uncomputed within the round
 from __future__ import annotations
 
 from ...spec import SHA256, ShaSpec
-from ..strategies import DEFAULT, Strategy
 from ..primitives.add import add_const_into, add_into
 from ..primitives.csa import sum_addends
 from ..primitives.xor import xor_const
 from ..registers import CircuitBuilder, Word
+from ..strategies import DEFAULT, Strategy
 from .functions import (
     big_sigma0_into,
     big_sigma1_into,
@@ -53,7 +53,7 @@ from .functions import (
     maj_into_word,
 )
 
-__all__ = ["RoundState", "apply_round", "build_round_circuit", "ROUND_ADDITIONS"]
+__all__ = ["ROUND_ADDITIONS", "RoundState", "apply_round", "build_round_circuit"]
 
 #: Modular additions performed per round: Sigma1, Ch, K, W, d+=T1, Sigma0, Maj.
 ROUND_ADDITIONS = 7

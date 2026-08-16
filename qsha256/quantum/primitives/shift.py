@@ -31,10 +31,10 @@ from __future__ import annotations
 from ..registers import Word
 
 __all__ = [
-    "shr",
-    "shift_gate_cost",
-    "shift_cnot_cost",
     "in_place_shift_is_reversible",
+    "shift_cnot_cost",
+    "shift_gate_cost",
+    "shr",
 ]
 
 

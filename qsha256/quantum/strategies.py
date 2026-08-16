@@ -14,19 +14,20 @@ checker in :mod:`qsha256.quantum.optimization.verify` confirms it empirically.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field, replace
 from itertools import product
-from typing import Any, Iterator
+from typing import Any
 
 __all__ = [
-    "Strategy",
     "DEFAULT",
-    "MIN_QUBITS",
     "MIN_DEPTH",
+    "MIN_QUBITS",
     "PRESETS",
-    "get_preset",
     "STRATEGY_AXES",
+    "Strategy",
     "enumerate_strategies",
+    "get_preset",
 ]
 
 

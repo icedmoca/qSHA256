@@ -12,9 +12,9 @@ from .preimage import PreimageOracle, build_preimage_oracle
 from .toy import TOY_TINY, ToySpec, build_toy_hash, toy_compress
 
 __all__ = [
+    "TOY_TINY",
     "GroverCostEstimate",
     "PreimageOracle",
-    "TOY_TINY",
     "ToySpec",
     "build_preimage_oracle",
     "build_toy_grover",

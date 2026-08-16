@@ -71,13 +71,13 @@ import math
 from dataclasses import asdict, dataclass, field
 
 __all__ = [
-    "HardwareModel",
     "HARDWARE_MODELS",
-    "get_hardware_model",
+    "HardwareModel",
     "PhysicalEstimate",
-    "estimate_physical",
-    "logical_error_rate",
     "choose_code_distance",
+    "estimate_physical",
+    "get_hardware_model",
+    "logical_error_rate",
 ]
 
 
@@ -255,8 +255,7 @@ class PhysicalEstimate:
                 f"  physical qubits (factories): {self.physical_qubits_factories:,}",
                 f"  physical qubits (total): {self.physical_qubits_total:,}",
                 "",
-                f"  code cycles, reaction-limited:     "
-                f"{self.code_cycles_reaction_limited:,.0f}",
+                f"  code cycles, reaction-limited:     {self.code_cycles_reaction_limited:,.0f}",
                 f"  code cycles, distillation-limited: "
                 f"{self.code_cycles_distillation_limited:,.0f}",
                 f"  code cycles (binding):   {self.code_cycles:,.0f}",
@@ -307,8 +306,7 @@ def estimate_physical(
         f"{model.factory_cycles} code cycles per T state, "
         f"{model.factory_qubits:,} physical qubits each. Published factory designs "
         f"vary by more than an order of magnitude; these are inputs, not findings.",
-        f"Total failure probability budget {target_failure_probability:g} for the "
-        f"whole circuit.",
+        f"Total failure probability budget {target_failure_probability:g} for the whole circuit.",
         f"Connectivity assumed {model.connectivity}; the logical circuit's depth was "
         f"measured assuming all-to-all connectivity, so routing overhead is NOT "
         f"included and the runtime here is optimistic.",
@@ -325,9 +323,7 @@ def estimate_physical(
     distance = None
     cycles = max(1.0, float(toffoli_depth))
     for _ in range(20):
-        candidate = choose_code_distance(
-            logical_qubits, cycles, model, target_failure_probability
-        )
+        candidate = choose_code_distance(logical_qubits, cycles, model, target_failure_probability)
         if candidate is None:
             distance = None
             break
@@ -350,7 +346,7 @@ def estimate_physical(
             assumptions=assumptions,
         )
 
-    data_qubits = int(math.ceil(model.routing_factor * distance**2 * logical_qubits))
+    data_qubits = math.ceil(model.routing_factor * distance**2 * logical_qubits)
     factory_qubits = model.factories * model.factory_qubits
     reaction = toffoli_depth * distance
     distillation = (t_count / max(1, model.factories)) * model.factory_cycles

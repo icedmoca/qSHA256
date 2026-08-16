@@ -20,7 +20,7 @@ Toffolis per bit respectively; these forms need 1.
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from qiskit.circuit import Qubit
 
@@ -28,12 +28,12 @@ from ..registers import CircuitBuilder, Word
 
 __all__ = [
     "and_into",
-    "ch_into",
-    "maj_into",
-    "ch_word_into",
-    "maj_word_into",
-    "and_tree_mcx",
     "and_tree_ancilla_count",
+    "and_tree_mcx",
+    "ch_into",
+    "ch_word_into",
+    "maj_into",
+    "maj_word_into",
 ]
 
 

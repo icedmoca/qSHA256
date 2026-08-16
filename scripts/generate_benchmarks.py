@@ -24,9 +24,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from qsha256 import SHA256  # noqa: E402
+from qsha256.quantum.optimization.hardware import rank_for_hardware  # noqa: E402
 from qsha256.quantum.oracle.grover import grover_cost_estimate  # noqa: E402
 from qsha256.quantum.oracle.preimage import build_preimage_oracle  # noqa: E402
-from qsha256.quantum.optimization.hardware import rank_for_hardware  # noqa: E402
 from qsha256.quantum.resources import analyze, estimate_physical  # noqa: E402
 from qsha256.quantum.resources.analyzer import environment_metadata  # noqa: E402
 from qsha256.quantum.resources.leaderboard import build_leaderboard  # noqa: E402

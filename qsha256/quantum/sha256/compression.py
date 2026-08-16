@@ -34,10 +34,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ...spec import SHA256, ShaSpec
-from ..strategies import DEFAULT, Strategy
 from ..primitives.add import ADDERS, add_into
 from ..primitives.xor import xor_const, xor_word
 from ..registers import CircuitBuilder, Word
+from ..strategies import DEFAULT, Strategy
 from .round import apply_round
 from .schedule import build_schedule
 

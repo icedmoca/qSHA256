@@ -53,5 +53,7 @@ def measure_depth(circuit: QuantumCircuit, include_t: bool = False) -> DepthMetr
         total=circuit.depth(),
         two_qubit=circuit.depth(lambda inst: len(inst.qubits) >= 2),
         toffoli=circuit.depth(lambda inst: inst.operation.name in _TOFFOLI),
-        t_depth=(circuit.depth(lambda inst: inst.operation.name in _T_GATES) if include_t else None),
+        t_depth=(
+            circuit.depth(lambda inst: inst.operation.name in _T_GATES) if include_t else None
+        ),
     )

@@ -37,19 +37,19 @@ References
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from ..registers import CircuitBuilder, Word
 from .xor import xor_const
 
 __all__ = [
-    "Adder",
     "ADDERS",
-    "get_adder",
-    "add_into",
-    "add_const_into",
     "CONST_ADD_STRATEGIES",
+    "Adder",
+    "add_const_into",
+    "add_into",
+    "get_adder",
 ]
 
 
@@ -315,7 +315,6 @@ def add_const_into(
         fn = CONST_ADD_STRATEGIES[strategy]
     except KeyError:
         raise KeyError(
-            f"unknown constant-add strategy {strategy!r}; "
-            f"available: {sorted(CONST_ADD_STRATEGIES)}"
+            f"unknown constant-add strategy {strategy!r}; available: {sorted(CONST_ADD_STRATEGIES)}"
         ) from None
     fn(b, value & ((1 << len(target)) - 1), target, adder)

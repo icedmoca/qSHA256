@@ -32,12 +32,14 @@ def run_grover_demo(iterations: int | None = None, compare_bits: int = 4) -> boo
         "statevector simulator can actually execute.\n"
     )
     print(f"  toy spec:          {spec.name} ({spec.word_bits}-bit words, {spec.rounds} rounds)")
-    print(f"  search space:      2^{search_bits} = {2 ** search_bits} candidates")
+    print(f"  search space:      2^{search_bits} = {2**search_bits} candidates")
     print(f"  target digest:     0x{target:x} (low {compare_bits} bits)")
     print(f"  planted solutions: {solutions}  (found by classical brute force)")
     print(f"  Grover iterations: {iterations}")
-    print(f"  circuit:           {circuit.num_qubits} qubits, "
-          f"{sum(circuit.count_ops().values()):,} gates, depth {circuit.depth():,}")
+    print(
+        f"  circuit:           {circuit.num_qubits} qubits, "
+        f"{sum(circuit.count_ops().values()):,} gates, depth {circuit.depth():,}"
+    )
 
     print("\nSimulating (statevector)...")
     state = Statevector.from_instruction(circuit)
@@ -46,16 +48,15 @@ def run_grover_demo(iterations: int | None = None, compare_bits: int = 4) -> boo
 
     def decode(bitstring: str) -> tuple[int, ...]:
         value = sum(int(bitstring[::-1][i]) << i for i in range(len(bitstring)))
-        return tuple(
-            (value >> (i * spec.word_bits)) & spec.mask for i in range(spec.message_words)
-        )
+        return tuple((value >> (i * spec.word_bits)) & spec.mask for i in range(spec.message_words))
 
     print(f"\n  {'candidate':<16}{'probability':>14}   preimage?")
     print("  " + "-" * 46)
     for bits, probability in sorted(probabilities.items(), key=lambda kv: -kv[1])[:6]:
         candidate = decode(bits)
-        print(f"  {str(candidate):<16}{probability:>14.4f}   "
-              f"{'YES' if candidate in solutions else 'no'}")
+        print(
+            f"  {candidate!s:<16}{probability:>14.4f}   {'YES' if candidate in solutions else 'no'}"
+        )
 
     found = sum(p for bits, p in probabilities.items() if decode(bits) in solutions)
     uniform = len(solutions) / 2**search_bits
@@ -65,6 +66,12 @@ def run_grover_demo(iterations: int | None = None, compare_bits: int = 4) -> boo
         f"\n  amplification factor:           {found / uniform:.1f}x"
     )
     success = found > 0.5
-    print("\n" + ("PASS: amplitude amplification concentrated the amplitude on a preimage."
-                  if success else "FAIL: amplification did not succeed."))
+    print(
+        "\n"
+        + (
+            "PASS: amplitude amplification concentrated the amplitude on a preimage."
+            if success
+            else "FAIL: amplification did not succeed."
+        )
+    )
     return success

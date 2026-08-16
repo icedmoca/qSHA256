@@ -9,6 +9,8 @@ reversible quantum circuits can be checked against them value by value.
 from .sha256 import (
     RoundTrace,
     add_mod,
+    big_sigma0,
+    big_sigma1,
     ch,
     compress,
     compression_trace,
@@ -18,14 +20,12 @@ from .sha256 import (
     pad_message,
     parse_blocks,
     rotr,
+    round_step,
     sha256,
     sha256_hex,
     shr,
     small_sigma0,
     small_sigma1,
-    big_sigma0,
-    big_sigma1,
-    round_step,
 )
 
 __all__ = [

@@ -6,19 +6,19 @@ import csv
 import io
 import json
 import math
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 from .analyzer import ResourceReport
 
 __all__ = [
-    "render_text",
-    "to_json",
-    "to_csv",
-    "to_markdown",
-    "render",
     "FORMATS",
     "log2_str",
     "pow2_str",
+    "render",
+    "render_text",
+    "to_csv",
+    "to_json",
+    "to_markdown",
 ]
 
 
@@ -95,9 +95,7 @@ def render_text(report: ResourceReport) -> str:
     if report.component_costs:
         w("\nCost by Component  [MEASURED]\n")
         w("-" * 30 + "\n")
-        rows = sorted(
-            report.component_costs.items(), key=lambda kv: -kv[1].get("_ccx", 0)
-        )
+        rows = sorted(report.component_costs.items(), key=lambda kv: -kv[1].get("_ccx", 0))
         total_ccx = max(1, report.toffoli_count)
         w(f"  {'component':<34}{'gates':>12}{'ccx':>10}{'ccx %':>8}\n")
         for name, data in rows:
@@ -107,7 +105,7 @@ def render_text(report: ResourceReport) -> str:
             )
 
     w("\nStatus\n------\n")
-    w(f"  Circuit constructed:  yes\n")
+    w("  Circuit constructed:  yes\n")
     w(f"  Circuit simulated:    {'yes' if report.simulated else 'no'}\n")
     w(f"  Run on hardware:      {'yes' if report.hardware_executed else 'no'}\n")
 
@@ -186,7 +184,9 @@ def to_markdown(reports: Iterable[ResourceReport], title: str = "") -> str:
 
 
 FORMATS = {
-    "text": lambda r: render_text(r) if isinstance(r, ResourceReport) else "\n".join(map(render_text, r)),
+    "text": lambda r: (
+        render_text(r) if isinstance(r, ResourceReport) else "\n".join(map(render_text, r))
+    ),
     "json": to_json,
     "csv": lambda r: to_csv([r] if isinstance(r, ResourceReport) else r),
     "markdown": lambda r: to_markdown([r] if isinstance(r, ResourceReport) else r),

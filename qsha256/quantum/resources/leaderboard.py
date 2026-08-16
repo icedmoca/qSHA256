@@ -26,13 +26,12 @@ Adding entries is welcome; see ``docs/leaderboard.md`` for the required fields.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 __all__ = [
-    "Comparability",
-    "PublishedCircuit",
     "PUBLISHED",
+    "Comparability",
     "LeaderboardRow",
+    "PublishedCircuit",
     "build_leaderboard",
     "render_leaderboard",
 ]

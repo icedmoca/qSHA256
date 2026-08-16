@@ -26,25 +26,26 @@ from __future__ import annotations
 
 import random
 import time
-from dataclasses import asdict, dataclass, field
-from typing import Any, Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
+from dataclasses import dataclass, field
+from typing import Any
 
 from ...classical.sha256 import compress
 from ...spec import SHA256, ShaSpec
 from ..primitives.add import ADDERS
 from ..resources.analyzer import ResourceReport, analyze
 from ..sha256.compression import build_compression
-from .rewrite import apply_rewrites
 from ..strategies import Strategy, enumerate_strategies
+from .rewrite import apply_rewrites
 from .verify import Assurance, EquivalenceResult, verify_against_classical
 
 __all__ = [
     "OBJECTIVES",
     "DesignPoint",
     "SearchResult",
+    "compare_designs",
     "pareto_front",
     "search_designs",
-    "compare_designs",
 ]
 
 
@@ -222,7 +223,7 @@ def search_designs(
         t0 = time.time()
         try:
             comp = build_compression(spec, strategy, rounds=rounds)
-        except (ValueError, KeyError) as exc:
+        except (ValueError, KeyError):
             continue
         build_time = time.time() - t0
 
@@ -280,7 +281,9 @@ def search_designs(
                     spec_name=spec.name,
                     rounds=rounds,
                     report=rw_report,
-                    verification=str(result) + " (pre-rewrite); rewrite passes are local identities",
+                    verification=(
+                        str(result) + " (pre-rewrite); rewrite passes are local identities"
+                    ),
                     verified=bool(result),
                     build_seconds=build_time,
                     notes=[rewritten.summary()],

@@ -5,10 +5,10 @@ from .suite import Check, ValidationReport, run_validation
 from .vectors import NIST_VECTORS, PADDING_BOUNDARY_LENGTHS
 
 __all__ = [
-    "BasisSimulator",
-    "Check",
     "NIST_VECTORS",
     "PADDING_BOUNDARY_LENGTHS",
+    "BasisSimulator",
+    "Check",
     "UnsupportedGate",
     "ValidationReport",
     "run_validation",

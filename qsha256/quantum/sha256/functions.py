@@ -22,11 +22,11 @@ from ..registers import CircuitBuilder, Word
 __all__ = [
     "big_sigma0_into",
     "big_sigma1_into",
-    "small_sigma0_into",
-    "small_sigma1_into",
     "ch_into_word",
     "maj_into_word",
     "sigma_cnot_cost",
+    "small_sigma0_into",
+    "small_sigma1_into",
 ]
 
 

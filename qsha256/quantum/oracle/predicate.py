@@ -26,9 +26,9 @@ from ..primitives.boolean import and_tree_ancilla_count, and_tree_mcx
 from ..registers import CircuitBuilder, Word
 
 __all__ = [
-    "equality_phase_flip",
-    "equality_ancilla_count",
     "digest_bits",
+    "equality_ancilla_count",
+    "equality_phase_flip",
 ]
 
 

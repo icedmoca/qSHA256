@@ -33,9 +33,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ...spec import SHA256, ShaSpec
-from ..strategies import ORACLE, Strategy
 from ..registers import CircuitBuilder, Word
 from ..sha256.compression import build_compression
+from ..strategies import ORACLE, Strategy
 from .predicate import equality_phase_flip
 
 __all__ = ["PreimageOracle", "build_preimage_oracle"]

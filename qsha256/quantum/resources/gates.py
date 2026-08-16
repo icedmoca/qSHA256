@@ -33,6 +33,22 @@ class GateCounts:
         return self.counts.get("ccx", 0) + self.counts.get("ccz", 0)
 
     @property
+    def temporary_and(self) -> int:
+        """Gidney AND compute gates -- non-Clifford, but not Toffolis."""
+        return self.counts.get("and_g", 0)
+
+    @property
+    def nonlinear(self) -> int:
+        """Every gate that costs non-Clifford resource: Toffolis plus AND computes.
+
+        Reported separately from ``toffoli`` because an architecture using
+        temporary ANDs can have *zero* Toffolis while still doing all the same
+        non-linear work -- comparing it on Toffoli count alone would be
+        meaningless.
+        """
+        return self.toffoli + self.temporary_and
+
+    @property
     def cnot(self) -> int:
         return self.counts.get("cx", 0)
 

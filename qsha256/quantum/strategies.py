@@ -34,7 +34,7 @@ __all__ = [
 #: The discrete axes of the design space, with their legal values.  Search
 #: enumerates the product of these; each combination yields a correct circuit.
 STRATEGY_AXES: dict[str, tuple[Any, ...]] = {
-    "adder": ("cdkm", "vbe", "qft"),
+    "adder": ("cdkm", "vbe", "qft", "gidney"),
     "const_add": ("load", "vbe_const"),
     "schedule": ("rolling", "store_all"),
     "round_layout": ("serial", "wide", "csa"),
@@ -47,6 +47,8 @@ class Strategy:
     """A complete, self-describing choice of circuit architecture."""
 
     #: Reversible modular adder used for every quantum-quantum addition.
+    #: ``"gidney"`` uses measurement-based temporary ANDs and has by far the
+    #: lowest T-count, at the cost of mid-circuit measurement and feedforward.
     adder: str = "cdkm"
 
     #: How round constants ``K[t]`` are added.  ``"load"`` materialises the
@@ -116,6 +118,10 @@ MIN_QUBITS = Strategy(
 #: words materialised so schedule and rounds do not contend for registers.
 MIN_DEPTH = Strategy(adder="cdkm", const_add="load", schedule="store_all", round_layout="csa")
 
+#: Minimise T-count: Gidney temporary ANDs throughout. Requires hardware with
+#: mid-circuit measurement and classical feedforward.
+MIN_T = Strategy(adder="gidney", const_add="load", schedule="rolling", round_layout="serial")
+
 #: Oracle-shaped: everything returned to |0> so the circuit can be inverted.
 ORACLE = Strategy(uncompute_working=True)
 
@@ -123,6 +129,7 @@ PRESETS: dict[str, Strategy] = {
     "default": DEFAULT,
     "min-qubits": MIN_QUBITS,
     "min-depth": MIN_DEPTH,
+    "min-t": MIN_T,
     "oracle": ORACLE,
 }
 

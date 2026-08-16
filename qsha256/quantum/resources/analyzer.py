@@ -170,7 +170,7 @@ def analyze(
     # the transpiler cannot do against this basis and which would in any case be a
     # precision-dependent estimate rather than a measurement.  For those the
     # analytical Ross-Selinger model is the only honest path, and it is used.
-    exactly_decomposable = analytic["exact"]
+    exactly_decomposable = analytic["transpiler_can_reproduce"]
     should_transpile = (
         transpile_t if transpile_t is not None else len(circuit.data) <= transpile_limit
     ) and exactly_decomposable
@@ -181,10 +181,18 @@ def analyze(
         provenance = Provenance.TRANSPILED
 
     if not exactly_decomposable and transpile_t:
-        analytic["transpile_skipped"] = (
-            "Circuit contains arbitrary-angle rotations, which have no exact "
-            "Clifford+T decomposition. T-count is an analytical synthesis estimate."
-        )
+        if analytic.get("and_uncompute_gates"):
+            analytic["transpile_skipped"] = (
+                "Circuit contains Gidney temporary ANDs. Their uncomputation is a "
+                "measurement plus a Clifford correction, not a unitary circuit, so "
+                "a transpiler would substitute the unitary stand-in and overcount "
+                "the T gates. The analytical Gidney model is used instead."
+            )
+        else:
+            analytic["transpile_skipped"] = (
+                "Circuit contains arbitrary-angle rotations, which have no exact "
+                "Clifford+T decomposition. T-count is an analytical synthesis estimate."
+            )
 
     assumptions = _assumptions(analytic, toffoli_model, epsilon, provenance, strategy)
 
@@ -267,6 +275,13 @@ def _assumptions(
         "(see qsha256.quantum.primitives.rotate / .shift for why).",
         f"T-count model: {model.describe()}.",
     ]
+    if analytic.get("and_compute_gates"):
+        out.append(
+            f"Circuit uses {analytic['and_compute_gates']:,} Gidney temporary ANDs "
+            f"(4 T each) with {analytic['and_uncompute_gates']:,} measurement-based "
+            f"uncomputations (0 T each). This requires mid-circuit measurement and "
+            f"classical feedforward, and cannot be run on measurement-free hardware."
+        )
     if analytic.get("rotation_gates"):
         out.append(
             f"Circuit contains {analytic['rotation_gates']} arbitrary-angle rotations "

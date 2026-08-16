@@ -245,6 +245,19 @@ class CircuitBuilder:
     def h(self, q: Qubit) -> None:
         self.circuit.h(q)
 
+    def and_g(self, x: Qubit, y: Qubit, target: Qubit) -> None:
+        """Gidney temporary AND.  ``target`` must be ``|0>``; see
+        :mod:`qsha256.quantum.primitives.temporary_and`."""
+        from .primitives.temporary_and import AndGate
+
+        self.circuit.append(AndGate(), [x, y, target])
+
+    def and_g_dg(self, x: Qubit, y: Qubit, target: Qubit) -> None:
+        """Measurement-based uncomputation of a :meth:`and_g`."""
+        from .primitives.temporary_and import AndDgGate
+
+        self.circuit.append(AndDgGate(), [x, y, target])
+
     def mcx(self, controls: Sequence[Qubit], target: Qubit, ancillas: Sequence[Qubit]) -> None:
         """Multi-controlled X built from a balanced AND tree (see ``primitives.boolean``)."""
         from .primitives.boolean import and_tree_mcx
@@ -260,17 +273,41 @@ class CircuitBuilder:
         block = list(self.circuit.data[start:end])
         for inst in reversed(block):
             name = inst.operation.name
-            if name not in _SELF_INVERSE:
+            if name in _INVERSE_PAIRS:
+                # Gidney AND gates are inverses of each other rather than
+                # self-inverse: replaying an and_g backwards must emit the
+                # measurement-based and_g_dg, not another and_g.
+                operation = _INVERSE_PAIRS[name]()
+            elif name in _SELF_INVERSE:
+                operation = inst.operation
+            else:
                 raise ValueError(
-                    f"cannot reverse {name!r} by replay: it is not self-inverse. "
-                    "Use QuantumCircuit.inverse() for this sub-circuit instead."
+                    f"cannot reverse {name!r} by replay: it is neither self-inverse "
+                    "nor a known inverse pair. Use QuantumCircuit.inverse() for this "
+                    "sub-circuit instead."
                 )
-            self.circuit.append(inst.operation, inst.qubits, inst.clbits)
+            self.circuit.append(operation, inst.qubits, inst.clbits)
 
 
 #: Gates the builder emits that are their own inverse, so a reversed replay of
 #: an instruction span uncomputes it exactly.
 _SELF_INVERSE = frozenset({"x", "cx", "ccx", "swap", "cz", "ccz", "h", "z", "mcx"})
+
+
+def _and_gate():
+    from .primitives.temporary_and import AndGate
+
+    return AndGate()
+
+
+def _and_dg_gate():
+    from .primitives.temporary_and import AndDgGate
+
+    return AndDgGate()
+
+
+#: Gates whose reverse-replay counterpart is a *different* gate.
+_INVERSE_PAIRS = {"and_g": _and_dg_gate, "and_g_dg": _and_gate}
 
 
 def iter_qubits(words: Iterable[Word]) -> list[Qubit]:

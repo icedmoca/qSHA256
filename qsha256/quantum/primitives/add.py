@@ -6,12 +6,20 @@ headline number the project reports.  Three published designs are implemented so
 the tradeoff can be *measured* rather than asserted:
 
 ===========  =========  ==================  ==============  ========================
-Adder        Ancillas   Toffoli             CNOT            Reference
+Adder        Ancillas   Toffoli             T-count         Reference
 ===========  =========  ==================  ==============  ========================
-``cdkm``     1          ``2n``              ``4n``          Cuccaro et al. 2004 [1]
-``vbe``      ``n``      ``4(n-1)``          ``4n-2``        Vedral et al. 1996 [2]
-``qft``      0          0                   0               Draper 2000 [3]
+``cdkm``     1          ``2n``              ``14n``         Cuccaro et al. 2004 [1]
+``vbe``      ``n``      ``4(n-1)``          ``28(n-1)``     Vedral et al. 1996 [2]
+``qft``      0          0                   synthesis       Draper 2000 [3]
+``gidney``   ``n-1``    0 (temporary ANDs)  ``4(n-1)``      Gidney 2018 [4]
 ===========  =========  ==================  ==============  ========================
+
+The ``gidney`` adder is the T-count winner by a wide margin: 124 T gates for a
+32-bit addition against CDKM's 448. It replaces every Toffoli with a
+compute/uncompute **temporary AND** pair, where the compute costs 4 T and the
+uncompute -- being a measurement plus a Clifford correction -- costs none. The
+price is ``n-1`` ancillas and a hardware requirement for mid-circuit measurement
+with feedforward. See :mod:`qsha256.quantum.primitives.temporary_and`.
 
 The QFT adder trades all Toffolis for ``O(n^2)`` controlled-phase rotations.
 That is not free: on a fault-tolerant machine each arbitrary-angle rotation must
@@ -32,6 +40,8 @@ References
     "Quantum Networks for Elementary Arithmetic Operations",
     Phys. Rev. A 54, 147 (1996), arXiv:quant-ph/9511018.
 [3] T. G. Draper, "Addition on a Quantum Computer", arXiv:quant-ph/0008033 (2000).
+[4] C. Gidney, "Halving the cost of quantum addition", Quantum 2, 74 (2018),
+    arXiv:1709.06648.
 """
 
 from __future__ import annotations
@@ -178,6 +188,66 @@ def _qft_ancillas(n: int) -> int:
 
 
 # --------------------------------------------------------------------------
+# Gidney temporary-AND ripple-carry
+# --------------------------------------------------------------------------
+
+
+def _gidney_add(b: CircuitBuilder, a: Word, target: Word, anc: Word) -> None:
+    """``target += a  (mod 2^n)`` using temporary ANDs -- 4(n-1) T, n-1 ancillas.
+
+    The carries live in ancillas computed by :func:`~...temporary_and.and_g` and
+    destroyed by ``and_g_dg``. Writing ``c_i`` for the carry into position ``i``
+    (with ``c_0 = 0``), the forward sweep establishes::
+
+        a_i  <- a_i XOR c_i
+        b_i  <- b_i XOR c_i
+        t_i  <- c_{i+1} = c_i XOR ((a_i XOR c_i) AND (b_i XOR c_i))
+
+    and the backward sweep uncomputes each ``t_i`` -- for free -- while turning
+    the mutated ``a_i``/``b_i`` back into the addend and the sum::
+
+        b_i  <- a_i' XOR b_i' XOR c_i = a_i XOR b_i XOR c_i   (the sum bit)
+        a_i  <- a_i' XOR c_i = a_i                            (restored)
+
+    The carry out of the top bit is never computed, which *is* the reduction
+    modulo ``2^n``.
+    """
+    n = len(a)
+    if n == 1:
+        b.cx(a[0], target[0])
+        return
+
+    t = list(anc.bits[: n - 1])
+
+    # Forward: build the carry chain.
+    for i in range(n - 1):
+        if i:
+            b.cx(t[i - 1], a[i])
+            b.cx(t[i - 1], target[i])
+        b.and_g(a[i], target[i], t[i])
+        if i:
+            b.cx(t[i - 1], t[i])
+
+    # Top sum bit, while the final carry still exists.
+    b.cx(a[n - 1], target[n - 1])
+    b.cx(t[n - 2], target[n - 1])
+
+    # Backward: free the carries and extract the sums.
+    for i in reversed(range(n - 1)):
+        if i:
+            b.cx(t[i - 1], t[i])
+        b.and_g_dg(a[i], target[i], t[i])
+        b.cx(a[i], target[i])
+        if i:
+            b.cx(t[i - 1], target[i])
+            b.cx(t[i - 1], a[i])
+
+
+def _gidney_ancillas(n: int) -> int:
+    return max(0, n - 1)
+
+
+# --------------------------------------------------------------------------
 # Registry
 # --------------------------------------------------------------------------
 
@@ -196,6 +266,9 @@ class Adder:
     #: False for adders whose native gate set is not Clifford+T without an
     #: explicit rotation-synthesis assumption.
     native_clifford_t: bool
+    #: True when the adder needs mid-circuit measurement and classical
+    #: feedforward, so no purely unitary transpilation can express it.
+    needs_measurement: bool = False
 
     def ancilla_count(self, width: int) -> int:
         return self.ancillas(width)
@@ -225,6 +298,15 @@ ADDERS: dict[str, Adder] = {
         reference="Draper, arXiv:quant-ph/0008033",
         basis_simulable=False,
         native_clifford_t=False,
+    ),
+    "gidney": Adder(
+        name="gidney",
+        apply=_gidney_add,
+        ancillas=_gidney_ancillas,
+        reference="Gidney, Quantum 2, 74 (2018), arXiv:1709.06648",
+        basis_simulable=True,
+        native_clifford_t=True,
+        needs_measurement=True,
     ),
 }
 

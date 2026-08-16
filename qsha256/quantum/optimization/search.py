@@ -58,9 +58,12 @@ OBJECTIVES: dict[str, Callable[[ResourceReport], int]] = {
     "t_count": lambda r: r.t_count,
     "depth": lambda r: r.depth["depth"],
     "toffoli_depth": lambda r: r.depth["toffoli_depth"],
+    # The depth metric that survives decomposition: counting only Toffolis would
+    # score a Clifford+T circuit as depth zero and call that an improvement.
+    "non_clifford_depth": lambda r: r.depth["non_clifford_depth"],
 }
 
-DEFAULT_OBJECTIVES = ("qubits", "t_count", "toffoli_depth")
+DEFAULT_OBJECTIVES = ("qubits", "t_count", "non_clifford_depth")
 
 
 @dataclass
@@ -68,7 +71,9 @@ class DesignPoint:
     """One searched design: its architecture, its measured cost, its verification."""
 
     strategy: Strategy
-    rewritten: bool
+    #: "" for the circuit as built, "rewritten" after peephole passes,
+    #: "folded" after peephole passes plus phase-polynomial folding.
+    variant: str
     spec_name: str
     rounds: int
     report: ResourceReport
@@ -79,7 +84,11 @@ class DesignPoint:
 
     @property
     def label(self) -> str:
-        return self.strategy.label() + ("/rewritten" if self.rewritten else "")
+        return self.strategy.label() + (f"/{self.variant}" if self.variant else "")
+
+    @property
+    def rewritten(self) -> bool:
+        return bool(self.variant)
 
     def metrics(self, objectives: Sequence[str] = DEFAULT_OBJECTIVES) -> tuple[int, ...]:
         return tuple(OBJECTIVES[o](self.report) for o in objectives)
@@ -88,7 +97,7 @@ class DesignPoint:
         return {
             "label": self.label,
             "strategy": self.strategy.to_dict(),
-            "rewritten": self.rewritten,
+            "variant": self.variant,
             "spec": self.spec_name,
             "rounds": self.rounds,
             "verified": self.verified,
@@ -152,7 +161,7 @@ class SearchResult:
         }
 
     def __str__(self) -> str:
-        cols = ["qubits", "gates", "toffoli", "t_count", "depth", "toffoli_depth"]
+        cols = ["qubits", "gates", "toffoli", "t_count", "depth", "non_clifford_depth"]
         header = f"{'design':<42}{'ok':>4}" + "".join(f"{c:>14}" for c in cols)
         lines = [
             f"qSHA256 Design-Space Search - {self.spec_name}, {self.rounds} rounds",
@@ -190,6 +199,7 @@ def search_designs(
     objectives: Sequence[str] = DEFAULT_OBJECTIVES,
     axes: dict[str, Any] | None = None,
     rewrite: bool = True,
+    phase_folding: bool = True,
     verify: bool = True,
     verify_trials: int = 3,
     transpile_t: bool = False,
@@ -204,6 +214,9 @@ def search_designs(
         Restrict the space, e.g. ``search_designs(adder=("cdkm", "vbe"))``.
     rewrite:
         Also evaluate a gate-level-rewritten variant of each architecture.
+    phase_folding:
+        Also evaluate a phase-polynomial-folded variant. Expensive at 64 rounds
+        (the circuit is expanded into Clifford+T first), so it can be disabled.
     verify:
         Check each design against the classical reference before scoring it.
         Designs that fail verification are kept but flagged, never silently
@@ -244,7 +257,7 @@ def search_designs(
         )
         point = DesignPoint(
             strategy=strategy,
-            rewritten=False,
+            variant="",
             spec_name=spec.name,
             rounds=rounds,
             report=base_report,
@@ -256,39 +269,48 @@ def search_designs(
         if strategy == Strategy():
             baseline = point
 
-        if rewrite and ADDERS[strategy.adder].basis_simulable:
-            rewritten = apply_rewrites(comp.builder)
-            rw_report = analyze(
-                rewritten.circuit,
-                spec=spec,
-                strategy=strategy,
-                rounds=rounds,
-                target=f"{spec.name}-compression-rewritten",
-                transpile_t=transpile_t,
-            )
-            # The rewriter never allocates, so qubit accounting carries over.
-            rw_report.data_qubits = base_report.data_qubits
-            rw_report.ancilla_qubits = base_report.ancilla_qubits
-            rw_report.max_live_qubits = base_report.max_live_qubits
-            rw_report.assumptions.append(
-                f"Gate-level rewriting applied ({'+'.join(rewritten.passes)}): "
-                f"{rewritten.summary()}"
-            )
-            points.append(
-                DesignPoint(
+        if ADDERS[strategy.adder].basis_simulable:
+            variants: list[tuple[str, bool]] = []
+            if rewrite:
+                variants.append(("rewritten", False))
+            if phase_folding:
+                variants.append(("folded", True))
+            for variant, fold in variants:
+                optimized = apply_rewrites(comp.builder, phase_folding=fold)
+                report = analyze(
+                    optimized.circuit,
+                    spec=spec,
                     strategy=strategy,
-                    rewritten=True,
-                    spec_name=spec.name,
                     rounds=rounds,
-                    report=rw_report,
-                    verification=(
-                        str(result) + " (pre-rewrite); rewrite passes are local identities"
-                    ),
-                    verified=bool(result),
-                    build_seconds=build_time,
-                    notes=[rewritten.summary()],
+                    target=f"{spec.name}-compression-{variant}",
+                    transpile_t=transpile_t,
                 )
-            )
+                # Neither the rewriter nor the fold allocates qubits, so the
+                # width accounting carries over from the circuit as built.
+                report.width = base_report.width
+                report.data_qubits = base_report.data_qubits
+                report.ancilla_qubits = base_report.ancilla_qubits
+                report.max_live_qubits = base_report.max_live_qubits
+                report.assumptions.append(
+                    f"Post-construction optimization ({'+'.join(optimized.passes)}): "
+                    f"{optimized.summary()}"
+                )
+                points.append(
+                    DesignPoint(
+                        strategy=strategy,
+                        variant=variant,
+                        spec_name=spec.name,
+                        rounds=rounds,
+                        report=report,
+                        verification=(
+                            str(result) + " (as built); the optimization passes are "
+                            "local identities, verified separately"
+                        ),
+                        verified=bool(result),
+                        build_seconds=build_time,
+                        notes=[optimized.summary()],
+                    )
+                )
 
     return SearchResult(
         spec_name=spec.name,

@@ -382,6 +382,80 @@ def check_hashlib_end_to_end() -> Check:
     )
 
 
+def check_gidney() -> Check:
+    """Gidney temporary ANDs, with every precondition checked during simulation."""
+    failures = []
+    cases = 0
+    rng = random.Random(9)
+    for spec, rounds in ((TOY4, 8), (SHA256, 64)):
+        for uncompute in (False, True):
+            strategy = Strategy(adder="gidney", uncompute_working=uncompute)
+            comp = build_compression(spec, strategy, rounds=rounds)
+            # strict=True verifies that every and_g target is |0> and every
+            # and_g_dg target holds exactly x AND y.
+            sim = BasisSimulator(comp.circuit, strict=True)
+            for _ in range(2):
+                cases += 1
+                state = [rng.getrandbits(spec.word_bits) for _ in range(8)]
+                block = [rng.getrandbits(spec.word_bits) for _ in range(spec.block_words)]
+                out, _ = sim.run(
+                    sim.load(dict(zip(comp.state, state)) | dict(zip(comp.message, block)))
+                )
+                if tuple(sim.read(out, r) for r in comp.digest) != compress(
+                    tuple(state), block, spec.with_rounds(rounds)
+                ):
+                    failures.append(f"{spec.name} r{rounds} digest")
+                if [q for q in comp.builder.ancillas.all if out[sim.index_of(q)]]:
+                    failures.append(f"{spec.name} r{rounds} ancilla")
+    return Check(
+        "Gidney temporary-AND circuits == classical (preconditions checked)",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+    )
+
+
+def check_phase_fold() -> Check:
+    """Phase folding must preserve the unitary exactly, global phase included."""
+    import random as _random
+
+    import numpy as np
+    from qiskit import QuantumCircuit
+    from qiskit.quantum_info import Operator
+
+    from ..quantum.optimization.phase_fold import phase_fold, to_clifford_t
+
+    rng = _random.Random(11)
+    failures = []
+    cases = 0
+    for _ in range(40):
+        cases += 1
+        n = rng.randint(2, 3)
+        qc = QuantumCircuit(n)
+        for _ in range(rng.randint(4, 18)):
+            gate = rng.choice(["cx", "x", "h", "t", "tdg", "s", "ccx"])
+            if gate == "ccx" and n < 3:
+                gate = "cx"
+            if gate == "ccx":
+                qc.ccx(*rng.sample(range(n), 3))
+            elif gate == "cx":
+                qc.cx(*rng.sample(range(n), 2))
+            else:
+                getattr(qc, gate)(rng.randrange(n))
+        folded = phase_fold(qc)
+        if not np.allclose(
+            Operator(to_clifford_t(qc)).data, Operator(folded.circuit).data, atol=1e-9
+        ):
+            failures.append("unitary changed")
+            break
+    return Check(
+        "phase folding preserves the unitary exactly",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+    )
+
+
 def check_oracle() -> Check:
     """The oracle must phase-flip exactly the preimages, over a whole toy space."""
     from ..quantum.oracle.preimage import build_preimage_oracle
@@ -460,7 +534,13 @@ def run_validation(quick: bool = False, verbose: bool = True) -> bool:
         emit(_timed(check_hashlib_end_to_end))
 
     if verbose:
-        print("\nLayer 5 - Grover oracle")
+        print("\nLayer 5 - optimization passes")
+    emit(_timed(check_phase_fold))
+    if not quick:
+        emit(_timed(check_gidney))
+
+    if verbose:
+        print("\nLayer 6 - Grover oracle")
     emit(_timed(check_oracle))
 
     if verbose:

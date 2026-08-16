@@ -11,6 +11,7 @@ from ..strategies import (
     get_preset,
 )
 from .hardware import HardwareRanking, ScoredDesign, rank_for_hardware
+from .phase_fold import PhaseFoldResult, phase_fold, to_clifford_t
 from .rewrite import RewriteResult, apply_rewrites
 from .search import DesignPoint, SearchResult, compare_designs, pareto_front, search_designs
 from .verify import EquivalenceResult, check_equivalence, verify_against_classical
@@ -24,6 +25,7 @@ __all__ = [
     "DesignPoint",
     "EquivalenceResult",
     "HardwareRanking",
+    "PhaseFoldResult",
     "RewriteResult",
     "ScoredDesign",
     "SearchResult",
@@ -34,7 +36,9 @@ __all__ = [
     "enumerate_strategies",
     "get_preset",
     "pareto_front",
+    "phase_fold",
     "rank_for_hardware",
     "search_designs",
+    "to_clifford_t",
     "verify_against_classical",
 ]

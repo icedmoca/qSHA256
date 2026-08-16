@@ -194,6 +194,22 @@ PUBLISHED: dict[str, PublishedCircuit] = {
 }
 
 
+#: Capabilities a circuit assumes of its hardware. Comparing circuits that
+#: assume different capabilities is legitimate only if the difference is stated.
+CAPABILITY_NOTES = {
+    "feedforward": (
+        "This qSHA256 circuit uses Gidney temporary ANDs, whose uncomputation is "
+        "a mid-circuit measurement plus a classically-controlled correction. It "
+        "therefore assumes hardware with fast measurement and feedforward -- a "
+        "capability the published circuit does not assume (Gidney's construction "
+        "postdates it). The comparison is still meaningful, but it is a "
+        "comparison between different machine models, not between two circuits "
+        "for the same machine. The unitary qSHA256 designs are the "
+        "like-for-like comparison."
+    ),
+}
+
+
 @dataclass
 class LeaderboardRow:
     metric: str
@@ -226,6 +242,8 @@ def build_leaderboard(report, entry: str | PublishedCircuit = "amy2016") -> list
     }
     transpiled = "t_count_transpiled" in report.clifford_t
 
+    needs_feedforward = bool(report.clifford_t.get("needs_feedforward"))
+
     rows: list[LeaderboardRow] = []
     for metric, ours in ours_by_metric.items():
         theirs = published.get(metric)
@@ -257,6 +275,10 @@ def build_leaderboard(report, entry: str | PublishedCircuit = "amy2016") -> list
             verdict = "not compared"
         elif ours is None or theirs is None:
             verdict = "not reported"
+
+        if needs_feedforward and metric in ("t_count", "t_depth") and ratio is not None:
+            comparability = Comparability.QUALIFIED
+            caveat = caveat + " " + CAPABILITY_NOTES["feedforward"]
 
         rows.append(
             LeaderboardRow(
@@ -301,5 +323,12 @@ def render_leaderboard(report, entry: str = "amy2016", our_label: str = "qSHA256
     for row in rows:
         if row.comparability != Comparability.DIRECT:
             out.append(f"  {row.metric} [{row.comparability}]: {row.caveat}")
+    if report.clifford_t.get("needs_feedforward"):
+        out += [
+            "",
+            "DIFFERENT MACHINE MODEL",
+            "-" * 23,
+            f"  {CAPABILITY_NOTES['feedforward']}",
+        ]
     out += ["", "Notes on the published circuit", "-" * 30, f"  {published.notes}"]
     return "\n".join(out)

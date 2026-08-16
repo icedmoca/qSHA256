@@ -58,7 +58,10 @@ __all__ = [
 ]
 
 #: Gates whose action is "X on the target, conditioned on the controls".
-_X_TYPE = {"x": 0, "cx": 1, "ccx": 2}
+#: Gidney AND gates permute the basis the same way a Toffoli does, so they are
+#: safe to reason about here for *commutation*; they are excluded from
+#: cancellation below because ``and_g`` and ``and_g_dg`` are not self-inverse.
+_X_TYPE = {"x": 0, "cx": 1, "ccx": 2, "and_g": 2, "and_g_dg": 2}
 #: Diagonal gates: they never change which basis state you are in.
 _Z_TYPE = {"z": 0, "cz": 1, "ccz": 2}
 
@@ -73,6 +76,8 @@ class RewriteResult:
     passes: list[str] = field(default_factory=list)
     before: dict[str, int] = field(default_factory=dict)
     after: dict[str, int] = field(default_factory=dict)
+    #: Present when phase folding ran; carries its own before/after T-counts.
+    phase_fold: object | None = None
 
     @property
     def removed(self) -> int:
@@ -86,11 +91,14 @@ class RewriteResult:
         # `removed` is positive when gates were eliminated, so the reported
         # change must be negated to read as a reduction.
         pct = -100 * self.removed / total_before if total_before else 0.0
-        return (
+        text = (
             f"{'+'.join(self.passes) or 'none'}: "
             f"{total_before:,} -> {sum(self.after.values()):,} gates "
             f"({pct:+.1f}%), ccx {self.before.get('ccx', 0):,} -> {self.after.get('ccx', 0):,}"
         )
+        if self.phase_fold is not None:
+            text += "; " + self.phase_fold.summary()
+        return text
 
 
 def _decompose(inst) -> tuple[str, tuple[Qubit, ...], tuple[Qubit, ...]] | None:
@@ -137,9 +145,14 @@ def commutes(a, b) -> bool:
     return not (set(tgt_a) & qb)
 
 
+#: Gates that must never be cancelled against a copy of themselves.
+_NOT_SELF_INVERSE = frozenset({"and_g", "and_g_dg"})
+
+
 def _same_gate(a, b) -> bool:
     return (
         a.operation.name == b.operation.name
+        and a.operation.name not in _NOT_SELF_INVERSE
         and tuple(a.qubits) == tuple(b.qubits)
         and not getattr(a.operation, "params", None)
     )
@@ -255,6 +268,7 @@ def apply_rewrites(
     source: CircuitBuilder | QuantumCircuit,
     passes: tuple[str, ...] = ("constfold", "cancel"),
     rounds: int = 2,
+    phase_folding: bool = False,
 ) -> RewriteResult:
     """Run rewrite passes to a fixed point (or ``rounds`` iterations).
 
@@ -282,9 +296,20 @@ def apply_rewrites(
         if len(circuit.data) == size:
             break
 
+    fold = None
+    if phase_folding:
+        # Runs last, and only last: it expands Toffolis into Clifford+T, after
+        # which the peephole passes no longer apply.
+        from .phase_fold import phase_fold
+
+        fold = phase_fold(circuit)
+        circuit = fold.circuit
+        applied.append("phasefold")
+
     return RewriteResult(
         circuit=circuit,
         passes=list(dict.fromkeys(applied)),
         before=before,
         after=dict(circuit.count_ops()),
+        phase_fold=fold,
     )

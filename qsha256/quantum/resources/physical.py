@@ -293,7 +293,12 @@ def estimate_physical(
 
     logical_qubits = logical_report.width
     t_count = logical_report.t_count
-    toffoli_depth = logical_report.depth["toffoli_depth"]
+    # Non-Clifford depth rather than Toffoli depth: a phase-folded circuit has
+    # no Toffolis left, and charging it zero logical time steps would be wrong.
+    toffoli_depth = max(
+        logical_report.depth.get("non_clifford_depth", 0),
+        logical_report.depth["toffoli_depth"],
+    )
 
     assumptions = [
         f"Surface code with a {model.threshold:g} threshold and the standard "

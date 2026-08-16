@@ -31,6 +31,7 @@ from qsha256.quantum.resources import analyze, estimate_physical  # noqa: E402
 from qsha256.quantum.resources.analyzer import environment_metadata  # noqa: E402
 from qsha256.quantum.resources.leaderboard import build_leaderboard  # noqa: E402
 from qsha256.quantum.resources.reports import to_csv, to_markdown  # noqa: E402
+from qsha256.quantum.sha256.compression import build_compression  # noqa: E402
 from qsha256.quantum.strategies import Strategy  # noqa: E402
 from qsha256.validation.benchmark import run_scaling_benchmark, run_strategy_benchmark  # noqa: E402
 
@@ -46,7 +47,16 @@ STRATEGIES = [
     Strategy(round_layout="csa"),
     Strategy(adder="vbe"),
     Strategy(adder="qft"),
+    Strategy(adder="gidney"),
     Strategy(uncompute_working=True),
+    Strategy(adder="gidney", uncompute_working=True),
+]
+
+#: Post-construction optimizations, applied to the default and Gidney designs.
+OPTIMIZED = [
+    (Strategy(), True, "cdkm + phase folding"),
+    (Strategy(adder="gidney"), False, "gidney temporary ANDs"),
+    (Strategy(adder="gidney"), True, "gidney + phase folding"),
 ]
 
 
@@ -125,6 +135,77 @@ def main() -> int:
         "Toffolis they replaced. A Toffoli count is not a fault-tolerant cost.",
         "",
     ]
+
+    # -- 3b. post-construction optimization -------------------------------
+    log("post-construction optimization (phase folding, temporary ANDs)")
+    from qsha256.quantum.optimization.rewrite import apply_rewrites
+
+    baseline_design = designs[0]
+    optimized_reports = [baseline_design]
+    opt_rows = [
+        "## Post-construction optimization, 64 rounds",
+        "",
+        "Two optimizations that operate below the architectural level:",
+        "**Gidney temporary ANDs** replace every adder Toffoli with a 4-T compute",
+        "and a measurement-based, T-free uncomputation; **phase folding** merges",
+        "T gates acting on the same GF(2) linear function (the core of T-par).",
+        "",
+        "| Design | Qubits | Toffoli | and_g | T-count | vs base "
+        "| Non-Clifford depth | Measurements |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+
+    def _opt_row(label, report):
+        ct = report.clifford_t
+        delta = 100 * (ct["t_count"] / baseline_design.t_count - 1)
+        opt_rows.append(
+            f"| {label} | {report.width:,} | {report.toffoli_count:,} | "
+            f"{ct.get('and_compute_gates', 0):,} | {ct['t_count']:,} | {delta:+.1f}% | "
+            f"{report.depth['non_clifford_depth']:,} | {ct['measurements']:,} |"
+        )
+
+    _opt_row("cdkm (baseline)", baseline_design)
+    for strategy, fold, label in OPTIMIZED:
+        log(f"  {label}")
+        comp = build_compression(SHA256, strategy, rounds=64)
+        if fold:
+            optimized = apply_rewrites(comp.builder, phase_folding=True)
+            report = analyze(
+                optimized.circuit,
+                spec=SHA256,
+                strategy=strategy,
+                rounds=64,
+                target=label,
+                transpile_t=False,
+            )
+            report.width = comp.circuit.num_qubits
+        else:
+            report = analyze(
+                comp,
+                spec=SHA256,
+                strategy=strategy,
+                rounds=64,
+                target=label,
+                transpile_t=False,
+            )
+        optimized_reports.append(report)
+        _opt_row(label, report)
+
+    payload["tables"]["optimized"] = [r.to_dict() for r in optimized_reports]
+    best = min(optimized_reports, key=lambda r: r.t_count)
+    opt_rows += [
+        "",
+        f"Lowest T-count found: **{best.t_count:,}** ({best.target}).",
+        "",
+        "Read the depth column alongside the T-count. Phase folding cuts T-count",
+        "substantially but *raises* non-Clifford depth, because merging phases onto",
+        "the first point where each linear function is live serialises them. The",
+        "Gidney adder improves both at once, at the cost of requiring mid-circuit",
+        "measurement and classical feedforward -- a hardware assumption the other",
+        "designs do not make.",
+        "",
+    ]
+    markdown += opt_rows
 
     # -- 4. component breakdown ------------------------------------------
     log("component cost breakdown")
@@ -255,7 +336,13 @@ def main() -> int:
     # -- 9. leaderboard ---------------------------------------------------
     log("leaderboard against published circuits")
     leaderboard = {}
-    markdown += ["## Comparison with published circuits", ""]
+    markdown += [
+        "## Comparison with published circuits",
+        "",
+        "Compared below is the *default* forward compression circuit. The"
+        " optimized designs are summarised after the tables.",
+        "",
+    ]
     for key in ("amy2016", "amy2016-opt"):
         rows = build_leaderboard(full, key)
         leaderboard[key] = [
@@ -287,6 +374,33 @@ def main() -> int:
             markdown.append(f"| {r.metric} | {ours} | {theirs} | {ratio} | {r.verdict}{flag} |")
         markdown.append("")
     payload["tables"]["leaderboard"] = leaderboard
+
+    # How the optimized designs land against the published T-counts.
+    published_t = PUBLISHED["amy2016-opt"].t_count
+    markdown += [
+        "### Optimized designs versus the published T-par result",
+        "",
+        f"Amy et al. report **{published_t:,} T** after T-par optimization,"
+        f" at 2,402 logical qubits.",
+        "",
+        "| qSHA256 design | Qubits | T-count | vs published | Same machine model? |",
+        "|---|---:|---:|---:|---|",
+    ]
+    for report in optimized_reports:
+        delta = 100 * (report.t_count / published_t - 1)
+        ff = report.clifford_t.get("needs_feedforward")
+        model = "no - needs measurement + feedforward" if ff else "yes - unitary Clifford+T"
+        markdown.append(
+            f"| {report.target} | {report.width:,} | {report.t_count:,} | {delta:+.1f}% | {model} |"
+        )
+    markdown += [
+        "",
+        "The like-for-like comparison is the unitary row: phase folding alone"
+        " reaches a lower T-count than the published T-par result at under half"
+        " the qubits. The Gidney rows go further still, but assume a capability"
+        " the 2016 circuit did not -- see the caveat in `docs/leaderboard.md`.",
+        "",
+    ]
 
     payload["elapsed_seconds"] = round(time.time() - started, 1)
     markdown += [

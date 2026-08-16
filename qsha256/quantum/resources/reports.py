@@ -73,6 +73,7 @@ def render_text(report: ResourceReport) -> str:
     w(f"  Depth:                {_fmt(report.depth['depth'])}\n")
     w(f"  Two-qubit depth:      {_fmt(report.depth['two_qubit_depth'])}\n")
     w(f"  Toffoli depth:        {_fmt(report.depth['toffoli_depth'])}\n")
+    w(f"  Non-Clifford depth:   {_fmt(report.depth.get('non_clifford_depth', 0))}\n")
 
     ctd = report.clifford_t
     w(f"\nClifford+T  [{report.t_count_provenance}]\n")

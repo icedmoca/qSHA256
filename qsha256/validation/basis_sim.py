@@ -31,6 +31,7 @@ from ..quantum.registers import Word
 
 __all__ = [
     "BasisSimulator",
+    "PreconditionViolated",
     "UnsupportedGate",
     "set_word_value",
     "simulate_basis",
@@ -42,23 +43,38 @@ class UnsupportedGate(Exception):
     """Raised when a circuit contains a gate outside the permutation+diagonal set."""
 
 
+class PreconditionViolated(Exception):
+    """Raised in strict mode when a Gidney AND gate's precondition does not hold."""
+
+
 # opcode -> (n_control_qubits, kind)
-_X_LIKE = {"x": 0, "cx": 1, "ccx": 2, "mcx": -1}
+_X_LIKE = {"x": 0, "cx": 1, "ccx": 2, "mcx": -1, "and_g": 2, "and_g_dg": 2}
 _Z_LIKE = {"z": 0, "cz": 1, "ccz": 2}
+
+#: Gidney AND gates equal a Toffoli only while their preconditions hold, so the
+#: simulator can optionally verify them (see ``strict`` below).
+_AND_COMPUTE, _AND_UNCOMPUTE = "and_g", "and_g_dg"
 
 
 class BasisSimulator:
     """Compiles a circuit once, then executes it on many basis states quickly."""
 
-    def __init__(self, circuit: QuantumCircuit):
+    def __init__(self, circuit: QuantumCircuit, strict: bool = False):
+        """``strict`` verifies the Gidney AND preconditions on every gate.
+
+        ``and_g`` is only a Toffoli while its target is ``|0>``, and ``and_g_dg``
+        only clears the target while it holds ``x AND y``. Both are silent
+        correctness traps, so the test suite enables this.
+        """
         self.circuit = circuit
+        self.strict = strict
         self.num_qubits = circuit.num_qubits
         self._index: dict[Qubit, int] = {q: i for i, q in enumerate(circuit.qubits)}
         self._program: list[tuple[int, tuple[int, ...]]] = []
         self._compile()
 
     # opcodes
-    _OP_X, _OP_SWAP, _OP_Z = 0, 1, 2
+    _OP_X, _OP_SWAP, _OP_Z, _OP_AND, _OP_AND_DG = 0, 1, 2, 3, 4
 
     def _compile(self) -> None:
         idx = self._index
@@ -66,7 +82,11 @@ class BasisSimulator:
         for inst in self.circuit.data:
             name = inst.operation.name
             qs = tuple(idx[q] for q in inst.qubits)
-            if name in _X_LIKE:
+            if name == _AND_COMPUTE and self.strict:
+                prog.append((self._OP_AND, qs))
+            elif name == _AND_UNCOMPUTE and self.strict:
+                prog.append((self._OP_AND_DG, qs))
+            elif name in _X_LIKE:
                 prog.append((self._OP_X, qs))
             elif name in _Z_LIKE:
                 prog.append((self._OP_Z, qs))
@@ -92,7 +112,8 @@ class BasisSimulator:
             raise ValueError(f"expected {self.num_qubits} bits, got {len(bits)}")
         state = list(bits)
         phase = 1
-        OP_X, OP_Z = self._OP_X, self._OP_Z
+        OP_X, OP_Z, OP_SWAP = self._OP_X, self._OP_Z, self._OP_SWAP
+        OP_AND, OP_AND_DG = self._OP_AND, self._OP_AND_DG
         for op, qs in self._program:
             if op == OP_X:
                 # last qubit is the target; all others are controls
@@ -107,9 +128,28 @@ class BasisSimulator:
                         break
                 else:
                     phase = -phase
-            else:  # OP_SWAP
+            elif op == OP_SWAP:
                 a, c = qs
                 state[a], state[c] = state[c], state[a]
+            elif op == OP_AND:
+                x, y, t = qs
+                if state[t]:
+                    raise PreconditionViolated(
+                        "and_g requires its target to be |0>, but it held 1. "
+                        "The Gidney AND is not a general Toffoli."
+                    )
+                state[t] = state[x] & state[y]
+            elif op == OP_AND_DG:
+                x, y, t = qs
+                if state[t] != (state[x] & state[y]):
+                    raise PreconditionViolated(
+                        "and_g_dg requires its target to hold exactly x AND y "
+                        f"(target={state[t]}, x AND y={state[x] & state[y]}); "
+                        "the uncomputation would not clear it."
+                    )
+                state[t] = 0
+            else:  # pragma: no cover - every opcode above is exhaustive
+                raise UnsupportedGate(f"unhandled opcode {op}")
         return state, phase
 
     # -- convenience -------------------------------------------------------

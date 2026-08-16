@@ -24,6 +24,7 @@ from qsha256.quantum.registers import CircuitBuilder
 from qsha256.quantum.sha256.compression import build_compression
 from qsha256.quantum.strategies import (
     PRESETS,
+    STRATEGY_AXES,
     Strategy,
     enumerate_strategies,
     get_preset,
@@ -33,8 +34,10 @@ from qsha256.spec import TOY4
 
 class TestStrategies:
     def test_every_axis_value_builds(self):
-        count = sum(1 for _ in enumerate_strategies())
-        assert count == 3 * 2 * 2 * 3 * 2
+        expected = 1
+        for values in STRATEGY_AXES.values():
+            expected *= len(values)
+        assert sum(1 for _ in enumerate_strategies()) == expected
 
     def test_invalid_axis_value_is_rejected(self):
         with pytest.raises(ValueError, match=r"strategy\.adder"):
@@ -283,3 +286,162 @@ class TestHardwareRanking:
         ranking = rank_for_hardware(result.points, "superconducting")
         assert ranking.to_dict()["hardware_model"] == "superconducting"
         assert "ASSUMPTION-DEPENDENT" in str(ranking)
+
+
+class TestPhaseFold:
+    """Phase-polynomial folding must never change the unitary, only its T-count."""
+
+    @staticmethod
+    def _random_clifford_t(rng, n_qubits=3, length=20):
+        qc = QuantumCircuit(n_qubits)
+        for _ in range(length):
+            gate = rng.choice(["cx", "x", "h", "t", "tdg", "s", "sdg", "z"])
+            if gate == "cx":
+                a, b = rng.sample(range(n_qubits), 2)
+                qc.cx(a, b)
+            else:
+                getattr(qc, gate)(rng.randrange(n_qubits))
+        return qc
+
+    def test_toffoli_expansion_is_exact(self):
+        """Our hand-written 7-T expansion must equal ccx, global phase included."""
+        import numpy as np
+        from qiskit.quantum_info import Operator
+
+        from qsha256.quantum.optimization.phase_fold import to_clifford_t
+
+        qc = QuantumCircuit(3)
+        qc.ccx(0, 1, 2)
+        expanded = to_clifford_t(qc)
+        ops = expanded.count_ops()
+        assert ops.get("t", 0) + ops.get("tdg", 0) == 7
+        assert np.allclose(Operator(expanded).data, Operator(qc).data, atol=1e-9)
+
+    def test_preserves_the_unitary_exactly(self, rng):
+        """Not merely up to global phase -- the fold tracks phase explicitly."""
+        import numpy as np
+        from qiskit.quantum_info import Operator
+
+        from qsha256.quantum.optimization.phase_fold import phase_fold
+
+        for _ in range(60):
+            qc = self._random_clifford_t(rng, rng.randint(2, 4), rng.randint(4, 25))
+            folded = phase_fold(qc, already_clifford_t=True)
+            assert np.allclose(Operator(qc).data, Operator(folded.circuit).data, atol=1e-9), (
+                "phase folding changed the unitary"
+            )
+
+    def test_preserves_unitary_with_toffolis(self, rng):
+        import numpy as np
+        from qiskit.quantum_info import Operator
+
+        from qsha256.quantum.optimization.phase_fold import phase_fold, to_clifford_t
+
+        for _ in range(30):
+            qc = QuantumCircuit(3)
+            for _ in range(rng.randint(2, 8)):
+                if rng.random() < 0.5:
+                    a, b, c = rng.sample(range(3), 3)
+                    qc.ccx(a, b, c)
+                else:
+                    a, b = rng.sample(range(3), 2)
+                    qc.cx(a, b)
+            folded = phase_fold(qc)
+            assert np.allclose(
+                Operator(to_clifford_t(qc)).data, Operator(folded.circuit).data, atol=1e-9
+            )
+
+    def test_two_t_gates_on_one_function_become_clifford(self):
+        from qsha256.quantum.optimization.phase_fold import phase_fold
+
+        qc = QuantumCircuit(2)
+        qc.t(0)
+        qc.cx(0, 1)
+        qc.cx(0, 1)  # identity on the linear function of qubit 0
+        qc.t(0)
+        folded = phase_fold(qc, already_clifford_t=True)
+        assert folded.t_before == 2
+        assert folded.t_after == 0, "T . T should merge into S"
+        assert folded.circuit.count_ops().get("s", 0) == 1
+
+    def test_t_and_tdg_cancel(self):
+        from qsha256.quantum.optimization.phase_fold import phase_fold
+
+        qc = QuantumCircuit(1)
+        qc.t(0)
+        qc.tdg(0)
+        folded = phase_fold(qc, already_clifford_t=True)
+        assert folded.t_after == 0
+        assert not folded.circuit.count_ops()
+
+    def test_hadamard_separates_regions(self):
+        """A T either side of an H acts on different functions and must not merge."""
+        from qsha256.quantum.optimization.phase_fold import phase_fold
+
+        qc = QuantumCircuit(1)
+        qc.t(0)
+        qc.h(0)
+        qc.t(0)
+        folded = phase_fold(qc, already_clifford_t=True)
+        assert folded.t_after == 2, "T gates across an H boundary must not merge"
+
+    def test_skeleton_is_preserved(self, rng):
+        """Only diagonal gates move; the CNOT/X/H skeleton is untouched."""
+        from qsha256.quantum.optimization.phase_fold import PHASE_ANGLES, phase_fold
+
+        qc = self._random_clifford_t(rng, 3, 40)
+        folded = phase_fold(qc, already_clifford_t=True)
+
+        def skeleton(circuit):
+            return [
+                (i.operation.name, tuple(circuit.find_bit(q).index for q in i.qubits))
+                for i in circuit.data
+                if i.operation.name not in PHASE_ANGLES
+            ]
+
+        assert skeleton(qc) == skeleton(folded.circuit)
+
+    def test_never_increases_t_count(self, rng):
+        from qsha256.quantum.optimization.phase_fold import phase_fold
+
+        for _ in range(40):
+            qc = self._random_clifford_t(rng, rng.randint(2, 4), rng.randint(5, 40))
+            folded = phase_fold(qc, already_clifford_t=True)
+            assert folded.t_after <= folded.t_before
+
+    def test_reduces_t_count_on_a_compute_uncompute_pair(self):
+        """The pattern reversible construction produces everywhere."""
+        from qsha256.quantum.optimization.phase_fold import phase_fold
+
+        qc = QuantumCircuit(3)
+        qc.ccx(0, 1, 2)
+        qc.ccx(0, 1, 2)
+        folded = phase_fold(qc)
+        assert folded.t_before == 14
+        assert folded.t_after < folded.t_before
+        assert "T-count" in folded.summary()
+
+    def test_keeps_gidney_ands_opaque(self):
+        """Expanding them would destroy the measurement-based saving."""
+        from qsha256.quantum.optimization.phase_fold import to_clifford_t
+        from qsha256.quantum.registers import CircuitBuilder
+
+        b = CircuitBuilder("mix")
+        w = b.add_word(4, "q")
+        b.and_g(w[0], w[1], w[2])
+        b.ccx(w[0], w[1], w[3])
+        b.and_g_dg(w[0], w[1], w[2])
+        expanded = to_clifford_t(b.circuit)
+        ops = expanded.count_ops()
+        assert ops.get("and_g", 0) == 1 and ops.get("and_g_dg", 0) == 1
+        assert ops.get("ccx", 0) == 0, "the plain Toffoli should have been expanded"
+
+    def test_integrates_with_apply_rewrites(self):
+        from qsha256.quantum.optimization.rewrite import apply_rewrites
+
+        comp = build_compression(TOY4, Strategy(), rounds=4)
+        result = apply_rewrites(comp.builder, phase_folding=True)
+        assert "phasefold" in result.passes
+        assert result.phase_fold is not None
+        assert result.phase_fold.t_after < result.phase_fold.t_before
+        assert result.circuit.count_ops().get("ccx", 0) == 0

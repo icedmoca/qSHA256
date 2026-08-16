@@ -6,6 +6,7 @@ import itertools
 
 import pytest
 from conftest import assert_ancillas_clean, run_circuit
+from qiskit.quantum_info import Statevector
 
 from qsha256.classical.sha256 import ch, maj, rotr, shr
 from qsha256.quantum.primitives.add import ADDERS, add_const_into, add_into, get_adder
@@ -24,6 +25,7 @@ from qsha256.quantum.primitives.shift import (
 )
 from qsha256.quantum.primitives.xor import xor_const, xor_terms, xor_word
 from qsha256.quantum.registers import CircuitBuilder
+from qsha256.validation.basis_sim import BasisSimulator
 
 BASIS_ADDERS = [name for name, a in ADDERS.items() if a.basis_simulable]
 
@@ -275,3 +277,160 @@ class TestCarrySave:
         with pytest.raises(ValueError, match="at least one addend"):
             with sum_addends(builder, [], "cdkm"):
                 pass
+
+
+class TestTemporaryAnd:
+    """Gidney's measurement-based AND -- the project's biggest T-count lever."""
+
+    def test_compute_circuit_is_exactly_the_and(self):
+        """4 T gates, and no relative *or* global phase."""
+        import numpy as np
+        from qiskit import QuantumCircuit
+        from qiskit.quantum_info import Operator
+
+        from qsha256.quantum.primitives.temporary_and import (
+            GIDNEY_AND_T_COUNT,
+            gidney_and_circuit,
+        )
+
+        circuit = gidney_and_circuit()
+        ops = circuit.count_ops()
+        assert ops.get("t", 0) + ops.get("tdg", 0) == GIDNEY_AND_T_COUNT == 4
+
+        # Only defined when the target starts |0>, so compare on that subspace.
+        for x in (0, 1):
+            for y in (0, 1):
+                prep = QuantumCircuit(3)
+                if x:
+                    prep.x(0)
+                if y:
+                    prep.x(1)
+                state = Statevector.from_instruction(prep.compose(circuit))
+                index = x + 2 * y + 4 * (x & y)
+                assert np.isclose(state.data[index], 1.0, atol=1e-9), (
+                    f"AND({x},{y}) wrong or carries a phase"
+                )
+        assert Operator(circuit) is not None
+
+    def test_uncompute_uses_no_t_gates(self):
+        from qsha256.quantum.primitives.temporary_and import gidney_uncompute_circuit
+
+        ops = gidney_uncompute_circuit().count_ops()
+        assert ops.get("t", 0) + ops.get("tdg", 0) == 0
+        assert ops.get("measure", 0) == 1
+
+    def test_measurement_based_uncompute_clears_the_target(self):
+        """Check both measurement branches by projecting, as Statevector cannot measure."""
+        import numpy as np
+        from qiskit import QuantumCircuit
+        from qiskit.quantum_info import Statevector
+
+        from qsha256.quantum.primitives.temporary_and import gidney_and_circuit
+
+        for x in (0, 1):
+            for y in (0, 1):
+                prep = QuantumCircuit(3)
+                if x:
+                    prep.x(0)
+                if y:
+                    prep.x(1)
+                after_and = Statevector.from_instruction(prep.compose(gidney_and_circuit()))
+                # H on the target, then both outcomes are equally likely.
+                h = QuantumCircuit(3)
+                h.h(2)
+                state = after_and.evolve(h)
+                for outcome in (0, 1):
+                    amps = [state.data[i] for i in range(8) if ((i >> 2) & 1) == outcome]
+                    norm = float(np.sqrt(sum(abs(a) ** 2 for a in amps)))
+                    assert np.isclose(norm**2, 0.5, atol=1e-9), "outcome not equiprobable"
+                    # The surviving amplitude carries (-1)^(outcome * (x AND y)),
+                    # which CZ(x, y) cancels -- Clifford, no T gates.
+                    sign = (-1) ** (outcome * (x & y))
+                    live = [a for a in amps if abs(a) > 1e-9]
+                    assert len(live) == 1
+                    assert np.isclose(live[0] * sign, abs(live[0]), atol=1e-9)
+
+    def test_and_gate_inverses_are_each_other(self):
+        from qsha256.quantum.primitives.temporary_and import AndDgGate, AndGate
+
+        assert AndGate().inverse().name == "and_g_dg"
+        assert AndDgGate().inverse().name == "and_g"
+
+    def test_strict_simulation_catches_a_dirty_target(self, builder):
+        from qsha256.validation.basis_sim import PreconditionViolated
+
+        w = builder.add_word(3, "q")
+        builder.and_g(w[0], w[1], w[2])
+        sim = BasisSimulator(builder.circuit, strict=True)
+        with pytest.raises(PreconditionViolated, match="target to be"):
+            sim.run([1, 1, 1])
+
+    def test_strict_simulation_catches_a_bad_uncompute(self, builder):
+        from qsha256.validation.basis_sim import PreconditionViolated
+
+        w = builder.add_word(3, "q")
+        builder.and_g_dg(w[0], w[1], w[2])
+        sim = BasisSimulator(builder.circuit, strict=True)
+        with pytest.raises(PreconditionViolated, match="x AND y"):
+            sim.run([1, 1, 0])
+
+    def test_reverse_replay_swaps_and_for_and_dagger(self, builder):
+        """Reversing an and_g must emit and_g_dg, not another and_g."""
+        w = builder.add_word(3, "q")
+        start = len(builder.circuit.data)
+        builder.and_g(w[0], w[1], w[2])
+        builder.append_reversed(start, len(builder.circuit.data))
+        names = [i.operation.name for i in builder.circuit.data]
+        assert names == ["and_g", "and_g_dg"]
+        sim = BasisSimulator(builder.circuit, strict=True)
+        for x in (0, 1):
+            for y in (0, 1):
+                assert sim.run([x, y, 0])[0] == [x, y, 0]
+
+    @pytest.mark.parametrize("width", [2, 3, 4, 5])
+    def test_gidney_adder_exhaustive(self, width):
+        b = CircuitBuilder(f"gidney{width}")
+        a, t = b.add_word(width, "a"), b.add_word(width, "b")
+        add_into(b, a, t, "gidney")
+        sim = BasisSimulator(b.circuit, strict=True)  # checks every AND precondition
+        for x, y in itertools.product(range(1 << width), repeat=2):
+            out, _ = sim.run(sim.load({a: x, t: y}))
+            assert sim.read(out, t) == (x + y) % (1 << width)
+            assert sim.read(out, a) == x
+            assert_ancillas_clean(b, sim, out)
+
+    def test_gidney_uses_and_pairs_not_toffolis(self):
+        b = CircuitBuilder("g32")
+        a, t = b.add_word(32, "a"), b.add_word(32, "b")
+        add_into(b, a, t, "gidney")
+        ops = b.circuit.count_ops()
+        assert ops.get("ccx", 0) == 0, "should contain no Toffolis at all"
+        assert ops["and_g"] == ops["and_g_dg"] == 31, "n-1 compute/uncompute pairs"
+        assert b.ancilla_qubits == 31
+
+    def test_gidney_beats_cdkm_on_t_count(self):
+        """The headline claim: 124 T vs 448 for a 32-bit addition."""
+        from qsha256.quantum.resources.clifford_t import clifford_t_cost
+
+        counts = {}
+        for name in ("cdkm", "gidney"):
+            b = CircuitBuilder(name)
+            a, t = b.add_word(32, "a"), b.add_word(32, "b")
+            add_into(b, a, t, name)
+            counts[name] = clifford_t_cost(dict(b.circuit.count_ops()))["t_count"]
+        assert counts["cdkm"] == 448
+        assert counts["gidney"] == 124
+        assert counts["gidney"] < counts["cdkm"] / 3
+
+    def test_gidney_requires_feedforward_and_says_so(self):
+        from qsha256.quantum.primitives.add import get_adder
+        from qsha256.quantum.resources.clifford_t import clifford_t_cost
+
+        assert get_adder("gidney").needs_measurement is True
+        b = CircuitBuilder("g")
+        a, t = b.add_word(8, "a"), b.add_word(8, "b")
+        add_into(b, a, t, "gidney")
+        cost = clifford_t_cost(dict(b.circuit.count_ops()))
+        assert cost["needs_feedforward"] is True
+        assert cost["measurements"] == 7
+        assert cost["transpiler_can_reproduce"] is False

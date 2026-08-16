@@ -3,6 +3,60 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-08-16
+
+### Added
+
+**Gidney measurement-based temporary ANDs** (`quantum/primitives/temporary_and.py`)
+
+- `and_g` / `and_g_dg` gates: an AND computed into a clean ancilla in 4 T gates,
+  and uncomputed in **zero** T gates via an X-basis measurement and a Clifford
+  correction. A compute/uncompute pair costs 4 T instead of 14.
+- A fourth adder, `gidney`: `n-1` ancillas, no Toffolis, `4(n-1)` T gates.
+  A 32-bit addition drops from **448 T to 124 T**.
+- The basis simulator gained a `strict` mode that verifies both preconditions —
+  that every `and_g` target is `|0>` and every `and_g_dg` target holds exactly
+  `x AND y` — since violating either is a silent correctness trap.
+- `append_reversed` maps `and_g` to `and_g_dg` under reverse replay; the two are
+  inverses, not self-inverse.
+
+**Phase-polynomial folding** (`quantum/optimization/phase_fold.py`)
+
+- T-par-style optimization: merges phase gates acting on the same GF(2) linear
+  function, so `T . T` becomes a Clifford `S` and `T . Tdg` cancels. Verified to
+  preserve the unitary **exactly, including global phase**, on hundreds of random
+  circuits.
+- A deterministic hand-written Toffoli expansion replaces the transpiler, so the
+  decomposition is version-independent and agrees with the `standard` cost model
+  by construction.
+- Composes with Gidney ANDs, which are kept opaque rather than expanded.
+
+**Measured results at 64 rounds, 32-bit**
+
+| Design | T-count | vs baseline |
+|---|---:|---:|
+| cdkm (baseline) | 326,144 | — |
+| cdkm + phase folding | 181,568 | −44.3% |
+| gidney temporary ANDs | 131,744 | −59.6% |
+| gidney + phase folding | 107,168 | −67.1% |
+
+Against Amy et al.'s T-par-optimized 228,992 T, the phase-folded *unitary*
+circuit is **20.7% lower at 44% of the qubits**. The Gidney designs go further
+but assume measurement and feedforward, which the published circuit does not; the
+leaderboard annotates every such comparison.
+
+### Changed
+
+- New objective `non_clifford_depth`, counting Toffolis, T gates and AND-computes
+  together. Toffoli depth alone scored a phase-folded circuit at zero and read as
+  a free win; this metric stays meaningful across all three representations. The
+  Pareto search and the physical estimator both use it now.
+- The design space grew from 72 to 96 architectures (224 searched points with
+  optimization variants). `qsha256 search` reports the enlarged front.
+- New `--adder gidney`, `--phase-fold` and preset `min-t`.
+- Validation suite: 17 checks, 6,129 cases (was 15 / 4,721).
+- Test suite: 360 tests (was 330).
+
 ## [2.0.0] - 2026-08-16
 
 **qSHA256 has been refocused from a conventional cryptography wrapper into a

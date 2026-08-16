@@ -47,11 +47,28 @@ ancilla-free one-Toffoli-per-bit `Ch` and `Maj` and the CDKM adder.
 | depth | 463,606 | 830,720 | 0.56x | 44% lower |
 | CNOT | 431,136 | 4,209,072 | 0.10x | 90% fewer |
 
-**Where qSHA256 loses, and why.** T-par is a phase-polynomial optimizer that
-merges T gates across gate boundaries; in their adders every Toffoli shares two
-controls with another, which it exploits heavily. qSHA256 does no cross-gate T
-optimization, so its T-count stays at exactly `7 x` its Toffoli count. Closing
-this gap is the most valuable open item in the project.
+**This gap has since been closed.** The table above compares the circuit *as
+built*. With phase-polynomial folding applied, qSHA256 reaches **181,568 T** —
+20.7% *below* the published T-par figure, at 44% of the qubits — and with Gidney
+temporary ANDs as well, **107,168 T**.
+
+| qSHA256 design | Qubits | T-count | vs published | Same machine model? |
+|---|---:|---:|---:|---|
+| default (as built) | 1,057 | 326,144 | +42.4% | yes — unitary Clifford+T |
+| **+ phase folding** | **1,057** | **181,568** | **−20.7%** | **yes — unitary Clifford+T** |
+| + Gidney ANDs | 1,087 | 131,744 | −42.5% | no — needs measurement + feedforward |
+| + Gidney and folding | 1,087 | 107,168 | −53.2% | no — needs measurement + feedforward |
+
+**Read the last column.** The Gidney rows assume mid-circuit measurement with
+classical feedforward, a capability the 2016 circuit did not assume — Gidney's
+construction postdates it by two years. Comparing them to a unitary circuit is a
+comparison between *machine models*, and the leaderboard annotates every such row
+rather than quietly claiming a win. The like-for-like result is the phase-folded
+row.
+
+Note also that qSHA256's folding is only part of T-par: it merges phases but does
+not re-synthesise the CNOT network. That it still comes out ahead is largely
+because the underlying circuit has fewer Toffolis to begin with.
 
 Note also that T-par *lowered* T-count and T-depth while *raising* CNOT count and
 total depth — a reminder that "optimized" is always relative to a chosen

@@ -33,14 +33,24 @@ number from it.
 
 ## Known weaknesses in the implementation
 
-**No phase-polynomial optimization.** The T-count is exactly `7 x` the Toffoli
-count. T-par-style cross-gate merging reaches substantially lower (Amy et al.
-report 228,992 against our 326,144). This is the largest known gap.
+**Phase folding is only part of T-par.** It merges phases acting on identical
+linear functions but does not re-synthesise the CNOT network, which full T-par
+does to expose further merges and reduce T-depth. It also *raises* non-Clifford
+depth (38,528 → 149,312 at 64 rounds) while lowering T-count.
 
-**No measurement-based AND uncomputation.** Gidney's temporary-AND computes with
-4 T gates and uncomputes with none. The circuits are full of compute/uncompute
-AND pairs, so this is likely a large win — unimplemented because it needs
-AND-pair structure tracking and a non-unitary gate model.
+**Gidney designs assume mid-circuit measurement and feedforward.** The
+measurement-based AND uncomputation is not a unitary circuit. Circuits using it
+cannot run on measurement-free hardware, cannot be transpiled by a unitary
+compiler without losing the saving, and are not directly comparable to unitary
+circuits. Every report and leaderboard row says so.
+
+**`Ch` and `Maj` still use plain Toffolis.** Their AND result is XORed into an
+accumulator rather than a dedicated clean ancilla, so the temporary-AND
+precondition does not hold without restructuring. 8,192 Toffolis remain in the
+64-round Gidney circuit for this reason.
+
+**The Gidney AND expansion has T-depth 4**, not the T-depth-1 variant the paper
+describes with magic-state injection. The reported figure is what is implemented.
 
 **Rotation cost is a modelling choice.** Rotations and shifts are counted as free
 because they are wire relabellings. This is legitimate in a logical model with

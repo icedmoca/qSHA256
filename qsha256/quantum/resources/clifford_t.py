@@ -28,6 +28,13 @@ form at all; they must be *approximated* to a chosen precision, and the cost is
 governed by the Ross-Selinger synthesis bound.  That introduces an explicit
 ``epsilon`` parameter, and any report touching it is labelled accordingly.
 
+**Temporary ANDs are costed separately and not as Toffolis.**  A Gidney
+``and_g`` costs 4 T and its ``and_g_dg`` uncomputation costs *none*, because the
+uncomputation is a measurement plus a Clifford correction rather than a circuit.
+No Toffoli decomposition applies to them, and no unitary transpilation can
+reproduce the uncomputation -- so a transpiled T-count will overcount it, which
+the analyzer detects and reports.
+
 References
 ----------
 - M. A. Nielsen & I. L. Chuang, *Quantum Computation and Quantum Information*,
@@ -38,12 +45,16 @@ References
   Phys. Rev. A 87, 022328 (2013), arXiv:1212.5069.
 - N. J. Ross & P. Selinger, "Optimal ancilla-free Clifford+T approximation of
   z-rotations", Quantum Inf. Comput. 16, 901 (2016), arXiv:1403.2975.
+- C. Gidney, "Halving the cost of quantum addition", Quantum 2, 74 (2018),
+  arXiv:1709.06648.
 """
 
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+
+from ..primitives.temporary_and import GIDNEY_AND_T_COUNT, GIDNEY_AND_T_DEPTH
 
 __all__ = [
     "CLIFFORD_T_BASIS",
@@ -178,6 +189,12 @@ def clifford_t_cost(
     model = get_model(model) if isinstance(model, str) else model
 
     toffoli = counts.get("ccx", 0) + counts.get("ccz", 0)
+    and_compute = counts.get("and_g", 0)
+    and_uncompute = counts.get("and_g_dg", 0)
+    # T gates already present in the circuit -- e.g. after phase folding, which
+    # emits Clifford+T directly. Without this a folded circuit would report a
+    # T-count of zero simply because it no longer contains any Toffolis.
+    native_t = counts.get("t", 0) + counts.get("tdg", 0)
     rotations = counts.get("cp", 0) + counts.get("p", 0) + counts.get("rz", 0)
     clifford_native = sum(
         counts.get(g, 0) for g in ("x", "y", "z", "h", "s", "sdg", "cx", "cz", "swap")
@@ -187,19 +204,43 @@ def clifford_t_cost(
     per_rotation = rz_t_count(epsilon)
     # A controlled-phase gate decomposes into three single-qubit rotations.
     t_from_rotation = rotations * 3 * per_rotation
+    # Gidney temporary ANDs: 4 T to compute, 0 to uncompute.
+    t_from_and = and_compute * GIDNEY_AND_T_COUNT
 
     return {
         "toffoli_gates": toffoli,
         "rotation_gates": rotations,
-        "t_count": t_from_toffoli + t_from_rotation,
+        "and_compute_gates": and_compute,
+        "and_uncompute_gates": and_uncompute,
+        "t_count": t_from_toffoli + t_from_rotation + t_from_and + native_t,
+        "t_count_native": native_t,
         "t_count_from_toffoli": t_from_toffoli,
         "t_count_from_rotations": t_from_rotation,
-        "t_depth_serial_bound": toffoli * model.t_depth + rotations * 3 * per_rotation,
-        "clifford_count": clifford_native + toffoli * model.clifford_count,
+        "t_count_from_temporary_and": t_from_and,
+        "t_depth_serial_bound": (
+            toffoli * model.t_depth
+            + rotations * 3 * per_rotation
+            + and_compute * GIDNEY_AND_T_DEPTH
+            + native_t
+        ),
+        "clifford_count": (
+            clifford_native
+            + toffoli * model.clifford_count
+            # and_g: 2 H, 3 CX, 1 Sdg alongside its 4 T. and_g_dg: 1 H, 1 CZ, 1 X.
+            + and_compute * 6
+            + and_uncompute * 3
+        ),
         "decomposition_ancilla": toffoli * model.ancilla,
-        "measurements": toffoli * model.measurements,
+        # Every temporary-AND uncomputation consumes one mid-circuit measurement.
+        "measurements": toffoli * model.measurements + and_uncompute,
+        "needs_feedforward": and_uncompute > 0,
         "model": model.name,
         "model_reference": model.reference,
         "rotation_epsilon": epsilon if rotations else None,
+        # Exact means "an exact Clifford+T decomposition exists". Rotations have
+        # none; temporary ANDs do, but their uncomputation is not unitary, so a
+        # transpiler cannot reproduce the model either way.
         "exact": rotations == 0,
+        "transpiler_can_reproduce": rotations == 0 and and_uncompute == 0,
+        "already_clifford_t": toffoli == 0 and rotations == 0 and native_t > 0,
     }

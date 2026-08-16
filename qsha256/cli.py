@@ -28,7 +28,7 @@ def _add_common(parser: argparse.ArgumentParser, rounds: bool = True) -> None:
     parser.add_argument("--spec", default="sha256", choices=sorted(SPECS), help="which SHA variant")
     if rounds:
         parser.add_argument("--rounds", type=int, default=None, help="number of compression rounds")
-    parser.add_argument("--adder", default="cdkm", choices=("cdkm", "vbe", "qft"))
+    parser.add_argument("--adder", default="cdkm", choices=("cdkm", "vbe", "qft", "gidney"))
     parser.add_argument("--const-add", default="load", choices=("load", "vbe_const"))
     parser.add_argument("--schedule", default="rolling", choices=("rolling", "store_all"))
     parser.add_argument("--round-layout", default="serial", choices=("serial", "wide", "csa"))
@@ -46,6 +46,11 @@ def _add_common(parser: argparse.ArgumentParser, rounds: bool = True) -> None:
         "--rewrite",
         action="store_true",
         help="apply gate-level rewriting (cancellation + constant folding)",
+    )
+    parser.add_argument(
+        "--phase-fold",
+        action="store_true",
+        help="apply phase-polynomial folding (T-par style); implies --rewrite",
     )
 
 
@@ -97,10 +102,10 @@ def cmd_analyze(args) -> int:
     spec, rounds, comp = _build(args)
     circuit_source = comp
     note = None
-    if args.rewrite:
+    if args.rewrite or args.phase_fold:
         from .quantum.optimization.rewrite import apply_rewrites
 
-        result = apply_rewrites(comp.builder)
+        result = apply_rewrites(comp.builder, phase_folding=args.phase_fold)
         circuit_source = result.circuit
         note = result.summary()
 
@@ -187,6 +192,7 @@ def cmd_search(args) -> int:
         spec,
         rounds=rounds,
         rewrite=not args.no_rewrite,
+        phase_folding=not args.no_phase_fold,
         verify=not args.no_verify,
         verify_trials=args.verify_trials,
         progress=(lambda label: print(f"  building {label}", file=sys.stderr))
@@ -317,6 +323,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--spec", default="sha256", choices=sorted(SPECS))
     p.add_argument("--rounds", type=int, default=None)
     p.add_argument("--no-rewrite", action="store_true")
+    p.add_argument("--no-phase-fold", action="store_true")
     p.add_argument("--no-verify", action="store_true")
     p.add_argument("--verify-trials", type=int, default=2)
     p.add_argument("--format", default="text", choices=("text", "json"))

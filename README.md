@@ -33,8 +33,12 @@ Layer 4 - full 64-round SHA-256
   [PASS] sha256 compression, 64 rounds, forward == classical
   [PASS] sha256 compression, 64 rounds, garbage-free == classical
   [PASS] 32-bit 64-round circuit digest == hashlib.sha256(b'abc')
+
+Layer 5 - optimization passes
+  [PASS] phase folding preserves the unitary exactly
+  [PASS] Gidney temporary-AND circuits == classical (preconditions checked)
 ...
-15/15 checks passed, 4,721 cases
+17/17 checks passed, 6,129 cases
 ```
 
 This is not a scaled-down proxy. Every SHA-256 compute circuit here is a
@@ -74,6 +78,28 @@ real compiler.
 The cost is not linear in rounds: the message schedule does not begin expanding
 until round 16, because rounds 0–15 consume the message block directly.
 
+### Post-construction optimization
+
+Two optimizations below the architectural level. **Gidney temporary ANDs** replace
+every adder Toffoli with a 4-T compute and a *measurement-based, T-free*
+uncomputation; **phase folding** merges T gates acting on the same GF(2) linear
+function — the core idea of T-par.
+
+| Design | Qubits | Toffoli | `and_g` | T-count | vs baseline | Non-Clifford depth |
+|---|---:|---:|---:|---:|---:|---:|
+| cdkm (baseline) | 1,057 | 46,592 | 0 | 326,144 | — | 38,528 |
+| cdkm + phase folding | 1,057 | 0 | 0 | 181,568 | **−44.3%** | 149,312 |
+| gidney temporary ANDs | 1,087 | 8,192 | 18,600 | 131,744 | **−59.6%** | 18,791 |
+| gidney + phase folding | 1,087 | 0 | 18,600 | **107,168** | **−67.1%** | 19,559 |
+
+Read the depth column alongside the T-count. Phase folding cuts T-count sharply
+but *raises* non-Clifford depth, because merging phases onto the first point
+where each linear function is live serialises them. The Gidney adder improves
+both at once — but only on hardware with mid-circuit measurement and classical
+feedforward, an assumption the other designs do not make.
+
+A single 32-bit addition goes from **448 T** (CDKM) to **124 T** (Gidney).
+
 ### The three circuits that matter
 
 | Circuit | Qubits | Toffoli | T-count | Depth |
@@ -110,20 +136,27 @@ Against Amy, Di Matteo, Gheorghiu, Mosca, Parent & Schanck (SAC 2016,
 per-metric comparability verdicts so a Toffoli-level depth is never silently
 divided by a Clifford+T depth.
 
-| Metric | qSHA256 | Amy et al. (pre-T-par) | | Amy et al. (T-par) | |
-|---|---:|---:|---|---:|---|
-| logical qubits | 1,057 | 2,402 | **56% fewer** | 2,402 | **56% fewer** |
-| T-count | 326,144 | 401,584 | **19% fewer** | 228,992 | *42% more* |
-| T-depth | 154,112 | 171,552 | **10% lower** | 70,400 | *119% more* |
-| depth | 463,606 | 528,768 | 12% lower | 830,720 | 44% lower |
+Their T-par-optimized circuit reports **228,992 T at 2,402 logical qubits**.
 
-**Where we win:** substantially fewer qubits, from the in-place rolling message
-schedule and a round layout that allocates no permanent qubits.
+| qSHA256 design | Qubits | T-count | vs published | Same machine model? |
+|---|---:|---:|---:|---|
+| default (as built) | 1,057 | 326,144 | +42.4% | yes — unitary Clifford+T |
+| **+ phase folding** | **1,057** | **181,568** | **−20.7%** | **yes — unitary Clifford+T** |
+| + Gidney ANDs | 1,087 | 131,744 | −42.5% | no — needs measurement + feedforward |
+| + Gidney and folding | 1,087 | 107,168 | −53.2% | no — needs measurement + feedforward |
 
-**Where we lose:** T-par is a phase-polynomial optimizer that merges T gates
-across gate boundaries; qSHA256 does no cross-gate T optimization, so its T-count
-stays at exactly `7 x` its Toffoli count. That gap is real and
-[documented](docs/leaderboard.md), not hidden.
+**The like-for-like comparison is the bolded row.** Both are unitary Clifford+T
+circuits with phase-polynomial optimization applied, so it is a fair contest:
+qSHA256 reaches a **20.7% lower T-count at 44% of the qubits**.
+
+The Gidney rows go further, but they assume mid-circuit measurement and
+feedforward — a capability the 2016 circuit did not assume, since Gidney's
+construction postdates it by two years. That is a comparison between *machine
+models*, not between two circuits for the same machine, and the leaderboard says
+so wherever it appears.
+
+Against their **pre**-T-par circuit the default design already wins on every
+comparable metric: 56% fewer qubits, 19% fewer T gates, 10% lower T-depth.
 
 ---
 
@@ -137,23 +170,38 @@ qsha256 search --spec toy4 --rounds 8
 ```
 
 ```text
-104 designs evaluated; 7 on the Pareto front over qubits, t_count, toffoli_depth
+224 designs evaluated in 106s; 16 on the Pareto front over
+qubits, t_count, non_clifford_depth
 
-cdkm/load/rolling/serial/rewritten:      t_count -20.7%, toffoli_depth -24.4%
-cdkm/vbe_const/rolling/wide/rewritten:   t_count -20.7%, toffoli_depth -38.5%
-                                             at the cost of qubits +17.6%
-qft/load/rolling/wide:                   toffoli_depth -97.4%
-                                             at the cost of t_count +10627.0%
+gidney/load/rolling/serial/folded:  t_count -72.4%, non_clifford_depth -45.0%
+                                        at the cost of qubits +2.4%
+gidney/load/rolling/wide:           t_count -64.9%, non_clifford_depth -69.2%
+                                        at the cost of qubits +21.2%
+cdkm/load/rolling/serial/rewritten: t_count -20.7%, non_clifford_depth -24.4%
+cdkm/vbe_const/rolling/serial/folded: t_count -54.7%
+                                        at the cost of non_clifford_depth +198.4%
+qft/load/rolling/wide:              non_clifford_depth -97.4%
+                                        at the cost of t_count +10627.0%
 ```
 
 Every design is functionally verified against the classical reference before its
-numbers are allowed into a report. All 96 basis-simulable designs pass; the 8
+numbers are allowed into a report. All 216 basis-simulable designs pass; the 8
 QFT-adder designs are labelled `UNSUPPORTED` rather than silently trusted.
 
-Three findings worth stating:
+The objective is **non-Clifford depth**, not Toffoli depth: a phase-folded
+circuit contains no Toffolis at all, so scoring it on Toffoli depth would read
+zero and look like a free win. Counting Toffolis, T gates and AND-computes
+together is the one depth measure that stays meaningful across all three
+representations.
+
+Four findings worth stating:
+
+- **Gidney temporary ANDs are the single biggest lever.** A 32-bit addition drops
+  from 448 T to 124, and the full compression from 326,144 T to 131,744 — while
+  *halving* non-Clifford depth, because the uncomputation is Clifford.
 
 - **The `wide` round layout cuts depth 25% at identical T-count**, for 128 extra
-  qubits. The best trade in the space.
+  qubits — the best trade available without changing the gate set.
 - **The QFT adder is a trap.** It has by far the fewest Toffolis (8,192 vs
   46,592) and by far the worst T-count (301 million), because arbitrary-angle
   rotations must be synthesised from Clifford+T. A Toffoli count is not a
@@ -167,6 +215,12 @@ The gate-level rewriter also **rediscovers a human optimization**: constant
 folding specialises the generic adder in `const_add="load"` down to exactly the
 circuit that `const_add="vbe_const"` hard-codes by hand. Both converge to the
 same Toffoli count, and that is asserted as a test.
+
+Every optimization is verified, not assumed. Phase folding is checked to preserve
+the unitary **exactly — including global phase** — on hundreds of random
+circuits, and the Gidney ANDs are simulated in a strict mode that asserts every
+`and_g` target is `|0>` and every `and_g_dg` target holds exactly `x AND y`, since
+violating either is a silent correctness trap.
 
 ---
 
@@ -206,6 +260,7 @@ pip install -e ".[dev]"
 qsha256 validate                     # verify circuits against the classical model
 qsha256 analyze --rounds 64          # measure logical resources
 qsha256 benchmark                    # scaling table
+qsha256 analyze --rounds 64 --adder gidney --phase-fold   # lowest T-count
 qsha256 search --spec toy4           # Pareto search over the design space
 qsha256 oracle                       # preimage oracle + Grover extrapolation
 qsha256 physical --model optimistic  # fault-tolerant estimate
@@ -256,18 +311,20 @@ qsha256/
   quantum/
     registers.py        Word views (rotation = free rewiring), recycling ancilla pool
     strategies.py       the design space
-    primitives/         XOR, Ch/Maj, AND trees, three adders, carry-save addition
+    primitives/         XOR, Ch/Maj, AND trees, four adders (CDKM/VBE/QFT/Gidney),
+                        Gidney temporary ANDs, carry-save addition
     sha256/             sigma functions, message schedule, round, compression
     oracle/             digest comparison, preimage oracle, toy Grover
     resources/          gate/depth metrics, Clifford+T models, physical estimator,
                         leaderboard, report rendering
-    optimization/       rewriting, equivalence checking, Pareto search, hardware ranking
+    optimization/       rewriting, phase-polynomial folding, equivalence checking,
+                        Pareto search, hardware ranking
   validation/           exact basis-state simulator, layered validation suite
   cli.py
 docs/                   reversible computing, architecture, metrics, Grover, limitations
 benchmarks/results/     generated tables (JSON / CSV / Markdown)
 examples/               runnable, self-contained demonstrations
-tests/                  330 tests
+tests/                  360 tests
 ```
 
 ## Documentation
@@ -288,10 +345,11 @@ tests/                  330 tests
 
 Nothing has run on quantum hardware. Full-scale SHA-256 has never been simulated
 in superposition, only on basis states. Grover has never been run against real
-SHA-256. The T-count carries no phase-polynomial optimization. Depth assumes
-all-to-all connectivity with no routing overhead. Multi-block hashing is chained
-classically. Read [`docs/limitations.md`](docs/limitations.md) before quoting
-anything.
+SHA-256. Phase folding merges phases but does not re-synthesise the CNOT network,
+so it captures only part of what full T-par does. The Gidney designs assume
+mid-circuit measurement and feedforward. Depth assumes all-to-all connectivity
+with no routing overhead. Multi-block hashing is chained classically. Read
+[`docs/limitations.md`](docs/limitations.md) before quoting anything.
 
 ## References
 
@@ -307,6 +365,11 @@ anything.
   [arXiv:1212.5069](https://arxiv.org/abs/1212.5069)
 - N. Ross, P. Selinger, *Optimal ancilla-free Clifford+T approximation of
   z-rotations*, [arXiv:1403.2975](https://arxiv.org/abs/1403.2975)
+- C. Gidney, *Halving the cost of quantum addition*,
+  [arXiv:1709.06648](https://arxiv.org/abs/1709.06648)
+- M. Amy, D. Maslov, M. Mosca, *Polynomial-time T-depth optimization of
+  Clifford+T circuits via matroid partitioning* (T-par),
+  [arXiv:1303.2042](https://arxiv.org/abs/1303.2042)
 - M. Amy et al., *Estimating the cost of generic quantum pre-image attacks on
   SHA-2 and SHA-3*, [arXiv:1603.09383](https://arxiv.org/abs/1603.09383)
 - A. Fowler, M. Mariantoni, J. Martinis, A. Cleland, *Surface codes*,

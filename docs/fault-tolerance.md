@@ -10,7 +10,7 @@ the logical reports.
 A logical qubit is not a physical qubit. Running a 1,313-logical-qubit circuit
 does not need 1,313 physical qubits; it needs each logical qubit encoded in an
 error-correcting code, plus factories manufacturing the magic states every T gate
-consumes. The multiplier is not a constant — it depends on the physical error
+consumes. The multiplier is not a constant - it depends on the physical error
 rate, the target failure probability, and how long the computation runs.
 
 ## The model
@@ -39,9 +39,9 @@ the magic-state factory footprint.
 
 **Runtime**: the larger of
 
-- *reaction-limited*: `toffoli_depth * d` code cycles — a floor set by the
+- *reaction-limited*: `toffoli_depth * d` code cycles - a floor set by the
   circuit's serial structure;
-- *distillation-limited*: `T_count / factories * factory_cycles` — set by how
+- *distillation-limited*: `T_count / factories * factory_cycles` - set by how
   fast magic states can be produced.
 
 ## Above threshold

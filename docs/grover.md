@@ -46,7 +46,7 @@ speedup. Grover does not. Splitting the search across `m` machines gives only
 ## 3. Depth limits bite
 
 A `2^128`-iteration Grover circuit is inherently serial. Its depth is
-astronomically beyond any plausible coherence time or runtime budget — which is
+astronomically beyond any plausible coherence time or runtime budget - which is
 exactly why NIST's post-quantum criteria evaluate attacks under an explicit
 `MAXDEPTH` cap rather than by query count alone. Under any realistic cap the full
 iteration count cannot be run, and the effective security is higher than the
@@ -82,4 +82,4 @@ subject of this repository.
   "Estimating the cost of generic quantum pre-image attacks on SHA-2 and SHA-3",
   SAC 2016, arXiv:1603.09383.
 - NIST, "Submission Requirements and Evaluation Criteria for the Post-Quantum
-  Cryptography Standardization Process" (2016) — the `MAXDEPTH` discussion.
+  Cryptography Standardization Process" (2016) - the `MAXDEPTH` discussion.

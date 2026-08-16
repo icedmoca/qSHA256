@@ -5,18 +5,18 @@ machinery to search it.
 
 ## Two layers of optimization
 
-**Architectural** — the `Strategy` axes in `qsha256/quantum/strategies.py`. A
+**Architectural** - the `Strategy` axes in `qsha256/quantum/strategies.py`. A
 strategy is a small discrete parameter vector, so the space can be enumerated
 exhaustively, and every point in it is correct by construction. Search never has
 to invent a circuit and hope it works.
 
-**Gate-level** — the rewriter in `qsha256/quantum/optimization/rewrite.py`,
+**Gate-level** - the rewriter in `qsha256/quantum/optimization/rewrite.py`,
 working on the emitted instruction list for reductions no architectural choice
 can express.
 
 ## The rewrite passes
 
-### `cancel` — commutation-aware involution cancellation
+### `cancel` - commutation-aware involution cancellation
 
 Adjacent self-inverse gates annihilate. The useful part is commutation
 awareness: identical gates rarely end up adjacent, but they are often separated
@@ -25,7 +25,7 @@ everything it *provably* commutes with and cancels if it meets its twin. This
 catches the compute/uncompute seams that reversible construction produces
 everywhere.
 
-The commutation relation is deliberately conservative — it returns `False`
+The commutation relation is deliberately conservative - it returns `False`
 whenever unsure, so the pass may miss opportunities but never invents one:
 
 - disjoint qubits always commute;
@@ -36,7 +36,7 @@ whenever unsure, so the pass may miss opportunities but never invents one:
   one of its qubits;
 - anything unrecognised does not commute.
 
-### `constfold` — constant propagation from `|0>`
+### `constfold` - constant propagation from `|0>`
 
 Every ancilla starts in a known state, and much of what the circuit does to them
 is knowable at compile time. A CNOT with a provably-`|0>` control is the
@@ -45,7 +45,7 @@ CNOT; and so on.
 
 This produces a result worth stating on its own. The `const_add="load"` strategy
 materialises the round constant `K[t]` in a register and runs a *general* adder
-against it. Constant folding then specialises that adder to the classical bits —
+against it. Constant folding then specialises that adder to the classical bits -
 **automatically deriving what `const_add="vbe_const"` hard-codes by hand.** On
 toy4 both strategies converge to exactly 584 Toffolis after rewriting. That is
 the optimizer rediscovering a human optimization, and it is asserted as a test.
@@ -53,7 +53,7 @@ the optimizer rediscovering a human optimization, and it is asserted as a test.
 Measured on the full 64-round circuit: 46,592 -> 45,392 Toffoli (-2.6%),
 verified equivalent.
 
-### `phasefold` — phase-polynomial folding
+### `phasefold` - phase-polynomial folding
 
 The core of T-par. Any region built only from CNOT, X and diagonal phase gates
 (everything between Hadamards) factors as `U = L . D`, where `L` is a linear map
@@ -70,20 +70,20 @@ T . Tdg -> nothing  they cancel outright
 
 Only an *odd* total angle still needs a T gate.
 
-Reversible construction is full of compute/uncompute pairs — `Ch` and `Maj` are
+Reversible construction is full of compute/uncompute pairs - `Ch` and `Maj` are
 computed then uncomputed, every ripple-carry `MAJ` is undone by a matching `UMA`
-— and the two halves apply T gates to the same linear functions. Amy et al. made
+- and the two halves apply T gates to the same linear functions. Amy et al. made
 exactly this observation about their adders.
 
-**Measured on the full 64-round circuit: 326,144 T → 181,568 T (−44.3%).**
+**Measured on the full 64-round circuit: 326,144 T -> 181,568 T (-44.3%).**
 
 It merges phases onto the earliest point where each function is live and leaves
 the CNOT skeleton untouched, gate for gate. It does **not** re-synthesise the
 linear part, which full T-par also does to expose further merges and to reduce
 T-depth. Not re-synthesising means the pass can never make a circuit worse, and
-keeps it cheap to verify — but it also means this captures only part of T-par.
+keeps it cheap to verify - but it also means this captures only part of T-par.
 
-One honest caveat: folding **raises** non-Clifford depth (38,528 → 149,312),
+One honest caveat: folding **raises** non-Clifford depth (38,528 -> 149,312),
 because merging phases onto a single point serialises them. It buys T-count with
 depth.
 
@@ -95,7 +95,7 @@ writes into a clean ancilla and later uncomputes it; such a pair costs far less
 than two Toffolis:
 
 * **compute** `|x>|y>|0> -> |x>|y>|x AND y>` in **4 T gates**;
-* **uncompute** in **zero T gates** — measure the target in the X basis and
+* **uncompute** in **zero T gates** - measure the target in the X basis and
   apply a `CZ(x, y)` correction when the outcome is 1.
 
 A compute/uncompute pair costs 4 T instead of 14. A 32-bit addition drops from
@@ -117,13 +117,13 @@ rather than implying one:
 
 | Level | Meaning |
 |---|---|
-| `EXHAUSTIVE` | every input tried — a *proof* for permutation circuits |
+| `EXHAUSTIVE` | every input tried - a *proof* for permutation circuits |
 | `RANDOMIZED` | a sample agreed; strong evidence, not proof |
 | `STRUCTURAL` | gate-for-gate identical after normalisation |
 | `UNSUPPORTED` | the circuit leaves the computational basis (QFT adder) |
 
 Search additionally checks each design against the classical reference model, and
-asserts that the recycled ancilla pool comes back to `|0>` — a leak there is a
+asserts that the recycled ancilla pool comes back to `|0>` - a leak there is a
 correctness bug, not an inefficiency, because the pool hands the same qubits out
 repeatedly.
 
@@ -146,7 +146,7 @@ cdkm/vbe_const/rolling/wide/rewritten: t_count -20.7%, toffoli_depth -38.5%
 
 ## Choosing among the front
 
-The Pareto front says which designs are defensible, not which to use — that
+The Pareto front says which designs are defensible, not which to use - that
 depends on what the machine is short of.
 `qsha256/quantum/optimization/hardware.py` ranks designs by **spacetime volume**
 (physical qubits x runtime) under an explicit hardware model, because occupying a

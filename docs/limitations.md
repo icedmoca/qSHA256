@@ -36,7 +36,7 @@ number from it.
 **Phase folding is only part of T-par.** It merges phases acting on identical
 linear functions but does not re-synthesise the CNOT network, which full T-par
 does to expose further merges and reduce T-depth. It also *raises* non-Clifford
-depth (38,528 → 149,312 at 64 rounds) while lowering T-count.
+depth (38,528 -> 149,312 at 64 rounds) while lowering T-count.
 
 **Gidney designs assume mid-circuit measurement and feedforward.** The
 measurement-based AND uncomputation is not a unitary circuit. Circuits using it

@@ -21,7 +21,7 @@ bijective function that contains the one you want.
 ## The three standard embeddings
 
 **In-place update.** If an operation can be written as `y ^= f(x)` or
-`y += f(x)`, it is already reversible — apply it twice, or subtract, and you are
+`y += f(x)`, it is already reversible - apply it twice, or subtract, and you are
 back where you started. XOR and modular addition are both of this form, which is
 why they are the cheap parts of SHA-256 on a quantum computer.
 
@@ -34,7 +34,7 @@ Toffoli gate does for AND:
 ```
 
 The price is a qubit to hold the answer, and Toffoli is the only non-Clifford
-gate in the whole SHA-256 construction — so it drives the entire fault-tolerant
+gate in the whole SHA-256 construction - so it drives the entire fault-tolerant
 cost.
 
 **Read through a relabelling.** Some operations are permutations of *bit
@@ -73,7 +73,7 @@ reverse pass never touches.
 
 qSHA256 does exactly this in `quantum/sha256/compression.py`. Because the builder
 only emits self-inverse permutation gates, the inverse circuit is the recorded
-instruction span replayed backwards — no separate inverse implementation, and no
+instruction span replayed backwards - no separate inverse implementation, and no
 chance of the two drifting apart.
 
 **Uncomputation is not free.** It roughly doubles the round cost, and the
@@ -105,7 +105,7 @@ non-linear work. A naive transcription of the textbook formulas would need 2 and
 A logical right shift genuinely destroys information: four different inputs give
 the same `SHR^2` output. So how can it be free?
 
-Because qSHA256 never shifts a register — it only ever *reads a shifted view* of
+Because qSHA256 never shifts a register - it only ever *reads a shifted view* of
 one. `SHR` appears in SHA-256 only inside `sigma0` and `sigma1`, whose results
 are XORed into a separate target. The source register is untouched, so the
 "discarded" low bits are still sitting there. The view simply declines to read

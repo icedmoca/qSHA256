@@ -19,7 +19,7 @@ Add 256 more for the digest register when uncomputation is enabled (1,313), and
 ## The central trick: the round is almost in-place
 
 The classical round renames six of its eight state words. In a circuit, renaming
-is free — it is a permutation of Python references to registers, emitting no
+is free - it is a permutation of Python references to registers, emitting no
 gates at all. So the round only has to *compute* two words, and both are formed
 by accumulating into a register that is about to become dead:
 
@@ -67,7 +67,7 @@ what makes exhaustive search possible.
 
 `cdkm` (Cuccaro et al. 2004) is the default: 2n Toffoli, 4n CNOT, **one** ancilla,
 with the carry rippling through the addend register rather than through scratch
-space. `vbe` (Vedral et al. 1996) keeps carries in a dedicated register — twice
+space. `vbe` (Vedral et al. 1996) keeps carries in a dedicated register - twice
 the Toffolis and n times the ancillas, included so the benchmark can show that.
 `qft` (Draper 2000) is ancilla-free and Toffoli-free, and is a trap: its
 arbitrary-angle rotations have no exact Clifford+T form, and synthesising them
@@ -78,7 +78,7 @@ in `benchmarks/results/latest.md`.
 
 `store_all` gives every `W[t]` its own register. Because the target starts in
 `|0>`, the first term of the recurrence is a free CNOT copy rather than an
-addition — so it uses only three adders per word. `rolling` keeps 16 registers
+addition - so it uses only three adders per word. `rolling` keeps 16 registers
 and transforms `W[t-16]` **in place** into `W[t]`, which works because `W[t-16]`
 is itself an addend of the recurrence.
 
@@ -90,7 +90,7 @@ measured qubit-versus-gate trade, not a folk assumption.
 
 `serial` recycles one temporary. `wide` computes the four independent
 sub-expressions into separate temporaries so their gate layers can overlap:
-measured at **25% lower depth for 128 more qubits, at identical T-count** — the
+measured at **25% lower depth for 128 more qubits, at identical T-count** - the
 best trade in the space.
 
 `csa` replaces the chain of ripple adders with a carry-save tree plus one carry
@@ -110,9 +110,9 @@ result, reported because it is one.
 ```
 
 The oracle supplies its own inverse, so the compression inside it is built
-*without* an internal uncomputation — doing both would run the rounds four times
+*without* an internal uncomputation - doing both would run the rounds four times
 where two suffice. Measured oracle cost is **2.02x** the forward circuit.
 
 The digest comparison is a marker qubit plus a balanced AND tree over 256 bits:
 255 ancillas, ~1,018 Toffolis. Small next to the hash, which is the useful thing
-to know — the comparison is not what makes a preimage oracle expensive.
+to know - the comparison is not what makes a preimage oracle expensive.

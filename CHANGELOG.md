@@ -14,9 +14,9 @@ All notable changes to this project are documented here. This project follows
   correction. A compute/uncompute pair costs 4 T instead of 14.
 - A fourth adder, `gidney`: `n-1` ancillas, no Toffolis, `4(n-1)` T gates.
   A 32-bit addition drops from **448 T to 124 T**.
-- The basis simulator gained a `strict` mode that verifies both preconditions —
+- The basis simulator gained a `strict` mode that verifies both preconditions -
   that every `and_g` target is `|0>` and every `and_g_dg` target holds exactly
-  `x AND y` — since violating either is a silent correctness trap.
+  `x AND y` - since violating either is a silent correctness trap.
 - `append_reversed` maps `and_g` to `and_g_dg` under reverse replay; the two are
   inverses, not self-inverse.
 
@@ -35,10 +35,10 @@ All notable changes to this project are documented here. This project follows
 
 | Design | T-count | vs baseline |
 |---|---:|---:|
-| cdkm (baseline) | 326,144 | — |
-| cdkm + phase folding | 181,568 | −44.3% |
-| gidney temporary ANDs | 131,744 | −59.6% |
-| gidney + phase folding | 107,168 | −67.1% |
+| cdkm (baseline) | 326,144 | - |
+| cdkm + phase folding | 181,568 | -44.3% |
+| gidney temporary ANDs | 131,744 | -59.6% |
+| gidney + phase folding | 107,168 | -67.1% |
 
 Against Amy et al.'s T-par-optimized 228,992 T, the phase-folded *unitary*
 circuit is **20.7% lower at 44% of the qubits**. The Gidney designs go further
@@ -96,7 +96,7 @@ that material.
   recycling ancilla pool with high-water tracking; a builder that attributes gate
   cost to named components.
 - Ancilla-free `Ch` and `Maj` at one Toffoli per bit, via algebraic rewrites.
-- Three published reversible adders — CDKM, VBE, Draper QFT — and two constant
+- Three published reversible adders - CDKM, VBE, Draper QFT - and two constant
   addition strategies.
 - Carry-save multi-operand addition.
 - Two message-schedule strategies (rolling in-place window, store-all) and three
@@ -106,7 +106,7 @@ that material.
 **Validation**
 
 - Exact basis-state simulator, which allows the **real 32-bit, 64-round circuit**
-  to be executed and checked against `hashlib` — not a scaled-down proxy.
+  to be executed and checked against `hashlib` - not a scaled-down proxy.
 - Layered validation suite (`qsha256 validate`): 15 checks, 4,721 cases.
 - 330 pytest tests, several asserting the project's honesty properties directly.
 

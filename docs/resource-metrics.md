@@ -19,33 +19,33 @@ Every figure carries one:
 
 ## Qubit counts
 
-- **Circuit width** — total qubits in the circuit object. `MEASURED`.
-- **Data qubits** — named registers holding meaningful values.
-- **Ancilla qubits** — total ever handed out by the recycling pool.
-- **Max live qubits** — the high-water mark of simultaneously-held qubits, which
+- **Circuit width** - total qubits in the circuit object. `MEASURED`.
+- **Data qubits** - named registers holding meaningful values.
+- **Ancilla qubits** - total ever handed out by the recycling pool.
+- **Max live qubits** - the high-water mark of simultaneously-held qubits, which
   is what a machine actually has to provide.
 
 All of these are **logical** qubits. They are not physical qubits, and the ratio
-is not a constant — see `docs/fault-tolerance.md`.
+is not a constant - see `docs/fault-tolerance.md`.
 
 ## Gate counts
 
 `MEASURED`. Rotations and shifts contribute **zero**, because they are wire
 relabellings (`docs/reversible-computing.md`).
 
-- **Toffoli (CCX)** — the only non-Clifford gate qSHA256 emits, and the one that
+- **Toffoli (CCX)** - the only non-Clifford gate qSHA256 emits, and the one that
   drives fault-tolerant cost.
-- **CNOT / X** — Clifford, comparatively cheap under error correction.
+- **CNOT / X** - Clifford, comparatively cheap under error correction.
 
 ## Depth
 
 The most compiler-dependent number here, and the most often quoted without
 qualification.
 
-- **Depth** — longest gate chain, **assuming all-to-all connectivity**. On
+- **Depth** - longest gate chain, **assuming all-to-all connectivity**. On
   limited-connectivity hardware, routing inserts SWAPs and depth grows.
-- **Two-qubit depth** — counting only two-or-more-qubit gates.
-- **Toffoli depth** — longest chain of dependent Toffolis. Usually the most
+- **Two-qubit depth** - counting only two-or-more-qubit gates.
+- **Toffoli depth** - longest chain of dependent Toffolis. Usually the most
   meaningful for fault tolerance, since Clifford layers are cheap relative to
   magic-state consumption.
 
@@ -65,7 +65,7 @@ trade against each other:
 | `jones` | 4 | 1 | 1 | **yes** | Jones, PRA 87, 022328 (2013) |
 
 `standard` is the default: ancilla-free, measurement-free, and reproduced exactly
-by Qiskit's own Toffoli translation — which the test suite checks, so the
+by Qiskit's own Toffoli translation - which the test suite checks, so the
 analytical model stays anchored to a real compiler rather than drifting.
 
 `jones` is cheapest in T-count but is not a unitary circuit: it needs mid-circuit

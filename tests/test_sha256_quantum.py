@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 
 import pytest
-
 from conftest import assert_ancillas_clean, run_circuit
 
 from qsha256.classical.sha256 import (
@@ -37,12 +36,15 @@ SCHEDULES = ["rolling", "store_all"]
 
 
 class TestSigmaFunctions:
-    @pytest.mark.parametrize("fn,ref", [
-        (big_sigma0_into, big_sigma0),
-        (big_sigma1_into, big_sigma1),
-        (small_sigma0_into, small_sigma0),
-        (small_sigma1_into, small_sigma1),
-    ])
+    @pytest.mark.parametrize(
+        "fn,ref",
+        [
+            (big_sigma0_into, big_sigma0),
+            (big_sigma1_into, big_sigma1),
+            (small_sigma0_into, small_sigma0),
+            (small_sigma1_into, small_sigma1),
+        ],
+    )
     def test_matches_classical_at_full_width(self, rng, fn, ref):
         b = CircuitBuilder("sigma")
         x, t = b.add_word(32, "x"), b.add_word(32, "t")
@@ -69,12 +71,12 @@ class TestRound:
 
     def test_round_allocates_no_permanent_qubits(self):
         """Six of eight state words are renamed, not moved; only temporaries are borrowed."""
-        b, st_in, w, st_out = build_round_circuit(SHA256, Strategy(), t=0)
+        b, st_in, _w, st_out = build_round_circuit(SHA256, Strategy(), t=0)
         assert b.data_qubits == 9 * 32  # a..h plus W
         assert set(st_out) == set(st_in), "round should permute, not reallocate"
 
     def test_register_permutation_costs_no_gates(self):
-        b, st_in, w, st_out = build_round_circuit(SHA256, Strategy(), t=0)
+        b, _st_in, _w, _st_out = build_round_circuit(SHA256, Strategy(), t=0)
         assert "swap" not in b.circuit.count_ops()
 
     def test_layouts_agree_with_each_other(self, rng):
@@ -104,8 +106,11 @@ class TestSchedule:
         for t in range(spec.rounds):
             sched.word(t)
         # The rolling window only keeps the most recent block_words entries.
-        alive = range(spec.rounds - spec.block_words, spec.rounds) if name == "rolling" \
+        alive = (
+            range(spec.rounds - spec.block_words, spec.rounds)
+            if name == "rolling"
             else range(spec.rounds)
+        )
         registers = {t: sched.word(t) for t in alive}
         for _ in range(3):
             block = [rng.getrandbits(spec.word_bits) for _ in range(spec.block_words)]
@@ -238,8 +243,6 @@ class TestFullScaleSha256:
         sim, out = run_circuit(
             comp.builder, dict(zip(comp.state, state)) | dict(zip(comp.message, block))
         )
-        assert tuple(sim.read(out, r) for r in comp.digest) == compress(
-            tuple(state), block, SHA256
-        )
+        assert tuple(sim.read(out, r) for r in comp.digest) == compress(tuple(state), block, SHA256)
         assert all(sim.read(out, r) == 0 for r in comp.working)
         assert_ancillas_clean(comp.builder, sim, out)

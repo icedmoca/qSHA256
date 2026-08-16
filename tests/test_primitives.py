@@ -5,7 +5,6 @@ from __future__ import annotations
 import itertools
 
 import pytest
-
 from conftest import assert_ancillas_clean, run_circuit
 
 from qsha256.classical.sha256 import ch, maj, rotr, shr
@@ -24,7 +23,7 @@ from qsha256.quantum.primitives.shift import (
     shift_gate_cost,
 )
 from qsha256.quantum.primitives.xor import xor_const, xor_terms, xor_word
-from qsha256.quantum.registers import CircuitBuilder, Word
+from qsha256.quantum.registers import CircuitBuilder
 
 BASIS_ADDERS = [name for name, a in ADDERS.items() if a.basis_simulable]
 
@@ -82,10 +81,19 @@ class TestXor:
         xor_const(builder, 0b10110001, word)
         assert builder.circuit.count_ops().get("x", 0) == 4
 
-    @pytest.mark.parametrize("terms,ref", [
-        ((("rotr", 2), ("rotr", 13), ("rotr", 22)), lambda x: rotr(x, 2, 32) ^ rotr(x, 13, 32) ^ rotr(x, 22, 32)),
-        ((("rotr", 7), ("rotr", 18), ("shr", 3)), lambda x: rotr(x, 7, 32) ^ rotr(x, 18, 32) ^ shr(x, 3, 32)),
-    ])
+    @pytest.mark.parametrize(
+        "terms,ref",
+        [
+            (
+                (("rotr", 2), ("rotr", 13), ("rotr", 22)),
+                lambda x: rotr(x, 2, 32) ^ rotr(x, 13, 32) ^ rotr(x, 22, 32),
+            ),
+            (
+                (("rotr", 7), ("rotr", 18), ("shr", 3)),
+                lambda x: rotr(x, 7, 32) ^ rotr(x, 18, 32) ^ shr(x, 3, 32),
+            ),
+        ],
+    )
     def test_xor_terms_matches_classical(self, builder, rng, terms, ref):
         x, t = builder.add_word(32, "x"), builder.add_word(32, "t")
         xor_terms(builder, x, terms, t)

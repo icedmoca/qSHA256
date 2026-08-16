@@ -21,11 +21,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install ruff
+      - run: pip install ruff==0.16.3
       - name: ruff check
         run: ruff check qsha256/ tests/ scripts/ examples/ --output-format=github
       - name: ruff format
-        run: ruff format --check qsha256/ tests/ scripts/
+        run: ruff format --check qsha256/ tests/ scripts/ examples/
 
   test:
     name: test (py${{ matrix.python-version }})

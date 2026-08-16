@@ -6,8 +6,6 @@ import math
 
 import pytest
 
-from conftest import run_circuit
-
 from qsha256.classical.sha256 import compress
 from qsha256.quantum.oracle.grover import (
     build_toy_grover,
@@ -56,8 +54,9 @@ class TestToyHash:
         sim = BasisSimulator(toy.circuit)
         space = 1 << (spec.message_words * spec.word_bits)
         for candidate in range(space):
-            words = [(candidate >> (i * spec.word_bits)) & spec.mask
-                     for i in range(spec.message_words)]
+            words = [
+                (candidate >> (i * spec.word_bits)) & spec.mask for i in range(spec.message_words)
+            ]
             out, _ = sim.run(sim.load(dict(zip(toy.message, words))))
             assert tuple(sim.read(out, r) for r in toy.state) == toy_compress(words, spec)
             assert not sim.nonzero_indices(out, exclude=toy.message + toy.state)
@@ -101,11 +100,13 @@ class TestPreimageOracle:
     def test_leaves_no_garbage_which_grover_requires(self):
         spec = TOY4
         oracle = build_preimage_oracle(
-            spec, Strategy(uncompute_working=True), target_digest=0,
+            spec,
+            Strategy(uncompute_working=True),
+            target_digest=0,
             initial_state=tuple(spec.h0),
         )
         sim = BasisSimulator(oracle.circuit)
-        out, _ = sim.run(sim.load({w: 5 for w in oracle.message}))
+        out, _ = sim.run(sim.load(dict.fromkeys(oracle.message, 5)))
         assert not sim.nonzero_indices(out, exclude=oracle.message)
 
     def test_rejects_the_qft_adder(self):
@@ -114,8 +115,11 @@ class TestPreimageOracle:
 
     def test_fixed_words_shrink_the_search_space(self):
         oracle = build_preimage_oracle(
-            TOY4, Strategy(uncompute_working=True), rounds=4,
-            fixed_words={2: 4, 3: 1}, initial_state=tuple(TOY4.h0),
+            TOY4,
+            Strategy(uncompute_working=True),
+            rounds=4,
+            fixed_words={2: 4, 3: 1},
+            initial_state=tuple(TOY4.h0),
         )
         assert oracle.search_qubits == 2 * TOY4.word_bits
 
@@ -128,8 +132,11 @@ class TestFullScaleOracle:
 
         forward = build_compression(SHA256, Strategy(), rounds=64)
         oracle = build_preimage_oracle(
-            SHA256, Strategy(uncompute_working=True), rounds=64,
-            target_digest=0, initial_state=tuple(SHA256.h0),
+            SHA256,
+            Strategy(uncompute_working=True),
+            rounds=64,
+            target_digest=0,
+            initial_state=tuple(SHA256.h0),
         )
         f = forward.circuit.count_ops()["ccx"]
         o = oracle.circuit.count_ops()["ccx"]
@@ -157,7 +164,7 @@ class TestGrover:
         """The one genuinely quantum result here: run it and check the amplitudes."""
         from qiskit.quantum_info import Statevector
 
-        builder, message, iterations, target, solutions = build_toy_grover(compare_bits=4)
+        builder, message, _iterations, _target, solutions = build_toy_grover(compare_bits=4)
         circuit = builder.circuit
         assert circuit.num_qubits < 24, "toy must stay statevector-simulable"
 
@@ -168,8 +175,9 @@ class TestGrover:
 
         def decode(bits: str) -> tuple[int, ...]:
             value = sum(int(bits[::-1][i]) << i for i in range(len(bits)))
-            return tuple((value >> (i * spec.word_bits)) & spec.mask
-                         for i in range(spec.message_words))
+            return tuple(
+                (value >> (i * spec.word_bits)) & spec.mask for i in range(spec.message_words)
+            )
 
         found = sum(p for bits, p in probabilities.items() if decode(bits) in solutions)
         uniform = len(solutions) / 2 ** (spec.message_words * spec.word_bits)

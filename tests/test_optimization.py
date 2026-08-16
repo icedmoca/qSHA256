@@ -24,12 +24,11 @@ from qsha256.quantum.registers import CircuitBuilder
 from qsha256.quantum.sha256.compression import build_compression
 from qsha256.quantum.strategies import (
     PRESETS,
-    STRATEGY_AXES,
     Strategy,
     enumerate_strategies,
     get_preset,
 )
-from qsha256.spec import SHA256, TOY4
+from qsha256.spec import TOY4
 
 
 class TestStrategies:
@@ -38,7 +37,7 @@ class TestStrategies:
         assert count == 3 * 2 * 2 * 3 * 2
 
     def test_invalid_axis_value_is_rejected(self):
-        with pytest.raises(ValueError, match="strategy.adder"):
+        with pytest.raises(ValueError, match=r"strategy\.adder"):
             Strategy(adder="magic")
 
     def test_labels_are_stable_and_unique(self):
@@ -153,7 +152,9 @@ class TestRewrite:
 
     def test_rewriting_finds_the_hand_written_constant_specialisation(self):
         """constfold should derive automatically what vbe_const encodes by hand."""
-        loaded = apply_rewrites(build_compression(TOY4, Strategy(const_add="load"), rounds=8).builder)
+        loaded = apply_rewrites(
+            build_compression(TOY4, Strategy(const_add="load"), rounds=8).builder
+        )
         manual = apply_rewrites(
             build_compression(TOY4, Strategy(const_add="vbe_const"), rounds=8).builder
         )
@@ -263,11 +264,17 @@ class TestSearch:
 class TestHardwareRanking:
     def test_ranking_orders_by_spacetime_volume(self):
         result = search_designs(
-            TOY4, rounds=4, verify=False, rewrite=False,
-            adder="cdkm", round_layout=("serial", "wide"),
+            TOY4,
+            rounds=4,
+            verify=False,
+            rewrite=False,
+            adder="cdkm",
+            round_layout=("serial", "wide"),
         )
         ranking = rank_for_hardware(result.points, "superconducting")
-        volumes = [s.spacetime_volume for s in sorted(ranking.scored, key=lambda s: s.spacetime_volume)]
+        volumes = [
+            s.spacetime_volume for s in sorted(ranking.scored, key=lambda s: s.spacetime_volume)
+        ]
         assert volumes == sorted(volumes)
         assert ranking.best is not None
 

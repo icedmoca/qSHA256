@@ -19,10 +19,9 @@ from qsha256.quantum.resources.clifford_t import (
     get_model,
     rz_t_count,
 )
-from qsha256.quantum.resources.gates import aggregate, attribute, count_ops
 from qsha256.quantum.resources.leaderboard import (
-    Comparability,
     PUBLISHED,
+    Comparability,
     build_leaderboard,
     render_leaderboard,
 )
@@ -35,7 +34,7 @@ from qsha256.quantum.resources.physical import (
 from qsha256.quantum.resources.reports import log2_str, pow2_str, render, to_csv, to_markdown
 from qsha256.quantum.sha256.compression import build_compression
 from qsha256.quantum.strategies import Strategy
-from qsha256.spec import SHA256, TOY4
+from qsha256.spec import TOY4
 
 
 @pytest.fixture(scope="module")

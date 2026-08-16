@@ -165,13 +165,26 @@ def analyze(
 
     analytic = ct.clifford_t_cost(counts.counts, toffoli_model, epsilon)
 
+    # Circuits containing arbitrary-angle rotations (the QFT adder) have no exact
+    # Clifford+T form at all: expanding them requires approximate synthesis, which
+    # the transpiler cannot do against this basis and which would in any case be a
+    # precision-dependent estimate rather than a measurement.  For those the
+    # analytical Ross-Selinger model is the only honest path, and it is used.
+    exactly_decomposable = analytic["exact"]
     should_transpile = (
         transpile_t if transpile_t is not None else len(circuit.data) <= transpile_limit
-    )
+    ) and exactly_decomposable
+
     provenance = Provenance.ANALYTICAL
     if should_transpile:
         analytic.update(_transpiled_clifford_t(circuit, optimization_level))
         provenance = Provenance.TRANSPILED
+
+    if not exactly_decomposable and transpile_t:
+        analytic["transpile_skipped"] = (
+            "Circuit contains arbitrary-angle rotations, which have no exact "
+            "Clifford+T decomposition. T-count is an analytical synthesis estimate."
+        )
 
     assumptions = _assumptions(analytic, toffoli_model, epsilon, provenance, strategy)
 

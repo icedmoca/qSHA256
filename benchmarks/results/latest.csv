@@ -1,0 +1,24 @@
+spec,target,rounds,strategy,width,data_qubits,ancilla_qubits,max_live_qubits,total_gates,ccx,cx,depth,toffoli_depth,t_count,t_count_provenance
+sha256,sha256 compression,1,cdkm/load/rolling/serial,1057,1024,33,1057,4186,1088,3072,2426,962,7616,TRANSPILED
+sha256,sha256 compression,2,cdkm/load/rolling/serial,1057,1024,33,1057,6582,1664,4864,3566,1412,11648,TRANSPILED
+sha256,sha256 compression,4,cdkm/load/rolling/serial,1057,1024,33,1057,11398,2816,8448,5846,2312,19712,TRANSPILED
+sha256,sha256 compression,8,cdkm/load/rolling/serial,1057,1024,33,1057,20998,5120,15616,10406,4112,35840,TRANSPILED
+sha256,sha256 compression,16,cdkm/load/rolling/serial,1057,1024,33,1057,40194,9728,29952,19526,7712,68096,TRANSPILED
+sha256,sha256 compression,32,cdkm/load/rolling/serial,1057,1024,33,1057,93528,22016,70496,45558,17984,154112,TRANSPILED
+sha256,sha256 compression,64,cdkm/load/rolling/serial,1057,1024,33,1057,200162,46592,151584,97622,38528,326144,TRANSPILED
+sha256,sha256 compression,1,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,7092,1664,5376,3482,1382,11648,TRANSPILED
+sha256,sha256 compression,2,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,11884,2816,8960,5762,2282,19712,TRANSPILED
+sha256,sha256 compression,4,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,21516,5120,16128,10322,4082,35840,TRANSPILED
+sha256,sha256 compression,8,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,40716,9728,30464,19442,7682,68096,TRANSPILED
+sha256,sha256 compression,16,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,79108,18944,59136,37682,14882,132608,TRANSPILED
+sha256,sha256 compression,32,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,185776,43520,140224,89746,35426,304640,TRANSPILED
+sha256,sha256 compression,64,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,399044,92672,302400,193874,76514,648704,TRANSPILED
+sha256,sha256 compression,64,cdkm/load/rolling/serial,1057,1024,33,1057,200162,46592,151584,97622,38528,326144,TRANSPILED
+sha256,sha256 compression,64,cdkm/vbe_const/rolling/serial,1057,1024,33,1057,196745,46464,147364,96286,38400,325248,TRANSPILED
+sha256,sha256 compression,64,cdkm/load/store_all/serial,2593,2560,33,2593,196034,46592,147456,93398,37088,326144,TRANSPILED
+sha256,sha256 compression,64,cdkm/load/rolling/wide,1185,1024,161,1185,200162,46592,151584,73319,29184,326144,TRANSPILED
+sha256,sha256 compression,64,cdkm/load/rolling/csa,1441,1024,417,1441,316642,58496,256160,99243,38475,409472,TRANSPILED
+sha256,sha256 compression,64,vbe/load/rolling/serial,1088,1024,64,1088,234962,82592,150384,113936,55824,578144,TRANSPILED
+sha256,sha256 compression,64,qft/load/rolling/serial,1056,1024,32,1056,1035362,8192,74784,453358,256,301017344,ANALYTICAL
+sha256,sha256 compression,64,cdkm/load/rolling/serial/uncomp,1313,1280,33,1313,399044,92672,302400,193874,76514,648704,TRANSPILED
+sha256,SHA-256 preimage oracle,64,cdkm/load/rolling/serial/uncomp,1535,1280,255,1535,402639,94202,303680,195280,77086,659414,TRANSPILED

@@ -1,0 +1,3209 @@
+{
+  "environment": {
+    "qsha256_version": "2.0.0",
+    "qiskit_version": "2.5.2",
+    "python_version": "3.14.6",
+    "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+    "timestamp": "2026-08-16T14:04:37+00:00"
+  },
+  "tables": {
+    "scaling_forward": [
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 1,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 1088,
+          "cx": 3072,
+          "x": 26
+        },
+        "total_gates": 4186,
+        "toffoli_count": 1088,
+        "cnot_count": 3072,
+        "two_qubit_count": 3072,
+        "depth": {
+          "depth": 2426,
+          "two_qubit_depth": 2426,
+          "toffoli_depth": 962
+        },
+        "clifford_t": {
+          "toffoli_gates": 1088,
+          "rotation_gates": 0,
+          "t_count": 7616,
+          "t_count_from_toffoli": 7616,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 4352,
+          "clifford_count": 12890,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 7616,
+          "t_depth_transpiled": 3848,
+          "depth_transpiled": 11566,
+          "cnot_transpiled": 9600,
+          "h_transpiled": 2176,
+          "gate_counts_transpiled": {
+            "cx": 9600,
+            "t": 4352,
+            "tdg": 3264,
+            "h": 2176,
+            "x": 26
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 320,
+            "cx": 896,
+            "x": 26,
+            "_total": 1242,
+            "_ccx": 320
+          },
+          "d+=T1": {
+            "ccx": 64,
+            "cx": 128,
+            "_total": 192,
+            "_ccx": 64
+          },
+          "T2": {
+            "ccx": 192,
+            "cx": 768,
+            "_total": 960,
+            "_ccx": 192
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:37+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 1 --adder cdkm --schedule rolling --round-layout serial"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 2,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 1664,
+          "cx": 4864,
+          "x": 54
+        },
+        "total_gates": 6582,
+        "toffoli_count": 1664,
+        "cnot_count": 4864,
+        "two_qubit_count": 4864,
+        "depth": {
+          "depth": 3566,
+          "two_qubit_depth": 3566,
+          "toffoli_depth": 1412
+        },
+        "clifford_t": {
+          "toffoli_gates": 1664,
+          "rotation_gates": 0,
+          "t_count": 11648,
+          "t_count_from_toffoli": 11648,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 6656,
+          "clifford_count": 19894,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 11648,
+          "t_depth_transpiled": 5648,
+          "depth_transpiled": 16982,
+          "cnot_transpiled": 14848,
+          "h_transpiled": 3328,
+          "gate_counts_transpiled": {
+            "cx": 14848,
+            "t": 6656,
+            "tdg": 4992,
+            "h": 3328,
+            "x": 54
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 640,
+            "cx": 1792,
+            "x": 54,
+            "_total": 2486,
+            "_ccx": 640
+          },
+          "d+=T1": {
+            "ccx": 128,
+            "cx": 256,
+            "_total": 384,
+            "_ccx": 128
+          },
+          "T2": {
+            "ccx": 384,
+            "cx": 1536,
+            "_total": 1920,
+            "_ccx": 384
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:37+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 2 --adder cdkm --schedule rolling --round-layout serial"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 4,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 2816,
+          "cx": 8448,
+          "x": 134
+        },
+        "total_gates": 11398,
+        "toffoli_count": 2816,
+        "cnot_count": 8448,
+        "two_qubit_count": 8448,
+        "depth": {
+          "depth": 5846,
+          "two_qubit_depth": 5846,
+          "toffoli_depth": 2312
+        },
+        "clifford_t": {
+          "toffoli_gates": 2816,
+          "rotation_gates": 0,
+          "t_count": 19712,
+          "t_count_from_toffoli": 19712,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 11264,
+          "clifford_count": 33926,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 19712,
+          "t_depth_transpiled": 9248,
+          "depth_transpiled": 27814,
+          "cnot_transpiled": 25344,
+          "h_transpiled": 5632,
+          "gate_counts_transpiled": {
+            "cx": 25344,
+            "t": 11264,
+            "tdg": 8448,
+            "h": 5632,
+            "x": 134
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 1280,
+            "cx": 3584,
+            "x": 134,
+            "_total": 4998,
+            "_ccx": 1280
+          },
+          "d+=T1": {
+            "ccx": 256,
+            "cx": 512,
+            "_total": 768,
+            "_ccx": 256
+          },
+          "T2": {
+            "ccx": 768,
+            "cx": 3072,
+            "_total": 3840,
+            "_ccx": 768
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:38+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 4 --adder cdkm --schedule rolling --round-layout serial"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 8,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 5120,
+          "cx": 15616,
+          "x": 262
+        },
+        "total_gates": 20998,
+        "toffoli_count": 5120,
+        "cnot_count": 15616,
+        "two_qubit_count": 15616,
+        "depth": {
+          "depth": 10406,
+          "two_qubit_depth": 10406,
+          "toffoli_depth": 4112
+        },
+        "clifford_t": {
+          "toffoli_gates": 5120,
+          "rotation_gates": 0,
+          "t_count": 35840,
+          "t_count_from_toffoli": 35840,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 20480,
+          "clifford_count": 61958,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 35840,
+          "t_depth_transpiled": 16448,
+          "depth_transpiled": 49478,
+          "cnot_transpiled": 46336,
+          "h_transpiled": 10240,
+          "gate_counts_transpiled": {
+            "cx": 46336,
+            "t": 20480,
+            "tdg": 15360,
+            "h": 10240,
+            "x": 262
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 2560,
+            "cx": 7168,
+            "x": 262,
+            "_total": 9990,
+            "_ccx": 2560
+          },
+          "d+=T1": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          },
+          "T2": {
+            "ccx": 1536,
+            "cx": 6144,
+            "_total": 7680,
+            "_ccx": 1536
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:38+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 8 --adder cdkm --schedule rolling --round-layout serial"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 16,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 9728,
+          "cx": 29952,
+          "x": 514
+        },
+        "total_gates": 40194,
+        "toffoli_count": 9728,
+        "cnot_count": 29952,
+        "two_qubit_count": 29952,
+        "depth": {
+          "depth": 19526,
+          "two_qubit_depth": 19526,
+          "toffoli_depth": 7712
+        },
+        "clifford_t": {
+          "toffoli_gates": 9728,
+          "rotation_gates": 0,
+          "t_count": 68096,
+          "t_count_from_toffoli": 68096,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 38912,
+          "clifford_count": 118018,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 68096,
+          "t_depth_transpiled": 30848,
+          "depth_transpiled": 92806,
+          "cnot_transpiled": 88320,
+          "h_transpiled": 19456,
+          "gate_counts_transpiled": {
+            "cx": 88320,
+            "t": 38912,
+            "tdg": 29184,
+            "h": 19456,
+            "x": 514
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 5120,
+            "cx": 14336,
+            "x": 514,
+            "_total": 19970,
+            "_ccx": 5120
+          },
+          "d+=T1": {
+            "ccx": 1024,
+            "cx": 2048,
+            "_total": 3072,
+            "_ccx": 1024
+          },
+          "T2": {
+            "ccx": 3072,
+            "cx": 12288,
+            "_total": 15360,
+            "_ccx": 3072
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:40+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 16 --adder cdkm --schedule rolling --round-layout serial"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 32,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 22016,
+          "cx": 70496,
+          "x": 1016
+        },
+        "total_gates": 93528,
+        "toffoli_count": 22016,
+        "cnot_count": 70496,
+        "two_qubit_count": 70496,
+        "depth": {
+          "depth": 45558,
+          "two_qubit_depth": 45558,
+          "toffoli_depth": 17984
+        },
+        "clifford_t": {
+          "toffoli_gates": 22016,
+          "rotation_gates": 0,
+          "t_count": 154112,
+          "t_count_from_toffoli": 154112,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 88064,
+          "clifford_count": 269656,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 154112,
+          "t_depth_transpiled": 71936,
+          "depth_transpiled": 216406,
+          "cnot_transpiled": 202592,
+          "h_transpiled": 44032,
+          "gate_counts_transpiled": {
+            "cx": 202592,
+            "t": 88064,
+            "tdg": 66048,
+            "h": 44032,
+            "x": 1016
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 10240,
+            "cx": 28672,
+            "x": 1016,
+            "_total": 39928,
+            "_ccx": 10240
+          },
+          "d+=T1": {
+            "ccx": 2048,
+            "cx": 4096,
+            "_total": 6144,
+            "_ccx": 2048
+          },
+          "T2": {
+            "ccx": 6144,
+            "cx": 24576,
+            "_total": 30720,
+            "_ccx": 6144
+          },
+          "schedule": {
+            "ccx": 3072,
+            "cx": 11872,
+            "_total": 14944,
+            "_ccx": 3072
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:43+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 32 --adder cdkm --schedule rolling --round-layout serial"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 46592,
+          "cx": 151584,
+          "x": 1986
+        },
+        "total_gates": 200162,
+        "toffoli_count": 46592,
+        "cnot_count": 151584,
+        "two_qubit_count": 151584,
+        "depth": {
+          "depth": 97622,
+          "two_qubit_depth": 97622,
+          "toffoli_depth": 38528
+        },
+        "clifford_t": {
+          "toffoli_gates": 46592,
+          "rotation_gates": 0,
+          "t_count": 326144,
+          "t_count_from_toffoli": 326144,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 186368,
+          "clifford_count": 572898,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 326144,
+          "t_depth_transpiled": 154112,
+          "depth_transpiled": 463606,
+          "cnot_transpiled": 431136,
+          "h_transpiled": 93184,
+          "gate_counts_transpiled": {
+            "cx": 431136,
+            "t": 186368,
+            "tdg": 139776,
+            "h": 93184,
+            "x": 1986
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 20480,
+            "cx": 57344,
+            "x": 1986,
+            "_total": 79810,
+            "_ccx": 20480
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 12288,
+            "cx": 49152,
+            "_total": 61440,
+            "_ccx": 12288
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:49+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 64 --adder cdkm --schedule rolling --round-layout serial"
+      }
+    ],
+    "scaling_garbage_free": [
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 1,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 1664,
+          "cx": 5376,
+          "x": 52
+        },
+        "total_gates": 7092,
+        "toffoli_count": 1664,
+        "cnot_count": 5376,
+        "two_qubit_count": 5376,
+        "depth": {
+          "depth": 3482,
+          "two_qubit_depth": 3482,
+          "toffoli_depth": 1382
+        },
+        "clifford_t": {
+          "toffoli_gates": 1664,
+          "rotation_gates": 0,
+          "t_count": 11648,
+          "t_count_from_toffoli": 11648,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 6656,
+          "clifford_count": 20404,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 11648,
+          "t_depth_transpiled": 5528,
+          "depth_transpiled": 16623,
+          "cnot_transpiled": 15360,
+          "h_transpiled": 3328,
+          "gate_counts_transpiled": {
+            "cx": 15360,
+            "t": 6656,
+            "tdg": 4992,
+            "h": 3328,
+            "x": 52
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 320,
+            "cx": 896,
+            "x": 26,
+            "_total": 1242,
+            "_ccx": 320
+          },
+          "d+=T1": {
+            "ccx": 64,
+            "cx": 128,
+            "_total": 192,
+            "_ccx": 64
+          },
+          "T2": {
+            "ccx": 192,
+            "cx": 768,
+            "_total": 960,
+            "_ccx": 192
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 576,
+            "cx": 2048,
+            "x": 26,
+            "_total": 2650,
+            "_ccx": 576
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:49+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 1 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 2,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 2816,
+          "cx": 8960,
+          "x": 108
+        },
+        "total_gates": 11884,
+        "toffoli_count": 2816,
+        "cnot_count": 8960,
+        "two_qubit_count": 8960,
+        "depth": {
+          "depth": 5762,
+          "two_qubit_depth": 5762,
+          "toffoli_depth": 2282
+        },
+        "clifford_t": {
+          "toffoli_gates": 2816,
+          "rotation_gates": 0,
+          "t_count": 19712,
+          "t_count_from_toffoli": 19712,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 11264,
+          "clifford_count": 34412,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 19712,
+          "t_depth_transpiled": 9128,
+          "depth_transpiled": 27451,
+          "cnot_transpiled": 25856,
+          "h_transpiled": 5632,
+          "gate_counts_transpiled": {
+            "cx": 25856,
+            "t": 11264,
+            "tdg": 8448,
+            "h": 5632,
+            "x": 108
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 640,
+            "cx": 1792,
+            "x": 54,
+            "_total": 2486,
+            "_ccx": 640
+          },
+          "d+=T1": {
+            "ccx": 128,
+            "cx": 256,
+            "_total": 384,
+            "_ccx": 128
+          },
+          "T2": {
+            "ccx": 384,
+            "cx": 1536,
+            "_total": 1920,
+            "_ccx": 384
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 1152,
+            "cx": 3840,
+            "x": 54,
+            "_total": 5046,
+            "_ccx": 1152
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:50+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 2 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 4,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 5120,
+          "cx": 16128,
+          "x": 268
+        },
+        "total_gates": 21516,
+        "toffoli_count": 5120,
+        "cnot_count": 16128,
+        "two_qubit_count": 16128,
+        "depth": {
+          "depth": 10322,
+          "two_qubit_depth": 10322,
+          "toffoli_depth": 4082
+        },
+        "clifford_t": {
+          "toffoli_gates": 5120,
+          "rotation_gates": 0,
+          "t_count": 35840,
+          "t_count_from_toffoli": 35840,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 20480,
+          "clifford_count": 62476,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 35840,
+          "t_depth_transpiled": 16328,
+          "depth_transpiled": 49107,
+          "cnot_transpiled": 46848,
+          "h_transpiled": 10240,
+          "gate_counts_transpiled": {
+            "cx": 46848,
+            "t": 20480,
+            "tdg": 15360,
+            "h": 10240,
+            "x": 268
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 1280,
+            "cx": 3584,
+            "x": 134,
+            "_total": 4998,
+            "_ccx": 1280
+          },
+          "d+=T1": {
+            "ccx": 256,
+            "cx": 512,
+            "_total": 768,
+            "_ccx": 256
+          },
+          "T2": {
+            "ccx": 768,
+            "cx": 3072,
+            "_total": 3840,
+            "_ccx": 768
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 2304,
+            "cx": 7424,
+            "x": 134,
+            "_total": 9862,
+            "_ccx": 2304
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:50+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 4 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 8,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 9728,
+          "cx": 30464,
+          "x": 524
+        },
+        "total_gates": 40716,
+        "toffoli_count": 9728,
+        "cnot_count": 30464,
+        "two_qubit_count": 30464,
+        "depth": {
+          "depth": 19442,
+          "two_qubit_depth": 19442,
+          "toffoli_depth": 7682
+        },
+        "clifford_t": {
+          "toffoli_gates": 9728,
+          "rotation_gates": 0,
+          "t_count": 68096,
+          "t_count_from_toffoli": 68096,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 38912,
+          "clifford_count": 118540,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 68096,
+          "t_depth_transpiled": 30728,
+          "depth_transpiled": 92419,
+          "cnot_transpiled": 88832,
+          "h_transpiled": 19456,
+          "gate_counts_transpiled": {
+            "cx": 88832,
+            "t": 38912,
+            "tdg": 29184,
+            "h": 19456,
+            "x": 524
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 2560,
+            "cx": 7168,
+            "x": 262,
+            "_total": 9990,
+            "_ccx": 2560
+          },
+          "d+=T1": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          },
+          "T2": {
+            "ccx": 1536,
+            "cx": 6144,
+            "_total": 7680,
+            "_ccx": 1536
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 4608,
+            "cx": 14592,
+            "x": 262,
+            "_total": 19462,
+            "_ccx": 4608
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:52+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 8 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 16,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 18944,
+          "cx": 59136,
+          "x": 1028
+        },
+        "total_gates": 79108,
+        "toffoli_count": 18944,
+        "cnot_count": 59136,
+        "two_qubit_count": 59136,
+        "depth": {
+          "depth": 37682,
+          "two_qubit_depth": 37682,
+          "toffoli_depth": 14882
+        },
+        "clifford_t": {
+          "toffoli_gates": 18944,
+          "rotation_gates": 0,
+          "t_count": 132608,
+          "t_count_from_toffoli": 132608,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 75776,
+          "clifford_count": 230660,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 132608,
+          "t_depth_transpiled": 59528,
+          "depth_transpiled": 179043,
+          "cnot_transpiled": 172800,
+          "h_transpiled": 37888,
+          "gate_counts_transpiled": {
+            "cx": 172800,
+            "t": 75776,
+            "tdg": 56832,
+            "h": 37888,
+            "x": 1028
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 5120,
+            "cx": 14336,
+            "x": 514,
+            "_total": 19970,
+            "_ccx": 5120
+          },
+          "d+=T1": {
+            "ccx": 1024,
+            "cx": 2048,
+            "_total": 3072,
+            "_ccx": 1024
+          },
+          "T2": {
+            "ccx": 3072,
+            "cx": 12288,
+            "_total": 15360,
+            "_ccx": 3072
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 9216,
+            "cx": 28928,
+            "x": 514,
+            "_total": 38658,
+            "_ccx": 9216
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:04:54+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 16 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 32,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 43520,
+          "cx": 140224,
+          "x": 2032
+        },
+        "total_gates": 185776,
+        "toffoli_count": 43520,
+        "cnot_count": 140224,
+        "two_qubit_count": 140224,
+        "depth": {
+          "depth": 89746,
+          "two_qubit_depth": 89746,
+          "toffoli_depth": 35426
+        },
+        "clifford_t": {
+          "toffoli_gates": 43520,
+          "rotation_gates": 0,
+          "t_count": 304640,
+          "t_count_from_toffoli": 304640,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 174080,
+          "clifford_count": 533936,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 304640,
+          "t_depth_transpiled": 141704,
+          "depth_transpiled": 426179,
+          "cnot_transpiled": 401344,
+          "h_transpiled": 87040,
+          "gate_counts_transpiled": {
+            "cx": 401344,
+            "t": 174080,
+            "tdg": 130560,
+            "h": 87040,
+            "x": 2032
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 10240,
+            "cx": 28672,
+            "x": 1016,
+            "_total": 39928,
+            "_ccx": 10240
+          },
+          "d+=T1": {
+            "ccx": 2048,
+            "cx": 4096,
+            "_total": 6144,
+            "_ccx": 2048
+          },
+          "T2": {
+            "ccx": 6144,
+            "cx": 24576,
+            "_total": 30720,
+            "_ccx": 6144
+          },
+          "schedule": {
+            "ccx": 3072,
+            "cx": 11872,
+            "_total": 14944,
+            "_ccx": 3072
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 21504,
+            "cx": 69472,
+            "x": 1016,
+            "_total": 91992,
+            "_ccx": 21504
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:00+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 32 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 92672,
+          "cx": 302400,
+          "x": 3972
+        },
+        "total_gates": 399044,
+        "toffoli_count": 92672,
+        "cnot_count": 302400,
+        "two_qubit_count": 302400,
+        "depth": {
+          "depth": 193874,
+          "two_qubit_depth": 193874,
+          "toffoli_depth": 76514
+        },
+        "clifford_t": {
+          "toffoli_gates": 92672,
+          "rotation_gates": 0,
+          "t_count": 648704,
+          "t_count_from_toffoli": 648704,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 370688,
+          "clifford_count": 1140420,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 648704,
+          "t_depth_transpiled": 306056,
+          "depth_transpiled": 920451,
+          "cnot_transpiled": 858432,
+          "h_transpiled": 185344,
+          "gate_counts_transpiled": {
+            "cx": 858432,
+            "t": 370688,
+            "tdg": 278016,
+            "h": 185344,
+            "x": 3972
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 20480,
+            "cx": 57344,
+            "x": 1986,
+            "_total": 79810,
+            "_ccx": 20480
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 12288,
+            "cx": 49152,
+            "_total": 61440,
+            "_ccx": 12288
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 46080,
+            "cx": 150560,
+            "x": 1986,
+            "_total": 198626,
+            "_ccx": 46080
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:14+00:00"
+        },
+        "reproduce": "qsha256 analyze --spec sha256 --rounds 64 --adder cdkm --schedule rolling --round-layout serial --uncompute"
+      }
+    ],
+    "architectures": [
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 46592,
+          "cx": 151584,
+          "x": 1986
+        },
+        "total_gates": 200162,
+        "toffoli_count": 46592,
+        "cnot_count": 151584,
+        "two_qubit_count": 151584,
+        "depth": {
+          "depth": 97622,
+          "two_qubit_depth": 97622,
+          "toffoli_depth": 38528
+        },
+        "clifford_t": {
+          "toffoli_gates": 46592,
+          "rotation_gates": 0,
+          "t_count": 326144,
+          "t_count_from_toffoli": 326144,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 186368,
+          "clifford_count": 572898,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 326144,
+          "t_depth_transpiled": 154112,
+          "depth_transpiled": 463606,
+          "cnot_transpiled": 431136,
+          "h_transpiled": 93184,
+          "gate_counts_transpiled": {
+            "cx": 431136,
+            "t": 186368,
+            "tdg": 139776,
+            "h": 93184,
+            "x": 1986
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 20480,
+            "cx": 57344,
+            "x": 1986,
+            "_total": 79810,
+            "_ccx": 20480
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 12288,
+            "cx": 49152,
+            "_total": 61440,
+            "_ccx": 12288
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:20+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "vbe_const",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/vbe_const/rolling/serial"
+        },
+        "width": 1057,
+        "data_qubits": 1024,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1057,
+        "gate_counts": {
+          "ccx": 46464,
+          "cx": 147364,
+          "x": 2917
+        },
+        "total_gates": 196745,
+        "toffoli_count": 46464,
+        "cnot_count": 147364,
+        "two_qubit_count": 147364,
+        "depth": {
+          "depth": 96286,
+          "two_qubit_depth": 94329,
+          "toffoli_depth": 38400
+        },
+        "clifford_t": {
+          "toffoli_gates": 46464,
+          "rotation_gates": 0,
+          "t_count": 325248,
+          "t_count_from_toffoli": 325248,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 185856,
+          "clifford_count": 568457,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 325248,
+          "t_depth_transpiled": 151680,
+          "depth_transpiled": 455230,
+          "cnot_transpiled": 426148,
+          "h_transpiled": 92928,
+          "gate_counts_transpiled": {
+            "cx": 426148,
+            "t": 185856,
+            "tdg": 139392,
+            "h": 92928,
+            "x": 2917
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 20352,
+            "cx": 53124,
+            "x": 2917,
+            "_total": 76393,
+            "_ccx": 20352
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 12288,
+            "cx": 49152,
+            "_total": 61440,
+            "_ccx": 12288
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:27+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "store_all",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/store_all/serial"
+        },
+        "width": 2593,
+        "data_qubits": 2560,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 2593,
+        "gate_counts": {
+          "ccx": 46592,
+          "cx": 147456,
+          "x": 1986
+        },
+        "total_gates": 196034,
+        "toffoli_count": 46592,
+        "cnot_count": 147456,
+        "two_qubit_count": 147456,
+        "depth": {
+          "depth": 93398,
+          "two_qubit_depth": 93398,
+          "toffoli_depth": 37088
+        },
+        "clifford_t": {
+          "toffoli_gates": 46592,
+          "rotation_gates": 0,
+          "t_count": 326144,
+          "t_count_from_toffoli": 326144,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 186368,
+          "clifford_count": 568770,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 326144,
+          "t_depth_transpiled": 148352,
+          "depth_transpiled": 445078,
+          "cnot_transpiled": 427008,
+          "h_transpiled": 93184,
+          "gate_counts_transpiled": {
+            "cx": 427008,
+            "t": 186368,
+            "tdg": 139776,
+            "h": 93184,
+            "x": 1986
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 20480,
+            "cx": 57344,
+            "x": 1986,
+            "_total": 79810,
+            "_ccx": 20480
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 12288,
+            "cx": 49152,
+            "_total": 61440,
+            "_ccx": 12288
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 31488,
+            "_total": 40704,
+            "_ccx": 9216
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:33+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "wide",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/wide"
+        },
+        "width": 1185,
+        "data_qubits": 1024,
+        "ancilla_qubits": 161,
+        "max_live_qubits": 1185,
+        "gate_counts": {
+          "ccx": 46592,
+          "cx": 151584,
+          "x": 1986
+        },
+        "total_gates": 200162,
+        "toffoli_count": 46592,
+        "cnot_count": 151584,
+        "two_qubit_count": 151584,
+        "depth": {
+          "depth": 73319,
+          "two_qubit_depth": 73286,
+          "toffoli_depth": 29184
+        },
+        "clifford_t": {
+          "toffoli_gates": 46592,
+          "rotation_gates": 0,
+          "t_count": 326144,
+          "t_count_from_toffoli": 326144,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 186368,
+          "clifford_count": 572898,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 326144,
+          "t_depth_transpiled": 116736,
+          "depth_transpiled": 350567,
+          "cnot_transpiled": 431136,
+          "h_transpiled": 93184,
+          "gate_counts_transpiled": {
+            "cx": 431136,
+            "t": 186368,
+            "tdg": 139776,
+            "h": 93184,
+            "x": 1986
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "subexpressions": {
+            "ccx": 4096,
+            "cx": 28672,
+            "_total": 32768,
+            "_ccx": 4096
+          },
+          "T1": {
+            "ccx": 16384,
+            "cx": 32768,
+            "x": 1986,
+            "_total": 51138,
+            "_ccx": 16384
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 8192,
+            "cx": 16384,
+            "_total": 24576,
+            "_ccx": 8192
+          },
+          "uncompute subexpressions": {
+            "ccx": 4096,
+            "cx": 28672,
+            "_total": 32768,
+            "_ccx": 4096
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:40+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "csa",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/csa"
+        },
+        "width": 1441,
+        "data_qubits": 1024,
+        "ancilla_qubits": 417,
+        "max_live_qubits": 1441,
+        "gate_counts": {
+          "ccx": 58496,
+          "cx": 256160,
+          "x": 1986
+        },
+        "total_gates": 316642,
+        "toffoli_count": 58496,
+        "cnot_count": 256160,
+        "two_qubit_count": 256160,
+        "depth": {
+          "depth": 99243,
+          "two_qubit_depth": 99243,
+          "toffoli_depth": 38475
+        },
+        "clifford_t": {
+          "toffoli_gates": 58496,
+          "rotation_gates": 0,
+          "t_count": 409472,
+          "t_count_from_toffoli": 409472,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 233984,
+          "clifford_count": 784610,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 409472,
+          "t_depth_transpiled": 153900,
+          "depth_transpiled": 464487,
+          "cnot_transpiled": 607136,
+          "h_transpiled": 116992,
+          "gate_counts_transpiled": {
+            "cx": 607136,
+            "t": 233984,
+            "tdg": 175488,
+            "h": 116992,
+            "x": 1986
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "subexpressions": {
+            "ccx": 4096,
+            "cx": 28672,
+            "x": 993,
+            "_total": 33761,
+            "_ccx": 4096
+          },
+          "R1 = Sigma1 + Ch + K + W": {
+            "ccx": 16128,
+            "cx": 84736,
+            "_total": 100864,
+            "_ccx": 16128
+          },
+          "e' = d + h + R1": {
+            "ccx": 8192,
+            "cx": 16384,
+            "_total": 24576,
+            "_ccx": 8192
+          },
+          "a' = h + (R1 + Sigma0 + Maj)": {
+            "ccx": 16256,
+            "cx": 60800,
+            "_total": 77056,
+            "_ccx": 16256
+          },
+          "uncompute subexpressions": {
+            "ccx": 4096,
+            "cx": 28672,
+            "x": 993,
+            "_total": 33761,
+            "_ccx": 4096
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (in place)": {
+            "ccx": 512,
+            "cx": 1024,
+            "_total": 1536,
+            "_ccx": 512
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:49+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "vbe",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "vbe/load/rolling/serial"
+        },
+        "width": 1088,
+        "data_qubits": 1024,
+        "ancilla_qubits": 64,
+        "max_live_qubits": 1088,
+        "gate_counts": {
+          "ccx": 82592,
+          "cx": 150384,
+          "x": 1986
+        },
+        "total_gates": 234962,
+        "toffoli_count": 82592,
+        "cnot_count": 150384,
+        "two_qubit_count": 150384,
+        "depth": {
+          "depth": 113936,
+          "two_qubit_depth": 113936,
+          "toffoli_depth": 55824
+        },
+        "clifford_t": {
+          "toffoli_gates": 82592,
+          "rotation_gates": 0,
+          "t_count": 578144,
+          "t_count_from_toffoli": 578144,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 330368,
+          "clifford_count": 895698,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 578144,
+          "t_depth_transpiled": 205759,
+          "depth_transpiled": 582275,
+          "cnot_transpiled": 645936,
+          "h_transpiled": 165184,
+          "gate_counts_transpiled": {
+            "cx": 645936,
+            "t": 330368,
+            "tdg": 247776,
+            "h": 165184,
+            "x": 1986
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 35840,
+            "cx": 56832,
+            "x": 1986,
+            "_total": 94658,
+            "_ccx": 35840
+          },
+          "d+=T1": {
+            "ccx": 7936,
+            "cx": 8064,
+            "_total": 16000,
+            "_ccx": 7936
+          },
+          "T2": {
+            "ccx": 19968,
+            "cx": 48896,
+            "_total": 68864,
+            "_ccx": 19968
+          },
+          "schedule": {
+            "ccx": 17856,
+            "cx": 35328,
+            "_total": 53184,
+            "_ccx": 17856
+          },
+          "chaining addition (in place)": {
+            "ccx": 992,
+            "cx": 1008,
+            "_total": 2000,
+            "_ccx": 992
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:05:59+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "qft",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": false,
+          "rewrites": [],
+          "label": "qft/load/rolling/serial"
+        },
+        "width": 1056,
+        "data_qubits": 1024,
+        "ancilla_qubits": 32,
+        "max_live_qubits": 1056,
+        "gate_counts": {
+          "ccx": 8192,
+          "cp": 912000,
+          "cx": 74784,
+          "h": 38400,
+          "x": 1986
+        },
+        "total_gates": 1035362,
+        "toffoli_count": 8192,
+        "cnot_count": 74784,
+        "two_qubit_count": 986784,
+        "depth": {
+          "depth": 453358,
+          "two_qubit_depth": 427539,
+          "toffoli_depth": 256
+        },
+        "clifford_t": {
+          "toffoli_gates": 8192,
+          "rotation_gates": 912000,
+          "t_count": 301017344,
+          "t_count_from_toffoli": 57344,
+          "t_count_from_rotations": 300960000,
+          "t_depth_serial_bound": 300992768,
+          "clifford_count": 188898,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": 1e-10,
+          "exact": false,
+          "transpile_skipped": "Circuit contains arbitrary-angle rotations, which have no exact Clifford+T decomposition. T-count is an analytical synthesis estimate."
+        },
+        "t_count_provenance": "ANALYTICAL",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 4096,
+            "cp": 389120,
+            "cx": 24576,
+            "h": 16384,
+            "x": 1986,
+            "_total": 436162,
+            "_ccx": 4096
+          },
+          "d+=T1": {
+            "cp": 97280,
+            "h": 4096,
+            "_total": 101376,
+            "_ccx": 0
+          },
+          "T2": {
+            "ccx": 4096,
+            "cp": 194560,
+            "cx": 32768,
+            "h": 8192,
+            "_total": 239616,
+            "_ccx": 4096
+          },
+          "schedule": {
+            "cp": 218880,
+            "cx": 17184,
+            "h": 9216,
+            "_total": 245280,
+            "_ccx": 0
+          },
+          "chaining addition (in place)": {
+            "cp": 12160,
+            "h": 512,
+            "_total": 12672,
+            "_ccx": 0
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "Circuit contains 912000 arbitrary-angle rotations (QFT adder). Their T-cost is a Ross-Selinger synthesis estimate at epsilon=1e-10 (110 T per rotation), not an exact decomposition.",
+          "T-count is ANALYTICAL (measured Toffoli count times the model's T-count); the circuit was not transpiled at this size. T-depth is a serial upper bound.",
+          "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:06:50+00:00"
+        },
+        "reproduce": ""
+      },
+      {
+        "target": "sha256 compression",
+        "spec_name": "sha256",
+        "word_bits": 32,
+        "rounds": 64,
+        "strategy": {
+          "adder": "cdkm",
+          "const_add": "load",
+          "schedule": "rolling",
+          "round_layout": "serial",
+          "uncompute_working": true,
+          "rewrites": [],
+          "label": "cdkm/load/rolling/serial/uncomp"
+        },
+        "width": 1313,
+        "data_qubits": 1280,
+        "ancilla_qubits": 33,
+        "max_live_qubits": 1313,
+        "gate_counts": {
+          "ccx": 92672,
+          "cx": 302400,
+          "x": 3972
+        },
+        "total_gates": 399044,
+        "toffoli_count": 92672,
+        "cnot_count": 302400,
+        "two_qubit_count": 302400,
+        "depth": {
+          "depth": 193874,
+          "two_qubit_depth": 193874,
+          "toffoli_depth": 76514
+        },
+        "clifford_t": {
+          "toffoli_gates": 92672,
+          "rotation_gates": 0,
+          "t_count": 648704,
+          "t_count_from_toffoli": 648704,
+          "t_count_from_rotations": 0,
+          "t_depth_serial_bound": 370688,
+          "clifford_count": 1140420,
+          "decomposition_ancilla": 0,
+          "measurements": 0,
+          "model": "standard",
+          "model_reference": "Nielsen & Chuang Fig. 4.9",
+          "rotation_epsilon": null,
+          "exact": true,
+          "t_count_transpiled": 648704,
+          "t_depth_transpiled": 306056,
+          "depth_transpiled": 920451,
+          "cnot_transpiled": 858432,
+          "h_transpiled": 185344,
+          "gate_counts_transpiled": {
+            "cx": 858432,
+            "t": 370688,
+            "tdg": 278016,
+            "h": 185344,
+            "x": 3972
+          },
+          "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+        },
+        "t_count_provenance": "TRANSPILED",
+        "component_costs": {
+          "copy H into working registers": {
+            "cx": 256,
+            "_total": 256,
+            "_ccx": 0
+          },
+          "T1": {
+            "ccx": 20480,
+            "cx": 57344,
+            "x": 1986,
+            "_total": 79810,
+            "_ccx": 20480
+          },
+          "d+=T1": {
+            "ccx": 4096,
+            "cx": 8192,
+            "_total": 12288,
+            "_ccx": 4096
+          },
+          "T2": {
+            "ccx": 12288,
+            "cx": 49152,
+            "_total": 61440,
+            "_ccx": 12288
+          },
+          "schedule": {
+            "ccx": 9216,
+            "cx": 35616,
+            "_total": 44832,
+            "_ccx": 9216
+          },
+          "chaining addition (into digest register)": {
+            "ccx": 512,
+            "cx": 1280,
+            "_total": 1792,
+            "_ccx": 512
+          },
+          "uncompute (inverse of copy + schedule + rounds)": {
+            "ccx": 46080,
+            "cx": 150560,
+            "x": 1986,
+            "_total": 198626,
+            "_ccx": 46080
+          }
+        },
+        "provenance": "HYBRID",
+        "simulated": false,
+        "hardware_executed": false,
+        "assumptions": [
+          "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+          "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+          "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+          "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+          "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+          "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+        ],
+        "environment": {
+          "qsha256_version": "2.0.0",
+          "qiskit_version": "2.5.2",
+          "python_version": "3.14.6",
+          "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+          "timestamp": "2026-08-16T14:07:04+00:00"
+        },
+        "reproduce": ""
+      }
+    ],
+    "components": {
+      "copy H into working registers": {
+        "cx": 256,
+        "_total": 256,
+        "_ccx": 0
+      },
+      "T1": {
+        "ccx": 20480,
+        "cx": 57344,
+        "x": 1986,
+        "_total": 79810,
+        "_ccx": 20480
+      },
+      "d+=T1": {
+        "ccx": 4096,
+        "cx": 8192,
+        "_total": 12288,
+        "_ccx": 4096
+      },
+      "T2": {
+        "ccx": 12288,
+        "cx": 49152,
+        "_total": 61440,
+        "_ccx": 12288
+      },
+      "schedule": {
+        "ccx": 9216,
+        "cx": 35616,
+        "_total": 44832,
+        "_ccx": 9216
+      },
+      "chaining addition (in place)": {
+        "ccx": 512,
+        "cx": 1024,
+        "_total": 1536,
+        "_ccx": 512
+      }
+    },
+    "oracle": {
+      "target": "SHA-256 preimage oracle",
+      "spec_name": "sha256",
+      "word_bits": 32,
+      "rounds": 64,
+      "strategy": {
+        "adder": "cdkm",
+        "const_add": "load",
+        "schedule": "rolling",
+        "round_layout": "serial",
+        "uncompute_working": true,
+        "rewrites": [],
+        "label": "cdkm/load/rolling/serial/uncomp"
+      },
+      "width": 1535,
+      "data_qubits": 1280,
+      "ancilla_qubits": 255,
+      "max_live_qubits": 1535,
+      "gate_counts": {
+        "ccx": 94202,
+        "cx": 303680,
+        "x": 4756,
+        "z": 1
+      },
+      "total_gates": 402639,
+      "toffoli_count": 94202,
+      "cnot_count": 303680,
+      "two_qubit_count": 303680,
+      "depth": {
+        "depth": 195280,
+        "two_qubit_depth": 195276,
+        "toffoli_depth": 77086
+      },
+      "clifford_t": {
+        "toffoli_gates": 94202,
+        "rotation_gates": 0,
+        "t_count": 659414,
+        "t_count_from_toffoli": 659414,
+        "t_count_from_rotations": 0,
+        "t_depth_serial_bound": 376808,
+        "clifford_count": 1156255,
+        "decomposition_ancilla": 0,
+        "measurements": 0,
+        "model": "standard",
+        "model_reference": "Nielsen & Chuang Fig. 4.9",
+        "rotation_epsilon": null,
+        "exact": true,
+        "t_count_transpiled": 659414,
+        "t_depth_transpiled": 308339,
+        "depth_transpiled": 927252,
+        "cnot_transpiled": 868892,
+        "h_transpiled": 188404,
+        "gate_counts_transpiled": {
+          "cx": 868892,
+          "t": 376808,
+          "tdg": 282606,
+          "h": 188404,
+          "x": 4756,
+          "z": 1
+        },
+        "transpiler": "qiskit 2.5.2 optimization_level=0, basis=h+s+sdg+t+tdg+x+y+z+cx+cz+swap"
+      },
+      "t_count_provenance": "TRANSPILED",
+      "component_costs": {
+        "load constants": {
+          "x": 136,
+          "_total": 136,
+          "_ccx": 0
+        },
+        "copy H into working registers": {
+          "cx": 256,
+          "_total": 256,
+          "_ccx": 0
+        },
+        "T1": {
+          "ccx": 20480,
+          "cx": 57344,
+          "x": 1986,
+          "_total": 79810,
+          "_ccx": 20480
+        },
+        "d+=T1": {
+          "ccx": 4096,
+          "cx": 8192,
+          "_total": 12288,
+          "_ccx": 4096
+        },
+        "T2": {
+          "ccx": 12288,
+          "cx": 49152,
+          "_total": 61440,
+          "_ccx": 12288
+        },
+        "schedule": {
+          "ccx": 9216,
+          "cx": 35616,
+          "_total": 44832,
+          "_ccx": 9216
+        },
+        "chaining addition (into digest register)": {
+          "ccx": 512,
+          "cx": 1280,
+          "_total": 1792,
+          "_ccx": 512
+        },
+        "target: phase flip on digest == target": {
+          "ccx": 1018,
+          "x": 512,
+          "z": 1,
+          "_total": 1531,
+          "_ccx": 1018
+        },
+        "inverse SHA-256 (uncompute digest)": {
+          "ccx": 46592,
+          "cx": 151840,
+          "x": 2122,
+          "_total": 200554,
+          "_ccx": 46592
+        }
+      },
+      "provenance": "HYBRID",
+      "simulated": false,
+      "hardware_executed": false,
+      "assumptions": [
+        "Logical resources only: no quantum error correction, no physical qubits, no magic-state factories are included in these counts.",
+        "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
+        "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
+        "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
+        "T-count and T-depth are TRANSPILED: measured off a circuit the Qiskit transpiler rewrote into the Clifford+T basis.",
+        "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
+      ],
+      "environment": {
+        "qsha256_version": "2.0.0",
+        "qiskit_version": "2.5.2",
+        "python_version": "3.14.6",
+        "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
+        "timestamp": "2026-08-16T14:07:17+00:00"
+      },
+      "reproduce": "qsha256 oracle --rounds 64"
+    },
+    "grover": {
+      "oracle_qubits": 1535,
+      "oracle_toffoli": 94202,
+      "oracle_t_count": 659414,
+      "oracle_depth": 195280,
+      "oracle_toffoli_depth": 77086,
+      "search_bits": 256,
+      "solutions": 1,
+      "iterations_log2": 127.65149612947232,
+      "total_t_count_log2": 146.98232112106024,
+      "total_depth_log2": 145.22668080414084,
+      "total_toffoli_log2": 144.17496619900263,
+      "provenance": {
+        "oracle_costs": "MEASURED from a constructed circuit",
+        "iterations": "ANALYTICAL (Grover query complexity)",
+        "totals": "EXTRAPOLATED (product of the two above)",
+        "t_count_model": "standard"
+      },
+      "caveats": [
+        "This is a logical-resource extrapolation. It has not been simulated and has certainly not been executed on hardware.",
+        "Grover iterations are inherently serial: the total depth figure is a single sequential circuit, not something that parallelises away. Distributing the search over m machines buys only sqrt(m).",
+        "Real attack costs are evaluated under a depth cap (NIST's MAXDEPTH). Under any plausible cap the full iteration count cannot be run, and the effective security is higher than the query count suggests.",
+        "No error correction is included. Every T gate here is a logical T requiring a distilled magic state; see the physical estimator for what that implies under an explicit hardware model.",
+        "Assumes a unique preimage and an idealised oracle success probability; real preimage search over a 256-bit digest with a shorter message has a different solution-density structure."
+      ]
+    },
+    "physical": {
+      "optimistic": {
+        "model_name": "optimistic",
+        "achievable": true,
+        "logical_qubits": 1535,
+        "t_count": 659414,
+        "toffoli_depth": 77086,
+        "code_distance": 11,
+        "physical_qubits_data": 371470,
+        "physical_qubits_factories": 1600000,
+        "physical_qubits_total": 1971470,
+        "code_cycles_reaction_limited": 847946.0,
+        "code_cycles_distillation_limited": 412133.75,
+        "code_cycles": 847946.0,
+        "runtime_seconds": 0.0847946,
+        "logical_error_per_qubit_cycle": 1.0000000000000003e-13,
+        "target_failure_probability": 0.01,
+        "assumptions": [
+          "Surface code with a 0.01 threshold and the standard p_L = 0.1 (p/p_th)^((d+1)/2) error fit (Fowler et al., arXiv:1208.0928).",
+          "Physical error rate p = 0.0001, code cycle 1e-07 s.",
+          "Physical qubits per logical qubit = 2 d^2, covering the data patch plus routing space.",
+          "16 magic-state factory/factories, 10 code cycles per T state, 100,000 physical qubits each. Published factory designs vary by more than an order of magnitude; these are inputs, not findings.",
+          "Total failure probability budget 0.01 for the whole circuit.",
+          "Connectivity assumed 2D nearest-neighbour; the logical circuit's depth was measured assuming all-to-all connectivity, so routing overhead is NOT included and the runtime here is optimistic.",
+          "T-count comes from the standard Toffoli decomposition; a different decomposition changes this estimate.",
+          "This is a model, not a prediction. No hardware was involved at any point.",
+          "Model notes: A deliberately favourable machine: an order of magnitude better error rate and ten times faster cycles than the superconducting model, with far more distillation capacity. Useful for bounding how much better things could plausibly get.",
+          "Model reference: Hypothetical improved hardware"
+        ],
+        "provenance": "ASSUMPTION-DEPENDENT"
+      },
+      "superconducting": {
+        "model_name": "superconducting",
+        "achievable": true,
+        "logical_qubits": 1535,
+        "t_count": 659414,
+        "toffoli_depth": 77086,
+        "code_distance": 21,
+        "physical_qubits_data": 1353870,
+        "physical_qubits_factories": 600000,
+        "physical_qubits_total": 1953870,
+        "code_cycles_reaction_limited": 1618806.0,
+        "code_cycles_distillation_limited": 1648535.0,
+        "code_cycles": 1648535.0,
+        "runtime_seconds": 1.6485349999999999,
+        "logical_error_per_qubit_cycle": 1.0000000000000006e-12,
+        "target_failure_probability": 0.01,
+        "assumptions": [
+          "Surface code with a 0.01 threshold and the standard p_L = 0.1 (p/p_th)^((d+1)/2) error fit (Fowler et al., arXiv:1208.0928).",
+          "Physical error rate p = 0.001, code cycle 1e-06 s.",
+          "Physical qubits per logical qubit = 2 d^2, covering the data patch plus routing space.",
+          "4 magic-state factory/factories, 10 code cycles per T state, 150,000 physical qubits each. Published factory designs vary by more than an order of magnitude; these are inputs, not findings.",
+          "Total failure probability budget 0.01 for the whole circuit.",
+          "Connectivity assumed 2D nearest-neighbour; the logical circuit's depth was measured assuming all-to-all connectivity, so routing overhead is NOT included and the runtime here is optimistic.",
+          "T-count comes from the standard Toffoli decomposition; a different decomposition changes this estimate.",
+          "This is a model, not a prediction. No hardware was involved at any point.",
+          "Model notes: A mid-range superconducting assumption: 10^-3 physical error rate and a 1 microsecond syndrome cycle. These are round numbers chosen to be recognisable, not measurements of any specific device.",
+          "Model reference: Parameter style follows Gidney & Ekera, arXiv:1905.09749"
+        ],
+        "provenance": "ASSUMPTION-DEPENDENT"
+      },
+      "conservative": {
+        "model_name": "conservative",
+        "achievable": true,
+        "logical_qubits": 1535,
+        "t_count": 659414,
+        "toffoli_depth": 77086,
+        "code_distance": 75,
+        "physical_qubits_data": 17268750,
+        "physical_qubits_factories": 200000,
+        "physical_qubits_total": 17468750,
+        "code_cycles_reaction_limited": 5781450.0,
+        "code_cycles_distillation_limited": 13188280.0,
+        "code_cycles": 13188280.0,
+        "runtime_seconds": 131.8828,
+        "logical_error_per_qubit_cycle": 3.637978807091713e-13,
+        "target_failure_probability": 0.01,
+        "assumptions": [
+          "Surface code with a 0.01 threshold and the standard p_L = 0.1 (p/p_th)^((d+1)/2) error fit (Fowler et al., arXiv:1208.0928).",
+          "Physical error rate p = 0.005, code cycle 1e-05 s.",
+          "Physical qubits per logical qubit = 2 d^2, covering the data patch plus routing space.",
+          "1 magic-state factory/factories, 20 code cycles per T state, 200,000 physical qubits each. Published factory designs vary by more than an order of magnitude; these are inputs, not findings.",
+          "Total failure probability budget 0.01 for the whole circuit.",
+          "Connectivity assumed 2D nearest-neighbour; the logical circuit's depth was measured assuming all-to-all connectivity, so routing overhead is NOT included and the runtime here is optimistic.",
+          "T-count comes from the standard Toffoli decomposition; a different decomposition changes this estimate.",
+          "This is a model, not a prediction. No hardware was involved at any point.",
+          "Model notes: Physical error rate only a factor of two below threshold, which forces a large code distance. Shows how sharply the physical cost depends on the error rate.",
+          "Model reference: Hypothetical near-threshold hardware"
+        ],
+        "provenance": "ASSUMPTION-DEPENDENT"
+      }
+    },
+    "hardware_ranking": {
+      "superconducting": {
+        "hardware_model": "superconducting",
+        "best": "cdkm/vbe_const/rolling/serial",
+        "designs": [
+          {
+            "label": "cdkm/load/rolling/serial",
+            "achievable": true,
+            "code_distance": 19,
+            "physical_qubits": 1363154,
+            "runtime_seconds": 0.81536,
+            "spacetime_qubit_seconds": 1111461.24544
+          },
+          {
+            "label": "cdkm/vbe_const/rolling/serial",
+            "achievable": true,
+            "code_distance": 19,
+            "physical_qubits": 1363154,
+            "runtime_seconds": 0.81312,
+            "spacetime_qubit_seconds": 1108407.78048
+          },
+          {
+            "label": "cdkm/load/store_all/serial",
+            "achievable": true,
+            "code_distance": 21,
+            "physical_qubits": 2887026,
+            "runtime_seconds": 0.81536,
+            "spacetime_qubit_seconds": 2353965.51936
+          },
+          {
+            "label": "cdkm/load/rolling/wide",
+            "achievable": true,
+            "code_distance": 19,
+            "physical_qubits": 1455570,
+            "runtime_seconds": 0.81536,
+            "spacetime_qubit_seconds": 1186813.5552
+          },
+          {
+            "label": "cdkm/load/rolling/csa",
+            "achievable": true,
+            "code_distance": 21,
+            "physical_qubits": 1870962,
+            "runtime_seconds": 1.02368,
+            "spacetime_qubit_seconds": 1915266.38016
+          },
+          {
+            "label": "vbe/load/rolling/serial",
+            "achievable": true,
+            "code_distance": 21,
+            "physical_qubits": 1559616,
+            "runtime_seconds": 1.44536,
+            "spacetime_qubit_seconds": 2254206.58176
+          },
+          {
+            "label": "qft/load/rolling/serial",
+            "achievable": true,
+            "code_distance": 25,
+            "physical_qubits": 1920000,
+            "runtime_seconds": 752.54336,
+            "spacetime_qubit_seconds": 1444883251.2
+          },
+          {
+            "label": "cdkm/load/rolling/serial/uncomp",
+            "achievable": true,
+            "code_distance": 21,
+            "physical_qubits": 1758066,
+            "runtime_seconds": 1.6217599999999999,
+            "spacetime_qubit_seconds": 2851161.1161599997
+          }
+        ]
+      },
+      "optimistic": {
+        "hardware_model": "optimistic",
+        "best": "cdkm/load/rolling/wide",
+        "designs": [
+          {
+            "label": "cdkm/load/rolling/serial",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 1771234,
+            "runtime_seconds": 0.034675199999999996,
+            "spacetime_qubit_seconds": 61417.893196799996
+          },
+          {
+            "label": "cdkm/vbe_const/rolling/serial",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 1771234,
+            "runtime_seconds": 0.03456,
+            "spacetime_qubit_seconds": 61213.84704
+          },
+          {
+            "label": "cdkm/load/store_all/serial",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 2020066,
+            "runtime_seconds": 0.0333792,
+            "spacetime_qubit_seconds": 67428.1870272
+          },
+          {
+            "label": "cdkm/load/rolling/wide",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 1791970,
+            "runtime_seconds": 0.0262656,
+            "spacetime_qubit_seconds": 47067.167232
+          },
+          {
+            "label": "cdkm/load/rolling/csa",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 1833442,
+            "runtime_seconds": 0.0346275,
+            "spacetime_qubit_seconds": 63487.512855
+          },
+          {
+            "label": "vbe/load/rolling/serial",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 1776256,
+            "runtime_seconds": 0.0502416,
+            "spacetime_qubit_seconds": 89241.94344959999
+          },
+          {
+            "label": "qft/load/rolling/serial",
+            "achievable": true,
+            "code_distance": 13,
+            "physical_qubits": 1956928,
+            "runtime_seconds": 18.813584,
+            "spacetime_qubit_seconds": 36816829.309952
+          },
+          {
+            "label": "cdkm/load/rolling/serial/uncomp",
+            "achievable": true,
+            "code_distance": 9,
+            "physical_qubits": 1812706,
+            "runtime_seconds": 0.0688626,
+            "spacetime_qubit_seconds": 124827.64819559999
+          }
+        ]
+      }
+    },
+    "leaderboard": {
+      "amy2016": [
+        {
+          "metric": "logical_qubits",
+          "qsha256": 1057,
+          "published": 2402,
+          "ratio": 0.44004995836802663,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (56% less)"
+        },
+        {
+          "metric": "toffoli_count",
+          "qsha256": 46592,
+          "published": 57369,
+          "ratio": 0.8121459324722411,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (19% less)"
+        },
+        {
+          "metric": "t_count",
+          "qsha256": 326144,
+          "published": 401584,
+          "ratio": 0.8121439101159409,
+          "comparability": "DIRECT",
+          "verdict": "qSHA256 lower (19% less)"
+        },
+        {
+          "metric": "t_depth",
+          "qsha256": 154112,
+          "published": 171552,
+          "ratio": 0.8983398619660511,
+          "comparability": "DIRECT",
+          "verdict": "qSHA256 lower (10% less)"
+        },
+        {
+          "metric": "cnot_count",
+          "qsha256": 431136,
+          "published": 534272,
+          "ratio": 0.8069597508385242,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (19% less)"
+        },
+        {
+          "metric": "h_count",
+          "qsha256": 93184,
+          "published": 114368,
+          "ratio": 0.8147733631785115,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (19% less)"
+        },
+        {
+          "metric": "depth",
+          "qsha256": 463606,
+          "published": 528768,
+          "ratio": 0.8767663701282983,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (12% less)"
+        }
+      ],
+      "amy2016-opt": [
+        {
+          "metric": "logical_qubits",
+          "qsha256": 1057,
+          "published": 2402,
+          "ratio": 0.44004995836802663,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (56% less)"
+        },
+        {
+          "metric": "toffoli_count",
+          "qsha256": 46592,
+          "published": null,
+          "ratio": null,
+          "comparability": "QUALIFIED",
+          "verdict": "not reported"
+        },
+        {
+          "metric": "t_count",
+          "qsha256": 326144,
+          "published": 228992,
+          "ratio": 1.4242593627724986,
+          "comparability": "DIRECT",
+          "verdict": "qSHA256 higher (42% more)"
+        },
+        {
+          "metric": "t_depth",
+          "qsha256": 154112,
+          "published": 70400,
+          "ratio": 2.189090909090909,
+          "comparability": "DIRECT",
+          "verdict": "qSHA256 higher (119% more)"
+        },
+        {
+          "metric": "cnot_count",
+          "qsha256": 431136,
+          "published": 4209072,
+          "ratio": 0.10243017938395922,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (90% less)"
+        },
+        {
+          "metric": "h_count",
+          "qsha256": 93184,
+          "published": 94144,
+          "ratio": 0.9898028552005439,
+          "comparability": "QUALIFIED",
+          "verdict": "comparable"
+        },
+        {
+          "metric": "depth",
+          "qsha256": 463606,
+          "published": 830720,
+          "ratio": 0.5580773305084745,
+          "comparability": "QUALIFIED",
+          "verdict": "qSHA256 lower (44% less)"
+        }
+      ]
+    }
+  },
+  "elapsed_seconds": 160.5
+}

@@ -69,6 +69,11 @@ throughout, multiplying the cost. Only the one-block case is measured.
 **The toy specs are not SHA-256.** `toy4`, `toy8` and `toy-tiny` share the
 architecture, not the security properties. They exist for exhaustive testing.
 
+**Only Qiskit 2.x is tested.** The dependency pin says `qiskit>=2.0,<3` because
+that is what has actually been run, not because 1.x is known to fail.
+
+**Python 3.10-3.13 are tested in CI**; development happened on 3.14.
+
 ## Things deliberately not claimed
 
 This project will not tell you that quantum computers break SHA-256, that

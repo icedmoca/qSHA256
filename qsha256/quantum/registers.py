@@ -112,14 +112,20 @@ class AncillaPool:
         self._builder = builder
         self._name = name
         self._free: list[Qubit] = []
+        #: Every qubit the pool has ever handed out, in allocation order.  The
+        #: verifier asserts all of these end in |0>: that is the pool's contract,
+        #: and it is checked independently of whatever the data registers hold.
+        self.all: list[Qubit] = []
         self.total = 0
         self.live = 0
         self.peak_live = 0
 
     def _fresh(self, n: int) -> list[Qubit]:
         reg = QuantumRegister(n, f"{self._name}{self.total}")
+        self._builder._register_names.add(reg.name)
         self._builder.circuit.add_register(reg)
         self.total += n
+        self.all.extend(reg)
         return list(reg)
 
     def acquire(self, n: int, label: str = "") -> Word:
@@ -165,15 +171,27 @@ class CircuitBuilder:
         self.sections: list[Section] = []
         self._stack: list[Section] = []
         self._data_qubits = 0
+        self._register_names: set[str] = set()
 
     # -- registers ---------------------------------------------------------
 
     def add_word(self, bits: int, name: str) -> Word:
-        """Allocate a named *data* register (counted separately from ancillas)."""
-        reg = QuantumRegister(bits, name)
+        """Allocate a named *data* register (counted separately from ancillas).
+
+        Names are made unique on collision, so the same construction can be
+        emitted more than once into one circuit (as Grover does with its oracle).
+        """
+        unique = name
+        if unique in self._register_names:
+            suffix = 1
+            while f"{name}_{suffix}" in self._register_names:
+                suffix += 1
+            unique = f"{name}_{suffix}"
+        self._register_names.add(unique)
+        reg = QuantumRegister(bits, unique)
         self.circuit.add_register(reg)
         self._data_qubits += bits
-        return Word(list(reg), name)
+        return Word(list(reg), unique)
 
     def add_words(self, count: int, bits: int, prefix: str) -> list[Word]:
         return [self.add_word(bits, f"{prefix}{i}") for i in range(count)]
@@ -217,6 +235,15 @@ class CircuitBuilder:
 
     def swap(self, a: Qubit, b: Qubit) -> None:
         self.circuit.swap(a, b)
+
+    def z(self, q: Qubit) -> None:
+        """Diagonal phase flip.  Not a permutation gate, but the basis-state
+        simulator tracks it exactly as a sign -- which is what makes a phase
+        oracle checkable without a statevector."""
+        self.circuit.z(q)
+
+    def h(self, q: Qubit) -> None:
+        self.circuit.h(q)
 
     def mcx(self, controls: Sequence[Qubit], target: Qubit, ancillas: Sequence[Qubit]) -> None:
         """Multi-controlled X built from a balanced AND tree (see ``primitives.boolean``)."""

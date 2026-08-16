@@ -149,9 +149,14 @@ class ShaSpec:
 
         Reduced-round variants are the project's primary scaling knob; they are
         genuine prefixes of the real round sequence, sharing ``K[0..rounds-1]``.
+
+        Round counts below ``block_words`` are allowed: the message schedule
+        simply never expands, because rounds ``0..block_words-1`` consume the
+        message block directly.  That makes 1-, 2-, 4- and 8-round SHA-256
+        scaling points well defined.
         """
-        if rounds < self.block_words:
-            raise ValueError(f"{self.name} needs at least {self.block_words} rounds")
+        if rounds < 1:
+            raise ValueError("rounds must be at least 1")
         if rounds == self.rounds:
             return self
         suffix = "" if self.is_sha256 else "-"

@@ -87,6 +87,10 @@ def build_compression(
     rounds: int | None = None,
     initial_state: tuple[int, ...] | None = None,
     message_constants: dict[int, int] | None = None,
+    builder: CircuitBuilder | None = None,
+    message: list[Word] | None = None,
+    output: str | None = None,
+    uncompute: bool | None = None,
 ) -> CompressionCircuit:
     """Build the reversible compression function.
 
@@ -119,18 +123,36 @@ def build_compression(
     rounds = spec.rounds if rounds is None else rounds
     if not 1 <= rounds <= spec.rounds:
         raise ValueError(f"rounds must be in 1..{spec.rounds} for {spec.name}")
-    if strategy.uncompute_working and not ADDERS[strategy.adder].basis_simulable:
+
+    # `output` and `uncompute` are independent knobs that the strategy bundles
+    # together by default.  The oracle overrides them: it wants the result in a
+    # separate register but *not* an internal uncomputation, because it wraps
+    # the whole thing in its own inverse.  Doing both would run the rounds four
+    # times where two suffice.
+    if output is None:
+        output = "digest" if strategy.uncompute_working else "in_place"
+    if uncompute is None:
+        uncompute = strategy.uncompute_working
+    if output not in ("in_place", "digest"):
+        raise ValueError(f"output must be 'in_place' or 'digest', got {output!r}")
+    if uncompute and output != "digest":
+        raise ValueError("uncompute=True requires output='digest' (see module docstring)")
+
+    if uncompute and not ADDERS[strategy.adder].basis_simulable:
         raise ValueError(
             f"adder {strategy.adder!r} is not built from self-inverse gates, "
             "so uncompute_working=True cannot be realised by reverse replay"
         )
 
     width = spec.word_bits
-    b = CircuitBuilder(f"{spec.name}_compress_r{rounds}_{strategy.label()}")
+    b = builder or CircuitBuilder(f"{spec.name}_compress_r{rounds}_{strategy.label()}")
 
     # -- registers ---------------------------------------------------------
     state = b.add_words(spec.state_words, width, "H")
-    message = b.add_words(spec.block_words, width, "M")
+    if message is None:
+        message = b.add_words(spec.block_words, width, "M")
+    elif len(message) != spec.block_words:
+        raise ValueError(f"message must supply {spec.block_words} registers")
     working = b.add_words(spec.state_words, width, "wv")
 
     with b.section("load constants"):
@@ -158,7 +180,7 @@ def build_compression(
 
     forward_end = len(b.circuit.data)
 
-    if not strategy.uncompute_working:
+    if output == "in_place":
         # Cheapest forward evaluation: accumulate in place and keep the garbage.
         # `st` is the round-permuted view of the same eight registers.
         with b.section("chaining addition (in place)"):
@@ -188,8 +210,9 @@ def build_compression(
             xor_word(b, st[i], digest[i])  # digest starts |0>, so this is a copy
             add_into(b, state[i], digest[i], strategy.adder)
 
-    with b.section("uncompute (inverse of copy + schedule + rounds)"):
-        b.append_reversed(forward_start, forward_end)
+    if uncompute:
+        with b.section("uncompute (inverse of copy + schedule + rounds)"):
+            b.append_reversed(forward_start, forward_end)
 
     return CompressionCircuit(
         builder=b,
@@ -200,5 +223,5 @@ def build_compression(
         message=message,
         digest=digest,
         working=list(working),
-        uncomputed=True,
+        uncomputed=uncompute,
     )

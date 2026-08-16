@@ -260,11 +260,15 @@ Thumbs.db
 *.gif
 *.svg
 *.pdf
+!docs/**/*.svg
 
-# Temporary test files
-test_*.py
-debug_*.py
-temp_*.py
+# Scratch files left lying around at the repo root. NOT the test suite:
+# a blanket `test_*.py` rule silently excluded all of tests/ from the
+# repository, so CI checked out a tests/ directory containing only conftest.py
+# and reported success while running zero tests.
+/debug_*.py
+/temp_*.py
+/scratch_*.py
 
 # IDE specific
 .vscode/

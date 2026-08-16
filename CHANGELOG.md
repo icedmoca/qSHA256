@@ -1,86 +1,117 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project are documented here. This project follows
+[Semantic Versioning](https://semver.org/).
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [2.0.0] - 2026-08-16
 
-## [1.0.0] - 2024-01-XX
+**qSHA256 has been refocused from a conventional cryptography wrapper into a
+reversible quantum circuit construction and resource-analysis framework for
+SHA-256.** This is a complete rewrite with no API in common with 1.x.
 
-### Added
-- **Initial secure release** - Complete refactor from experimental quantum implementation to production-ready cryptographic library
-- **SHA-256 Hashing**: `secure_sha256()` function using Python's `hashlib`
-- **HMAC Authentication**: `secure_hmac()` and `secure_hmac_verify()` with constant-time comparison
-- **Key Generation**: `generate_key()` for cryptographically secure random key generation
-- **HKDF Key Derivation**: `hkdf_extract_expand()` for secure key material extraction and expansion
-- **AES-GCM Encryption**: `aes_gcm_encrypt()` and `aes_gcm_decrypt()` for authenticated encryption
-- **Ed25519 Signatures**: `ed25519_generate_keypair()`, `ed25519_sign()`, and `ed25519_verify()` for digital signatures
-- **Input Validation**: Strict type checking and configurable size limits (default: 1 MB)
-- **Security Error Handling**: Custom `SecurityError` exception for security-related failures
-- **Comprehensive Test Suite**: Full test coverage for all cryptographic functions
-- **CI/CD Pipeline**: GitHub Actions workflow with Python 3.10/3.11 matrix testing
-- **Security Scanning**: Integrated `bandit` and `safety` for security vulnerability detection
-- **Code Quality**: `ruff` linting and formatting
-- **Documentation**: Complete API documentation with usage examples
-- **Security Policy**: `SECURITY.md` with vulnerability disclosure guidelines
+### Why
 
-### Changed
-- **Complete API Overhaul**: Replaced all experimental quantum functions with secure cryptographic primitives
-- **Library Focus**: Shifted from educational quantum computing to production cryptography
-- **Dependencies**: Updated from Qiskit-based to cryptography-based dependencies
-- **Package Structure**: Moved experimental demos to separate `demos/` folder with security warnings
-
-### Security
-- **Vetted Libraries**: All cryptographic operations now use well-established libraries (`hashlib`, `cryptography`, `hmac`)
-- **No Custom Crypto**: Removed all custom cryptographic implementations
-- **Secure by Default**: All functions include proper input validation and secure defaults
-- **Constant-Time Operations**: HMAC verification uses constant-time comparison
-- **Secure Random**: Key generation uses `secrets.token_bytes()` for cryptographic security
-- **Input Sanitization**: Strict validation of input types and sizes
+Version 1.x was a thin wrapper over `pyca/cryptography` and `hashlib` offering
+AES-GCM, HMAC, HKDF and Ed25519, with experimental quantum code quarantined in an
+untested `demos/` directory. That package duplicated well-maintained libraries
+while its name promised something else entirely. The quantum material was the
+only part that was not already better served elsewhere, so the project now *is*
+that material.
 
 ### Removed
-- **Experimental Quantum Functions**: All quantum circuit implementations moved to `demos/` folder
-- **Qiskit Dependencies**: Removed quantum computing framework dependencies from main package
-- **Educational-Only Warnings**: Replaced with production-ready security focus
 
-### Deprecated
-- **Experimental Modules**: All quantum SHA-256 implementations in `demos/` are marked as "NOT SECURE - FOR DEMONSTRATION ONLY"
+- The entire conventional cryptography surface: `secure_sha256`, `secure_hmac`,
+  `secure_hmac_verify`, `generate_key`, `hkdf_extract_expand`, `aes_gcm_encrypt`,
+  `aes_gcm_decrypt`, `ed25519_generate_keypair`, `ed25519_sign`,
+  `ed25519_verify`, `SecurityError`. **Use `hashlib` and `cryptography`
+  directly.**
+- The `demos/` package and the `qsha256-demo` entry point.
+- The `cryptography` dependency.
+- `setup.py`-based packaging, replaced by `pyproject.toml`.
+
+### Added
+
+**Reversible circuit core**
+
+- Parameterised SHA-256 family (`spec.py`) with `K` and `H0` *derived* from prime
+  roots using exact integer arithmetic, verified against FIPS 180-4, plus `toy4`
+  and `toy8` reduced models sharing every code path with the real spec.
+- Transparent classical reference model exposing padding, message schedule,
+  per-round state and all intermediates.
+- `Word` register views making rotation and shift zero-gate wire relabellings; a
+  recycling ancilla pool with high-water tracking; a builder that attributes gate
+  cost to named components.
+- Ancilla-free `Ch` and `Maj` at one Toffoli per bit, via algebraic rewrites.
+- Three published reversible adders — CDKM, VBE, Draper QFT — and two constant
+  addition strategies.
+- Carry-save multi-operand addition.
+- Two message-schedule strategies (rolling in-place window, store-all) and three
+  round layouts (serial, wide, carry-save).
+- Full compression function with optional garbage-free uncomputation.
+
+**Validation**
+
+- Exact basis-state simulator, which allows the **real 32-bit, 64-round circuit**
+  to be executed and checked against `hashlib` — not a scaled-down proxy.
+- Layered validation suite (`qsha256 validate`): 15 checks, 4,721 cases.
+- 330 pytest tests, several asserting the project's honesty properties directly.
+
+**Resource analysis**
+
+- Measured gate, depth, qubit and per-component metrics with disjoint attribution.
+- Three documented Clifford+T Toffoli decompositions (standard, Selinger, Jones);
+  reports always state which was used. The analytical T-count is checked against
+  a real transpilation.
+- Ross-Selinger rotation synthesis costing for non-Clifford+T-native circuits.
+- Surface-code fault-tolerant estimator with every parameter an explicit input.
+- Provenance labelling throughout: `MEASURED`, `TRANSPILED`, `ANALYTICAL`,
+  `EXTRAPOLATED`, `ASSUMPTION-DEPENDENT`.
+
+**Optimization and search**
+
+- Gate-level rewriting: commutation-aware involution cancellation and constant
+  folding from `|0>`.
+- Equivalence checking with reported assurance level.
+- Exhaustive Pareto search over the design space with per-design verification and
+  quantified trade-off statements.
+- Hardware-aware ranking by spacetime volume.
+- Leaderboard against published circuits, with per-metric comparability verdicts.
+
+**Grover**
+
+- Digest comparison and full SHA-256 preimage oracle, measured at 2.02x a forward
+  evaluation.
+- A reduced toy hash on which amplitude amplification actually executes.
+- Grover cost extrapolation that separates measured, analytical and extrapolated
+  quantities and states the caveats the `2^128` figure omits.
+
+**Project**
+
+- `qsha256` CLI with nine subcommands.
+- Nine documentation pages including an explicit limitations page.
+- Seven runnable examples.
+- Reproducible benchmark generation; no number in the README is typed by hand.
+- Modernised CI: lint, matrix tests, separate full-scale and benchmark workflows.
 
 ### Fixed
-- **Security Vulnerabilities**: Addressed all potential security issues in experimental implementation
-- **Input Validation**: Added comprehensive input validation to prevent injection and overflow attacks
-- **Error Handling**: Improved error handling to prevent information leakage
 
-### Technical Details
-- **Python Support**: Python 3.10+ required
-- **Dependencies**: `cryptography>=41.0.0` for core cryptographic operations
-- **Testing**: `pytest>=7.0.0` with comprehensive test coverage
-- **Linting**: `ruff>=0.1.0` for code quality
-- **Security**: `bandit>=1.7.0` and `safety>=2.3.0` for security scanning
+- **License inconsistency.** The README claimed MIT while `LICENSE` was Apache
+  2.0. The `LICENSE` file is authoritative and unchanged; all documentation and
+  package metadata now agree on **Apache 2.0**.
+- Repository metadata pointing at the wrong GitHub organisation.
+- CI that reported success while running zero tests (`tests/` contained only an
+  `__init__.py`).
 
-## Pre-1.0.0 (Historical)
+### Security
 
-### [0.x.x] - Previous Versions
-- **Experimental Quantum Implementation**: Educational quantum SHA-256 using Qiskit
-- **Quantum Gates**: XOR, AND, Ch, Maj, Sigma functions implemented as quantum circuits
-- **State Analysis**: Quantum state metrics and visualization
-- **Educational Focus**: Designed for learning quantum computing concepts
-
-**Note**: All pre-1.0.0 versions contained experimental quantum implementations that were **NOT SECURE** and should never be used for production cryptography. These implementations have been moved to the `demos/` folder with appropriate security warnings.
+qSHA256 is a research and educational project. It is **not** a cryptographic
+library, provides no security guarantees, and must not be used to protect
+anything. See [SECURITY.md](SECURITY.md).
 
 ---
 
-## Versioning
+## [1.0.0] - 2025
 
-This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html):
-
-- **MAJOR** version for incompatible API changes
-- **MINOR** version for backwards-compatible functionality additions  
-- **PATCH** version for backwards-compatible bug fixes
-
-## Security Notes
-
-- All versions 1.0.0+ are designed for production use with secure cryptographic primitives
-- Versions 0.x.x were experimental and educational only - **DO NOT USE FOR PRODUCTION**
-- Always use the latest version for security updates
-- Report security vulnerabilities according to [SECURITY.md](SECURITY.md)
+Conventional cryptography wrapper providing SHA-256, HMAC, HKDF, AES-GCM and
+Ed25519 over `hashlib` and `pyca/cryptography`, with experimental quantum demos.
+Superseded entirely by 2.0.0.

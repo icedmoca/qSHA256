@@ -1,0 +1,35 @@
+name: Benchmarks
+
+# Resource analysis over full 64-round circuits is far too slow for per-commit
+# CI, so it runs on demand and on a schedule instead.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * 1"
+
+jobs:
+  benchmark:
+    name: regenerate resource tables
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: generate benchmark results
+        run: python scripts/generate_benchmarks.py
+
+      - name: show what changed
+        run: git diff --stat benchmarks/results/ || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmarks/results/
+
+      - name: design-space search
+        run: qsha256 search --spec toy4 --rounds 8

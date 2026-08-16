@@ -34,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ...spec import SHA256, ShaSpec
-from ..optimization.strategies import DEFAULT, Strategy
+from ..strategies import DEFAULT, Strategy
 from ..primitives.add import ADDERS, add_into
 from ..primitives.xor import xor_const, xor_word
 from ..registers import CircuitBuilder, Word
@@ -99,7 +99,7 @@ def build_compression(
     spec:
         Which member of the SHA-256 family to build.
     strategy:
-        Architecture choices; see :class:`~qsha256.quantum.optimization.strategies.Strategy`.
+        Architecture choices; see :class:`~qsha256.quantum.strategies.Strategy`.
     rounds:
         Round count, for scaling studies.  ``None`` means ``spec.rounds``.
     initial_state:

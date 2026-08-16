@@ -5,7 +5,7 @@ the cheapest circuit we could find, and here is what it trades away".
 
 The search is exhaustive over a discrete space rather than heuristic, which is
 possible because the design space is small and every point in it is correct by
-construction: a :class:`~qsha256.quantum.optimization.strategies.Strategy` is a
+construction: a :class:`~qsha256.quantum.strategies.Strategy` is a
 parameter vector, not a program, so there is no invalid combination to guard
 against.  On top of each architectural point the gate-level rewriter may be
 applied, giving a second, finer layer of optimization.
@@ -35,7 +35,7 @@ from ..primitives.add import ADDERS
 from ..resources.analyzer import ResourceReport, analyze
 from ..sha256.compression import build_compression
 from .rewrite import apply_rewrites
-from .strategies import Strategy, enumerate_strategies
+from ..strategies import Strategy, enumerate_strategies
 from .verify import Assurance, EquivalenceResult, verify_against_classical
 
 __all__ = [

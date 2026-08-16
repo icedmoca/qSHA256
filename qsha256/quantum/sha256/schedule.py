@@ -36,7 +36,7 @@ from abc import ABC, abstractmethod
 
 from ...classical.sha256 import schedule_offsets
 from ...spec import SHA256, ShaSpec
-from ..optimization.strategies import DEFAULT, Strategy
+from ..strategies import DEFAULT, Strategy
 from ..primitives.add import add_into
 from ..primitives.xor import xor_terms
 from ..registers import CircuitBuilder, Word

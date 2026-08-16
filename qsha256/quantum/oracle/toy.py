@@ -32,7 +32,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ...spec import Term, frac_bits_of_root, first_primes
-from ..optimization.strategies import DEFAULT, Strategy
+from ..strategies import DEFAULT, Strategy
 from ..primitives.add import add_const_into, add_into
 from ..primitives.boolean import ch_word_into, maj_word_into
 from ..primitives.xor import xor_const, xor_terms

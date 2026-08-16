@@ -37,7 +37,7 @@ import qiskit
 from qiskit import QuantumCircuit, transpile
 
 from ...spec import ShaSpec
-from ..optimization.strategies import Strategy
+from ..strategies import Strategy
 from ..registers import CircuitBuilder
 from . import clifford_t as ct
 from .depth import DepthMetrics, measure_depth
@@ -128,7 +128,7 @@ def analyze(
     toffoli_model: str = ct.DEFAULT_MODEL,
     epsilon: float = 1e-10,
     transpile_t: bool | None = None,
-    transpile_limit: int = 20_000,
+    transpile_limit: int = 600_000,
     optimization_level: int = 0,
     simulated: bool = False,
     reproduce: str = "",
@@ -170,10 +170,7 @@ def analyze(
     )
     provenance = Provenance.ANALYTICAL
     if should_transpile:
-        measured_ct, tdepth = _transpiled_clifford_t(circuit, optimization_level)
-        analytic["t_count_transpiled"] = measured_ct
-        analytic["t_depth_transpiled"] = tdepth
-        analytic["transpiler"] = f"qiskit {qiskit.__version__} optimization_level={optimization_level}"
+        analytic.update(_transpiled_clifford_t(circuit, optimization_level))
         provenance = Provenance.TRANSPILED
 
     assumptions = _assumptions(analytic, toffoli_model, epsilon, provenance, strategy)
@@ -216,17 +213,34 @@ def _unpack(source) -> tuple[CircuitBuilder | None, QuantumCircuit]:
     raise TypeError(f"cannot analyse {type(source).__name__}")
 
 
-def _transpiled_clifford_t(circuit: QuantumCircuit, optimization_level: int) -> tuple[int, int]:
-    """Actually compile to Clifford+T and count.  Returns ``(t_count, t_depth)``."""
+def _transpiled_clifford_t(circuit: QuantumCircuit, optimization_level: int) -> dict[str, Any]:
+    """Actually compile to Clifford+T and measure.
+
+    Producing these alongside the analytical figures serves two purposes: it
+    turns the T-count from a model output into a measurement, and it yields a
+    depth and CNOT count in the *same* basis that published Clifford+T results
+    use -- without which cross-paper depth comparison is meaningless.
+    """
     decomposed = transpile(
         circuit,
         basis_gates=ct.CLIFFORD_T_BASIS,
         optimization_level=optimization_level,
     )
-    ops = decomposed.count_ops()
-    t_count = ops.get("t", 0) + ops.get("tdg", 0)
-    t_depth = decomposed.depth(lambda inst: inst.operation.name in ("t", "tdg"))
-    return t_count, t_depth
+    ops = dict(decomposed.count_ops())
+    return {
+        "t_count_transpiled": ops.get("t", 0) + ops.get("tdg", 0),
+        "t_depth_transpiled": decomposed.depth(
+            lambda inst: inst.operation.name in ("t", "tdg")
+        ),
+        "depth_transpiled": decomposed.depth(),
+        "cnot_transpiled": ops.get("cx", 0),
+        "h_transpiled": ops.get("h", 0),
+        "gate_counts_transpiled": ops,
+        "transpiler": (
+            f"qiskit {qiskit.__version__} optimization_level={optimization_level}, "
+            f"basis={'+'.join(ct.CLIFFORD_T_BASIS)}"
+        ),
+    }
 
 
 def _assumptions(

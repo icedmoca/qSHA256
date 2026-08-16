@@ -2,7 +2,7 @@
 
 from .rewrite import RewriteResult, apply_rewrites
 from .search import DesignPoint, SearchResult, compare_designs, pareto_front, search_designs
-from .strategies import (
+from ..strategies import (
     DEFAULT,
     MIN_DEPTH,
     MIN_QUBITS,
@@ -14,7 +14,12 @@ from .strategies import (
 )
 from .verify import EquivalenceResult, check_equivalence, verify_against_classical
 
+from .hardware import HardwareRanking, ScoredDesign, rank_for_hardware
+
 __all__ = [
+    "rank_for_hardware",
+    "ScoredDesign",
+    "HardwareRanking",
     "DEFAULT",
     "DesignPoint",
     "EquivalenceResult",

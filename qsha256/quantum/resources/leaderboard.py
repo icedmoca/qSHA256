@@ -140,7 +140,63 @@ _AMY_COMPARABILITY = {
     ),
 }
 
+_AMY_SHA3_COMPARABILITY = {
+    "logical_qubits": (
+        Comparability.QUALIFIED,
+        "Their 3,200 qubits is two 1600-bit registers and nothing else, because "
+        "they synthesise theta in place as an invertible GF(2) map. qSHA256 uses "
+        "per-round scratch for theta instead, so it is larger in qubits and far "
+        "smaller in CNOTs. Different point on the same tradeoff, not a defect.",
+    ),
+    "toffoli_count": (
+        Comparability.DIRECT,
+        "Both are Toffoli counts for Keccak-f[1600] over 24 rounds.",
+    ),
+    "cnot_count": (
+        Comparability.QUALIFIED,
+        "Their CNOT count is dominated by in-place linear synthesis of theta; "
+        "ours by ancilla-based theta. The 100x-plus gap is the whole substance "
+        "of the tradeoff and should not be read as an efficiency win on its own.",
+    ),
+    "t_count": (
+        Comparability.QUALIFIED,
+        "Derived from the Toffoli count under a stated decomposition on both "
+        "sides; state which before comparing.",
+    ),
+    "depth": (
+        Comparability.INCOMPARABLE,
+        "Different bases and different structures.",
+    ),
+    "t_depth": (Comparability.INCOMPARABLE, "Not reported comparably."),
+    "h_count": (Comparability.INCOMPARABLE, "Not reported comparably."),
+}
+
 PUBLISHED: dict[str, PublishedCircuit] = {
+    "amy2016-sha3": PublishedCircuit(
+        key="amy2016-sha3",
+        label="Amy et al. 2016 (SHA3-256 / Keccak-f[1600])",
+        citation=(
+            "M. Amy, O. Di Matteo, V. Gheorghiu, M. Mosca, A. Parent, J. Schanck, "
+            "'Estimating the cost of generic quantum pre-image attacks on SHA-2 and "
+            "SHA-3', SAC 2016. arXiv:1603.09383 / ePrint 2016/992."
+        ),
+        source="Section 6 prose (ePrint 2016/992, p.13)",
+        scope=(
+            "One Keccak-f[1600] permutation, 24 rounds, as used inside their Grover "
+            "oracle. The paper states: 3200 qubits, 85 NOT gates, 33269760 CNOT "
+            "gates and 84480 Toffoli gates."
+        ),
+        logical_qubits=3200,
+        toffoli_count=84_480,
+        cnot_count=33_269_760,
+        comparability=_AMY_SHA3_COMPARABILITY,
+        notes=(
+            "Their theta is synthesised in place as an invertible linear map, which "
+            "keeps the qubit count at two registers but costs tens of millions of "
+            "CNOTs. qSHA256 uses per-round ancilla for theta: far fewer CNOTs, more "
+            "qubits. Neither dominates."
+        ),
+    ),
     "amy2016": PublishedCircuit(
         key="amy2016",
         label="Amy et al. 2016 (SHA-256, pre-T-par)",

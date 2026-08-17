@@ -92,6 +92,9 @@ class ShaSpec:
     small_sigma1: tuple[Term, ...]
     #: True only for the genuine FIPS 180-4 SHA-256 parameter set.
     is_sha256: bool = False
+    #: True for any unmodified FIPS 180-4 parameter set (SHA-256 or SHA-512),
+    #: which is what byte-level padding is defined for.
+    is_fips: bool = False
 
     # -- derived -----------------------------------------------------------
     @property
@@ -105,6 +108,11 @@ class ShaSpec:
     @property
     def block_bits(self) -> int:
         return self.block_words * self.word_bits
+
+    @property
+    def length_field_bytes(self) -> int:
+        """Width of the padded length field: 8 bytes for SHA-256, 16 for SHA-512."""
+        return 8 if self.word_bits <= 32 else 16
 
     @property
     def k(self) -> tuple[int, ...]:
@@ -170,8 +178,9 @@ class ShaSpec:
             big_sigma1=self.big_sigma1,
             small_sigma0=self.small_sigma0,
             small_sigma1=self.small_sigma1,
-            # A truncated round count is no longer FIPS 180-4 SHA-256.
+            # A truncated round count is no longer a FIPS parameter set.
             is_sha256=False,
+            is_fips=False,
         )
 
 
@@ -188,6 +197,25 @@ SHA256 = ShaSpec(
     small_sigma0=(("rotr", 7), ("rotr", 18), ("shr", 3)),
     small_sigma1=(("rotr", 17), ("rotr", 19), ("shr", 10)),
     is_sha256=True,
+    is_fips=True,
+)
+
+#: FIPS 180-4 SHA-512.  Same architecture as SHA-256 with 64-bit words, 80
+#: rounds, and its own rotation amounts.  Because everything in the project is
+#: written against ShaSpec, the entire quantum construction, the proof suite and
+#: the resource analysis apply to it unchanged.
+SHA512 = ShaSpec(
+    name="sha512",
+    word_bits=64,
+    state_words=8,
+    block_words=16,
+    rounds=80,
+    big_sigma0=(("rotr", 28), ("rotr", 34), ("rotr", 39)),
+    big_sigma1=(("rotr", 14), ("rotr", 18), ("rotr", 41)),
+    small_sigma0=(("rotr", 1), ("rotr", 8), ("shr", 7)),
+    small_sigma1=(("rotr", 19), ("rotr", 61), ("shr", 6)),
+    is_sha256=False,
+    is_fips=True,
 )
 
 #: 8-bit reduced model.  Rotation amounts are the SHA-256 amounts reduced modulo
@@ -218,7 +246,7 @@ TOY4 = ShaSpec(
     small_sigma1=(("rotr", 2), ("shr", 2)),
 )
 
-SPECS: dict[str, ShaSpec] = {s.name: s for s in (SHA256, TOY8, TOY4)}
+SPECS: dict[str, ShaSpec] = {s.name: s for s in (SHA256, SHA512, TOY8, TOY4)}
 
 for _spec in SPECS.values():
     _spec.validate()

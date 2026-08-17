@@ -115,18 +115,23 @@ def pad_message(message: bytes, spec: ShaSpec = SHA256) -> bytes:
     Appends ``0x80``, then zero bytes, then the 64-bit big-endian bit length, so
     that the result is a whole number of 512-bit blocks.
 
-    Only defined for the real 32-bit spec: byte-oriented padding is meaningless
-    for toy word sizes, where the quantum circuits operate directly on
-    pre-parsed word blocks instead.
+    Defined for the FIPS parameter sets only: byte-oriented padding is
+    meaningless for toy word sizes, where the quantum circuits operate directly
+    on pre-parsed word blocks instead.
+
+    SHA-256 pads to 64-byte blocks with a 64-bit length field; SHA-512 pads to
+    128-byte blocks with a 128-bit one. Both fall out of the spec.
     """
-    if not spec.is_sha256:
-        raise ValueError("byte-level padding is only defined for the sha256 spec")
+    if not spec.is_fips:
+        raise ValueError("byte-level padding is only defined for the FIPS specs")
+    block_bytes = spec.block_words * spec.word_bits // 8
+    length_bytes = spec.length_field_bytes
     length_bits = len(message) * 8
     padded = bytearray(message)
     padded.append(0x80)
-    while len(padded) % 64 != 56:
+    while len(padded) % block_bytes != block_bytes - length_bytes:
         padded.append(0x00)
-    padded += length_bits.to_bytes(8, "big")
+    padded += length_bits.to_bytes(length_bytes, "big")
     return bytes(padded)
 
 

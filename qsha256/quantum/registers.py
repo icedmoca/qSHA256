@@ -126,6 +126,8 @@ class AncillaPool:
         self._builder.circuit.add_register(reg)
         self.total += n
         self.all.extend(reg)
+        if self._builder.guard is not None:
+            self._builder.guard.add_ancilla(list(reg))
         return list(reg)
 
     def acquire(self, n: int, label: str = "") -> Word:
@@ -139,7 +141,13 @@ class AncillaPool:
         return Word(qubits, label or f"{self._name}[{n}]")
 
     def release(self, word: Word) -> None:
-        """Return qubits to the pool.  They must already be back in ``|0>``."""
+        """Return qubits to the pool.  They must already be back in ``|0>``.
+
+        With the builder's ancilla guard enabled this is verified here rather
+        than trusted, so a missing uncomputation raises at the release site.
+        """
+        if self._builder.guard is not None:
+            self._builder.guard.check_clean(word)
         qubits = word.qubits
         self._free.extend(qubits)
         self.live -= len(qubits)
@@ -165,8 +173,17 @@ class CircuitBuilder:
     circuit exactly, and per-component cost attribution is just an index range.
     """
 
-    def __init__(self, name: str = "qsha256"):
+    def __init__(self, name: str = "qsha256", guard_ancillas: bool = False):
+        """``guard_ancillas`` enables the borrow checker in
+        :mod:`qsha256.quantum.ancilla_check`: every release site is verified to
+        return its qubits to ``|0>``, at the point of release. Off by default
+        because it tracks a Boolean function per qubit."""
         self.circuit = QuantumCircuit(name=name)
+        self.guard = None
+        if guard_ancillas:
+            from .ancilla_check import AncillaGuard
+
+            self.guard = AncillaGuard()
         self.ancillas = AncillaPool(self)
         self.sections: list[Section] = []
         self._stack: list[Section] = []
@@ -191,6 +208,8 @@ class CircuitBuilder:
         reg = QuantumRegister(bits, unique)
         self.circuit.add_register(reg)
         self._data_qubits += bits
+        if self.guard is not None:
+            self.guard.add_data(list(reg), unique)
         return Word(list(reg), unique)
 
     def add_words(self, count: int, bits: int, prefix: str) -> list[Word]:
@@ -226,15 +245,23 @@ class CircuitBuilder:
 
     def x(self, q: Qubit) -> None:
         self.circuit.x(q)
+        if self.guard is not None:
+            self.guard.x(q)
 
     def cx(self, control: Qubit, target: Qubit) -> None:
         self.circuit.cx(control, target)
+        if self.guard is not None:
+            self.guard.cx(control, target)
 
     def ccx(self, c0: Qubit, c1: Qubit, target: Qubit) -> None:
         self.circuit.ccx(c0, c1, target)
+        if self.guard is not None:
+            self.guard.ccx(c0, c1, target)
 
     def swap(self, a: Qubit, b: Qubit) -> None:
         self.circuit.swap(a, b)
+        if self.guard is not None:
+            self.guard.swap(a, b)
 
     def z(self, q: Qubit) -> None:
         """Diagonal phase flip.  Not a permutation gate, but the basis-state
@@ -244,6 +271,10 @@ class CircuitBuilder:
 
     def h(self, q: Qubit) -> None:
         self.circuit.h(q)
+        if self.guard is not None:
+            # H leaves the computational basis; anything downstream of it is
+            # beyond what the guard can model.
+            self.guard.opaque(q)
 
     def and_g(self, x: Qubit, y: Qubit, target: Qubit) -> None:
         """Gidney temporary AND.  ``target`` must be ``|0>``; see
@@ -251,18 +282,37 @@ class CircuitBuilder:
         from .primitives.temporary_and import AndGate
 
         self.circuit.append(AndGate(), [x, y, target])
+        if self.guard is not None:
+            self.guard.ccx(x, y, target)
 
     def and_g_dg(self, x: Qubit, y: Qubit, target: Qubit) -> None:
         """Measurement-based uncomputation of a :meth:`and_g`."""
         from .primitives.temporary_and import AndDgGate
 
         self.circuit.append(AndDgGate(), [x, y, target])
+        if self.guard is not None:
+            self.guard.ccx(x, y, target)
 
     def mcx(self, controls: Sequence[Qubit], target: Qubit, ancillas: Sequence[Qubit]) -> None:
         """Multi-controlled X built from a balanced AND tree (see ``primitives.boolean``)."""
         from .primitives.boolean import and_tree_mcx
 
         and_tree_mcx(self, list(controls), target, list(ancillas))
+
+    def _track(self, name: str, qubits) -> None:
+        """Mirror a replayed instruction into the ancilla guard."""
+        if name == "x":
+            self.guard.x(qubits[0])
+        elif name == "cx":
+            self.guard.cx(qubits[0], qubits[1])
+        elif name in ("ccx", "and_g", "and_g_dg"):
+            self.guard.ccx(qubits[0], qubits[1], qubits[2])
+        elif name == "swap":
+            self.guard.swap(qubits[0], qubits[1])
+        elif name in ("z", "cz", "ccz"):
+            self.guard.diagonal(*qubits)
+        else:
+            self.guard.opaque(*qubits)
 
     def append_reversed(self, start: int, end: int) -> None:
         """Append the inverse of instructions ``[start:end)`` -- i.e. uncompute them.
@@ -287,6 +337,8 @@ class CircuitBuilder:
                     "sub-circuit instead."
                 )
             self.circuit.append(operation, inst.qubits, inst.clbits)
+            if self.guard is not None:
+                self._track(name, inst.qubits)
 
 
 #: Gates the builder emits that are their own inverse, so a reversed replay of

@@ -143,7 +143,10 @@ class PebblingResult:
                 f"{self.pebbles} pebbles, {self.steps} steps: PROVED IMPOSSIBLE "
                 f"({self.seconds:.1f}s)"
             )
-        return f"{self.pebbles} pebbles, {self.steps} steps: UNKNOWN (timeout after {self.seconds:.1f}s)"
+        return (
+            f"{self.pebbles} pebbles, {self.steps} steps: UNKNOWN "
+            f"(timeout after {self.seconds:.1f}s)"
+        )
 
 
 def solve_pebbling(

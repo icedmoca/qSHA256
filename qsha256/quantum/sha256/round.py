@@ -42,6 +42,12 @@ from __future__ import annotations
 
 from ...spec import SHA256, ShaSpec
 from ..primitives.add import add_const_into, add_into
+from ..primitives.boolean import (
+    ch_word_into_temporary,
+    maj_word_into_temporary,
+    uncompute_ch_temporary,
+    uncompute_maj_temporary,
+)
 from ..primitives.csa import sum_addends
 from ..primitives.xor import xor_const
 from ..registers import CircuitBuilder, Word
@@ -93,15 +99,24 @@ def _round_serial(b, a, b_, c, d, e, f, g, h, w_t, k_t, spec, strategy) -> None:
     width = spec.word_bits
     adder = strategy.adder
 
+    temporary_and = strategy.adder == "gidney"
+
     with b.section("T1"):
         with b.ancillas.borrow(width, "tmp") as tmp:
             big_sigma1_into(b, e, tmp, spec)
             add_into(b, tmp, h, adder)
             big_sigma1_into(b, e, tmp, spec)  # uncompute (XOR fold is self-inverse)
 
-            ch_into_word(b, e, f, g, tmp)
-            add_into(b, tmp, h, adder)
-            ch_into_word(b, e, f, g, tmp)  # uncompute (Ch embedding is an involution)
+            if temporary_and:
+                # Route Ch's AND through a clean ancilla so Gidney's
+                # construction applies: 4 T for the pair instead of 14.
+                anc = ch_word_into_temporary(b, e, f, g, tmp)
+                add_into(b, tmp, h, adder)
+                uncompute_ch_temporary(b, e, f, g, tmp, anc)
+            else:
+                ch_into_word(b, e, f, g, tmp)
+                add_into(b, tmp, h, adder)
+                ch_into_word(b, e, f, g, tmp)  # Ch embedding is an involution
 
         add_const_into(b, k_t, h, adder, strategy.const_add)
         add_into(b, w_t, h, adder)
@@ -116,9 +131,14 @@ def _round_serial(b, a, b_, c, d, e, f, g, h, w_t, k_t, spec, strategy) -> None:
             add_into(b, tmp, h, adder)
             big_sigma0_into(b, a, tmp, spec)
 
-            maj_into_word(b, a, b_, c, tmp)
-            add_into(b, tmp, h, adder)
-            maj_into_word(b, a, b_, c, tmp)
+            if temporary_and:
+                anc = maj_word_into_temporary(b, a, b_, c, tmp)
+                add_into(b, tmp, h, adder)
+                uncompute_maj_temporary(b, a, b_, c, tmp, anc)
+            else:
+                maj_into_word(b, a, b_, c, tmp)
+                add_into(b, tmp, h, adder)
+                maj_into_word(b, a, b_, c, tmp)
     # h now holds T1 + T2.
 
 

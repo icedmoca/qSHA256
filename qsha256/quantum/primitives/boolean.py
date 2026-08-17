@@ -32,8 +32,12 @@ __all__ = [
     "and_tree_mcx",
     "ch_into",
     "ch_word_into",
+    "ch_word_into_temporary",
     "maj_into",
     "maj_word_into",
+    "maj_word_into_temporary",
+    "uncompute_ch_temporary",
+    "uncompute_maj_temporary",
 ]
 
 
@@ -72,11 +76,60 @@ def ch_into(b: CircuitBuilder, x: Qubit, y: Qubit, z: Qubit, target: Qubit) -> N
     b.cx(z, target)
 
 
-def ch_word_into(b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word) -> None:
-    """Bitwise ``target ^= Ch(x, y, z)`` over a whole word."""
+def ch_word_into(
+    b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word, temporary_and: bool = False
+) -> None:
+    """Bitwise ``target ^= Ch(x, y, z)`` over a whole word.
+
+    ``temporary_and`` routes the AND through a clean borrowed ancilla so that
+    Gidney's construction applies: 4 T to compute and none to uncompute, against
+    7 and 7 for a plain Toffoli pair. It costs one extra ancilla per bit, which
+    is why it is not the default -- see :func:`ch_word_into_temporary`.
+    """
     _check_widths(x, y, z, target)
+    if temporary_and:
+        ch_word_into_temporary(b, x, y, z, target)
+        return
     for xi, yi, zi, ti in zip(x, y, z, target):
         ch_into(b, xi, yi, zi, ti)
+
+
+def ch_word_into_temporary(b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word) -> None:
+    """``target ^= Ch(x, y, z)`` with the AND in a clean ancilla.
+
+    The plain :func:`ch_into` writes its AND straight into ``target``, which is
+    an accumulator and therefore not clean -- so Gidney's temporary AND does not
+    apply and the compute/uncompute pair costs 14 T per bit. Routing the AND
+    through a dedicated ``|0>`` ancilla makes it applicable, at 4 T per bit for
+    the pair, in exchange for one ancilla per bit held across the caller's use
+    of ``target``.
+
+    The ancilla is *not* released here: it must stay alive until the caller
+    uncomputes, which :func:`uncompute_ch_temporary` does.
+    """
+    _check_widths(x, y, z, target)
+    width = len(x)
+    anc = b.ancillas.acquire(width, "ch_and")
+    for i in range(width):
+        b.cx(z[i], y[i])  # y becomes y XOR z
+        b.and_g(x[i], y[i], anc[i])  # anc = x AND (y XOR z)
+        b.cx(z[i], y[i])  # restore y
+        b.cx(anc[i], target[i])  # target ^= the AND
+        b.cx(z[i], target[i])  # target ^= z, completing Ch
+    return anc
+
+
+def uncompute_ch_temporary(
+    b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word, anc: Word
+) -> None:
+    """Undo :func:`ch_word_into_temporary`, clearing both target and ancilla."""
+    for i in range(len(x)):
+        b.cx(z[i], target[i])
+        b.cx(anc[i], target[i])
+        b.cx(z[i], y[i])
+        b.and_g_dg(x[i], y[i], anc[i])
+        b.cx(z[i], y[i])
+    b.ancillas.release(anc)
 
 
 # --------------------------------------------------------------------------
@@ -107,11 +160,48 @@ def maj_into(b: CircuitBuilder, x: Qubit, y: Qubit, z: Qubit, target: Qubit) -> 
     b.cx(x, target)
 
 
-def maj_word_into(b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word) -> None:
+def maj_word_into(
+    b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word, temporary_and: bool = False
+) -> None:
     """Bitwise ``target ^= Maj(x, y, z)`` over a whole word."""
     _check_widths(x, y, z, target)
+    if temporary_and:
+        maj_word_into_temporary(b, x, y, z, target)
+        return
     for xi, yi, zi, ti in zip(x, y, z, target):
         maj_into(b, xi, yi, zi, ti)
+
+
+def maj_word_into_temporary(b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word) -> Word:
+    """``target ^= Maj(x, y, z)`` with the AND in a clean ancilla.  See
+    :func:`ch_word_into_temporary` for why this is worth an ancilla per bit."""
+    _check_widths(x, y, z, target)
+    width = len(x)
+    anc = b.ancillas.acquire(width, "maj_and")
+    for i in range(width):
+        b.cx(x[i], y[i])  # y becomes x XOR y
+        b.cx(x[i], z[i])  # z becomes x XOR z
+        b.and_g(y[i], z[i], anc[i])  # anc = (x XOR y) AND (x XOR z)
+        b.cx(x[i], z[i])
+        b.cx(x[i], y[i])
+        b.cx(anc[i], target[i])
+        b.cx(x[i], target[i])  # target ^= x, completing Maj
+    return anc
+
+
+def uncompute_maj_temporary(
+    b: CircuitBuilder, x: Word, y: Word, z: Word, target: Word, anc: Word
+) -> None:
+    """Undo :func:`maj_word_into_temporary`."""
+    for i in range(len(x)):
+        b.cx(x[i], target[i])
+        b.cx(anc[i], target[i])
+        b.cx(x[i], y[i])
+        b.cx(x[i], z[i])
+        b.and_g_dg(y[i], z[i], anc[i])
+        b.cx(x[i], z[i])
+        b.cx(x[i], y[i])
+    b.ancillas.release(anc)
 
 
 def _check_widths(*words: Word) -> None:

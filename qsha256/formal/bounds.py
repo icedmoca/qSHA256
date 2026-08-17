@@ -235,7 +235,7 @@ def component_bounds(width: int = 32, timeout: float = 30.0) -> list[ComponentBo
 
     # Ch and Maj: prove MC per bit by exhaustive search over 3-input functions.
     for name, fn in (("Ch", ch), ("Maj", maj)):
-        table = truth_table(lambda x, y, z: fn(x, y, z) & 1, 3)
+        table = truth_table(lambda x, y, z, _f=fn: _f(x, y, z) & 1, 3)
         mc = multiplicative_complexity(table, 3, max_ands=2, timeout=timeout)
         builder = CircuitBuilder(name)
         words = [builder.add_word(width, c) for c in "xyzt"]
@@ -365,7 +365,6 @@ def circuit_bound_report(
     achieved = ops.get("ccx", 0) + ops.get("and_g", 0)
 
     components = component_bounds(width, timeout)
-    by_name = {c.component.split(" ")[0]: c for c in components}
 
     # Per round: Ch and Maj computed and uncomputed, plus seven additions.
     adds_per_round = 7

@@ -35,9 +35,18 @@ classifiers = [
 dependencies = [
     # Only 2.x has been tested; see docs/limitations.md.
     "qiskit>=2.0,<3",
+    # SAT solving for the formal-verification layer: equivalence proofs,
+    # ancilla cleanliness, reversible pebbling. Bundles its own solvers, so
+    # there is no external binary to install.
+    "python-sat>=1.8",
 ]
 
 [project.optional-dependencies]
+# Third-party resource estimators, used only to cross-check our own numbers.
+# Optional because the cross-check degrades gracefully when absent.
+interop = [
+    "qualtran>=0.4",
+]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -45,6 +54,9 @@ dev = [
     # failures. Bump deliberately.
     "ruff==0.16.3",
     "build>=1.0",
+]
+all = [
+    "qsha256[dev,interop]",
 ]
 
 [project.urls]

@@ -90,7 +90,7 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - name: install a third-party estimator
-        run: pip install qualtran
+        run: pip install "qsha256[interop]" || pip install qualtran
         continue-on-error: true
       - name: compare gate counts against Qualtran and a QASM-text counter
         run: qsha256 crosscheck --spec sha256 --rounds 4

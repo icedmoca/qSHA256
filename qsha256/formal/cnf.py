@@ -39,6 +39,77 @@ __all__ = ["DEFAULT_SOLVER", "SOLVERS", "CNFEncoder", "SatResult", "solve"]
 SOLVERS = ("cadical195", "glucose4", "minisat22")
 DEFAULT_SOLVER = "cadical195"
 
+#: Solvers that support ``solve_limited``, and so can honour a timeout in-process.
+#:
+#: Falling back to one of these whenever a timeout is requested turned out to be
+#: a bad trade: on the pebbling instances CaDiCaL answers a satisfiable query in
+#: 0.3 seconds where Glucose cannot in 200. So a timeout is enforced by running
+#: the *strong* solver in a subprocess and killing it, rather than by swapping in
+#: a weaker one. This set is kept for callers who prefer in-process bounding.
+INTERRUPTIBLE = frozenset({"glucose4", "glucose3", "minisat22", "lingeling"})
+FALLBACK_SOLVER = "glucose4"
+
+
+def solve_bounded(clauses, solver: str, timeout: float | None):
+    """Run a solver under a wall-clock bound, in a subprocess if necessary.
+
+    Returns ``(satisfiable_or_None, model)``. ``None`` means the budget expired,
+    which is never a proof.
+
+    Uninterruptible solvers are the strongest available, so rather than trade
+    them away for the ability to stop, they are run in a child process that can
+    simply be killed.
+    """
+    from pysat.solvers import Solver
+
+    if timeout is None:
+        with Solver(name=solver, bootstrap_with=clauses) as sat:
+            answer = sat.solve()
+            return answer, (sat.get_model() if answer else None)
+
+    if solver in INTERRUPTIBLE:
+        from threading import Timer
+
+        with Solver(name=solver, bootstrap_with=clauses, use_timer=True) as sat:
+            timer = Timer(timeout, lambda s: s.interrupt(), [sat])
+            timer.start()
+            try:
+                answer = sat.solve_limited(expect_interrupt=True)
+            finally:
+                timer.cancel()
+            return answer, (sat.get_model() if answer else None)
+
+    import multiprocessing as mp
+
+    def _work(queue, clause_list, name):  # pragma: no cover - child process
+        from pysat.solvers import Solver as ChildSolver
+
+        with ChildSolver(name=name, bootstrap_with=clause_list) as child:
+            ok = child.solve()
+            queue.put((ok, child.get_model() if ok else None))
+
+    import queue as queue_mod
+
+    context = mp.get_context("fork")
+    channel = context.Queue()
+    process = context.Process(target=_work, args=(channel, clauses, solver))
+    process.start()
+    try:
+        # Read *before* joining. A child blocked writing a large model into a
+        # full pipe never exits, so joining first would deadlock until the
+        # timeout and report every satisfiable query as unknown.
+        result = channel.get(timeout=timeout)
+    except queue_mod.Empty:
+        process.terminate()
+        process.join(5)
+        return None, None
+    finally:
+        if process.is_alive():
+            process.join(5)
+        if process.is_alive():  # pragma: no cover - defensive
+            process.terminate()
+    return result
+
 
 @dataclass
 class CNFEncoder:
@@ -163,8 +234,6 @@ def solve(
     as *not proved* with ``timed_out`` set, never as a proof: an unfinished
     search establishes nothing.
     """
-    from pysat.solvers import Solver
-
     started = time.time()
 
     # An empty clause is unsatisfiable by definition. It arises when the AIG's
@@ -183,28 +252,16 @@ def solve(
             structural=True,
         )
 
-    with Solver(name=solver, bootstrap_with=encoder.clauses, use_timer=True) as sat:
-        if timeout is not None:
-            from threading import Timer
-
-            interrupt = Timer(timeout, lambda s: s.interrupt(), [sat])
-            interrupt.start()
-            try:
-                satisfiable = sat.solve_limited(expect_interrupt=True)
-            finally:
-                interrupt.cancel()
-            if satisfiable is None:
-                return SatResult(
-                    satisfiable=True,
-                    num_vars=encoder.num_vars,
-                    num_clauses=len(encoder.clauses),
-                    solver=solver,
-                    seconds=time.time() - started,
-                    timed_out=True,
-                )
-        else:
-            satisfiable = sat.solve()
-        model = sat.get_model() if satisfiable else None
+    satisfiable, model = solve_bounded(encoder.clauses, solver, timeout)
+    if satisfiable is None:
+        return SatResult(
+            satisfiable=True,
+            num_vars=encoder.num_vars,
+            num_clauses=len(encoder.clauses),
+            solver=solver,
+            seconds=time.time() - started,
+            timed_out=True,
+        )
     return SatResult(
         satisfiable=satisfiable,
         model=model,

@@ -119,7 +119,7 @@ class TestPadding:
         assert int.from_bytes(padded[-8:], "big") == length * 8
 
     def test_padding_rejects_toy_specs(self):
-        with pytest.raises(ValueError, match="only defined for the sha256 spec"):
+        with pytest.raises(ValueError, match="only defined for the FIPS specs"):
             pad_message(b"abc", TOY4)
 
     def test_parse_blocks_rejects_misaligned(self):

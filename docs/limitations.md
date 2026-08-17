@@ -31,7 +31,44 @@ number from it.
 - **No new preimage has been found.** The toy demonstrations search a 16-element
   space with a solution planted in advance.
 
+## What is now PROVED rather than tested
+
+Randomised testing has been supplemented by SAT proofs that hold for **every**
+input, not a sample:
+
+- all four adders, Ch, Maj and the four sigma functions, at full 32-bit width;
+- the compression round in every layout, and both schedule strategies;
+- ancilla cleanliness and every Gidney AND precondition;
+- the message schedule's 16 registers are **optimal** (15 proved impossible);
+- `MC(Ch) = MC(Maj) = 1`, proved by exhaustive search, and the Gidney
+  configuration attains the AND-count floor **exactly** for the full circuit.
+
+The whole-circuit proof is compositional, not one monolithic query. See
+`docs/formal-verification.md` for exactly what that does and does not establish.
+
 ## Known weaknesses in the implementation
+
+**Keccak's theta scratch is not uncomputed.** The dependency closes a 5-cycle
+and untangling it means inverting theta as a linear map on the whole 1600-bit
+state, so 320 qubits per round are kept. Amy et al. avoid this with in-place
+linear synthesis at the cost of ~33 million CNOTs; we pay 268,800 CNOTs and 3.4x
+the qubits. Neither dominates, and the leaderboard says so.
+
+**Keccak's chi^-1 costs twice chi.** chi is invertible but not an involution and
+cannot be applied in place, so clearing the source register costs two ANDs per
+bit against chi's one.
+
+**Superoptimization reaches only 3-4 qubits.** Exhaustive synthesis is
+exponential. It settles the primitives and nothing larger.
+
+**The composed AND-count floor is architecture-specific.** It bounds circuits
+built from these components separately; a circuit sharing non-linear work
+between components could in principle go lower.
+
+**Cross-validation covers gate counts, not correctness.** Agreement with
+Qualtran shows the analyzer is not systematically miscounting. It says nothing
+about whether the circuit computes the right function, which is what the SAT
+proofs are for.
 
 **Phase folding is only part of T-par.** It merges phases acting on identical
 linear functions but does not re-synthesise the CNOT network, which full T-par

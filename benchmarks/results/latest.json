@@ -1,10 +1,10 @@
 {
   "environment": {
-    "qsha256_version": "2.1.0",
+    "qsha256_version": "2.2.0",
     "qiskit_version": "2.5.2",
     "python_version": "3.14.6",
     "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-    "timestamp": "2026-08-16T22:49:45+00:00"
+    "timestamp": "2026-08-17T14:01:00+00:00"
   },
   "tables": {
     "scaling_forward": [
@@ -121,11 +121,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:45+00:00"
+          "timestamp": "2026-08-17T14:01:00+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 1 --adder cdkm --schedule rolling --round-layout serial"
       },
@@ -242,11 +242,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:45+00:00"
+          "timestamp": "2026-08-17T14:01:00+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 2 --adder cdkm --schedule rolling --round-layout serial"
       },
@@ -363,11 +363,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:46+00:00"
+          "timestamp": "2026-08-17T14:01:01+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 4 --adder cdkm --schedule rolling --round-layout serial"
       },
@@ -484,11 +484,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:46+00:00"
+          "timestamp": "2026-08-17T14:01:01+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 8 --adder cdkm --schedule rolling --round-layout serial"
       },
@@ -605,11 +605,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:48+00:00"
+          "timestamp": "2026-08-17T14:01:03+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 16 --adder cdkm --schedule rolling --round-layout serial"
       },
@@ -732,11 +732,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:51+00:00"
+          "timestamp": "2026-08-17T14:01:06+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 32 --adder cdkm --schedule rolling --round-layout serial"
       },
@@ -859,11 +859,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:58+00:00"
+          "timestamp": "2026-08-17T14:01:13+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 64 --adder cdkm --schedule rolling --round-layout serial"
       }
@@ -989,11 +989,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:58+00:00"
+          "timestamp": "2026-08-17T14:01:13+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 1 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       },
@@ -1117,11 +1117,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:59+00:00"
+          "timestamp": "2026-08-17T14:01:14+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 2 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       },
@@ -1245,11 +1245,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:49:59+00:00"
+          "timestamp": "2026-08-17T14:01:14+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 4 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       },
@@ -1373,11 +1373,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:01+00:00"
+          "timestamp": "2026-08-17T14:01:16+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 8 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       },
@@ -1501,11 +1501,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:04+00:00"
+          "timestamp": "2026-08-17T14:01:19+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 16 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       },
@@ -1635,11 +1635,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:10+00:00"
+          "timestamp": "2026-08-17T14:01:25+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 32 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       },
@@ -1769,11 +1769,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:25+00:00"
+          "timestamp": "2026-08-17T14:01:39+00:00"
         },
         "reproduce": "qsha256 analyze --spec sha256 --rounds 64 --adder cdkm --schedule rolling --round-layout serial --uncompute"
       }
@@ -1898,11 +1898,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:32+00:00"
+          "timestamp": "2026-08-17T14:01:46+00:00"
         },
         "reproduce": ""
       },
@@ -2025,11 +2025,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:39+00:00"
+          "timestamp": "2026-08-17T14:01:53+00:00"
         },
         "reproduce": ""
       },
@@ -2152,11 +2152,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:46+00:00"
+          "timestamp": "2026-08-17T14:02:00+00:00"
         },
         "reproduce": ""
       },
@@ -2291,11 +2291,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:53+00:00"
+          "timestamp": "2026-08-17T14:02:07+00:00"
         },
         "reproduce": ""
       },
@@ -2431,11 +2431,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:51:03+00:00"
+          "timestamp": "2026-08-17T14:02:17+00:00"
         },
         "reproduce": ""
       },
@@ -2558,11 +2558,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:51:13+00:00"
+          "timestamp": "2026-08-17T14:02:27+00:00"
         },
         "reproduce": ""
       },
@@ -2681,11 +2681,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:52:14+00:00"
+          "timestamp": "2026-08-17T14:03:29+00:00"
         },
         "reproduce": ""
       },
@@ -2703,41 +2703,40 @@
           "rewrites": [],
           "label": "gidney/load/rolling/serial"
         },
-        "width": 1087,
+        "width": 1119,
         "data_qubits": 1024,
-        "ancilla_qubits": 63,
-        "max_live_qubits": 1087,
+        "ancilla_qubits": 95,
+        "max_live_qubits": 1119,
         "gate_counts": {
-          "and_g": 18600,
-          "and_g_dg": 18600,
-          "ccx": 8192,
-          "cx": 202584,
+          "and_g": 22696,
+          "and_g_dg": 22696,
+          "cx": 210776,
           "x": 1986
         },
-        "total_gates": 249962,
-        "toffoli_count": 8192,
-        "cnot_count": 202584,
-        "two_qubit_count": 202584,
+        "total_gates": 258154,
+        "toffoli_count": 0,
+        "cnot_count": 210776,
+        "two_qubit_count": 210776,
         "depth": {
-          "depth": 163424,
-          "two_qubit_depth": 163424,
-          "toffoli_depth": 256,
-          "non_clifford_depth": 18791
+          "depth": 163106,
+          "two_qubit_depth": 163106,
+          "toffoli_depth": 0,
+          "non_clifford_depth": 18728
         },
         "clifford_t": {
-          "toffoli_gates": 8192,
+          "toffoli_gates": 0,
           "rotation_gates": 0,
-          "and_compute_gates": 18600,
-          "and_uncompute_gates": 18600,
-          "t_count": 131744,
+          "and_compute_gates": 22696,
+          "and_uncompute_gates": 22696,
+          "t_count": 90784,
           "t_count_native": 0,
-          "t_count_from_toffoli": 57344,
+          "t_count_from_toffoli": 0,
           "t_count_from_rotations": 0,
-          "t_count_from_temporary_and": 74400,
-          "t_depth_serial_bound": 107168,
-          "clifford_count": 445698,
+          "t_count_from_temporary_and": 90784,
+          "t_depth_serial_bound": 90784,
+          "clifford_count": 417026,
           "decomposition_ancilla": 0,
-          "measurements": 18600,
+          "measurements": 22696,
           "needs_feedforward": true,
           "model": "standard",
           "model_reference": "Nielsen & Chuang Fig. 4.9",
@@ -2755,13 +2754,12 @@
             "_ccx": 0
           },
           "T1": {
-            "and_g": 7936,
-            "and_g_dg": 7936,
-            "ccx": 4096,
-            "cx": 79104,
+            "and_g": 9984,
+            "and_g_dg": 9984,
+            "cx": 83200,
             "x": 1986,
-            "_total": 101058,
-            "_ccx": 4096
+            "_total": 105154,
+            "_ccx": 0
           },
           "d+=T1": {
             "and_g": 1984,
@@ -2771,12 +2769,11 @@
             "_ccx": 0
           },
           "T2": {
-            "and_g": 3968,
-            "and_g_dg": 3968,
-            "ccx": 4096,
-            "cx": 60032,
-            "_total": 72064,
-            "_ccx": 4096
+            "and_g": 6016,
+            "and_g_dg": 6016,
+            "cx": 64128,
+            "_total": 76160,
+            "_ccx": 0
           },
           "schedule": {
             "and_g": 4464,
@@ -2801,16 +2798,16 @@
           "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
           "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
           "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
-          "Circuit uses 18,600 Gidney temporary ANDs (4 T each) with 18,600 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
+          "Circuit uses 22,696 Gidney temporary ANDs (4 T each) with 22,696 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
           "T-count is ANALYTICAL (measured Toffoli count times the model's T-count); the circuit was not transpiled at this size. T-depth is a serial upper bound.",
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:52:18+00:00"
+          "timestamp": "2026-08-17T14:03:33+00:00"
         },
         "reproduce": ""
       },
@@ -2940,11 +2937,11 @@
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:52:32+00:00"
+          "timestamp": "2026-08-17T14:03:48+00:00"
         },
         "reproduce": ""
       },
@@ -2962,41 +2959,40 @@
           "rewrites": [],
           "label": "gidney/load/rolling/serial/uncomp"
         },
-        "width": 1343,
+        "width": 1375,
         "data_qubits": 1280,
-        "ancilla_qubits": 63,
-        "max_live_qubits": 1343,
+        "ancilla_qubits": 95,
+        "max_live_qubits": 1375,
         "gate_counts": {
-          "and_g": 36952,
-          "and_g_dg": 36952,
-          "ccx": 16384,
-          "cx": 403720,
+          "and_g": 45144,
+          "and_g_dg": 45144,
+          "cx": 420104,
           "x": 3972
         },
-        "total_gates": 497980,
-        "toffoli_count": 16384,
-        "cnot_count": 403720,
-        "two_qubit_count": 403720,
+        "total_gates": 514364,
+        "toffoli_count": 0,
+        "cnot_count": 420104,
+        "two_qubit_count": 420104,
         "depth": {
-          "depth": 325498,
-          "two_qubit_depth": 325498,
-          "toffoli_depth": 512,
-          "non_clifford_depth": 37398
+          "depth": 324860,
+          "two_qubit_depth": 324860,
+          "toffoli_depth": 0,
+          "non_clifford_depth": 37079
         },
         "clifford_t": {
-          "toffoli_gates": 16384,
+          "toffoli_gates": 0,
           "rotation_gates": 0,
-          "and_compute_gates": 36952,
-          "and_uncompute_gates": 36952,
-          "t_count": 262496,
+          "and_compute_gates": 45144,
+          "and_uncompute_gates": 45144,
+          "t_count": 180576,
           "t_count_native": 0,
-          "t_count_from_toffoli": 114688,
+          "t_count_from_toffoli": 0,
           "t_count_from_rotations": 0,
-          "t_count_from_temporary_and": 147808,
-          "t_depth_serial_bound": 213344,
-          "clifford_count": 887716,
+          "t_count_from_temporary_and": 180576,
+          "t_depth_serial_bound": 180576,
+          "clifford_count": 830372,
           "decomposition_ancilla": 0,
-          "measurements": 36952,
+          "measurements": 45144,
           "needs_feedforward": true,
           "model": "standard",
           "model_reference": "Nielsen & Chuang Fig. 4.9",
@@ -3014,13 +3010,12 @@
             "_ccx": 0
           },
           "T1": {
-            "and_g": 7936,
-            "and_g_dg": 7936,
-            "ccx": 4096,
-            "cx": 79104,
+            "and_g": 9984,
+            "and_g_dg": 9984,
+            "cx": 83200,
             "x": 1986,
-            "_total": 101058,
-            "_ccx": 4096
+            "_total": 105154,
+            "_ccx": 0
           },
           "d+=T1": {
             "and_g": 1984,
@@ -3030,12 +3025,11 @@
             "_ccx": 0
           },
           "T2": {
-            "and_g": 3968,
-            "and_g_dg": 3968,
-            "ccx": 4096,
-            "cx": 60032,
-            "_total": 72064,
-            "_ccx": 4096
+            "and_g": 6016,
+            "and_g_dg": 6016,
+            "cx": 64128,
+            "_total": 76160,
+            "_ccx": 0
           },
           "schedule": {
             "and_g": 4464,
@@ -3052,13 +3046,12 @@
             "_ccx": 0
           },
           "uncompute (inverse of copy + schedule + rounds)": {
-            "and_g": 18352,
-            "and_g_dg": 18352,
-            "ccx": 8192,
-            "cx": 200880,
+            "and_g": 22448,
+            "and_g_dg": 22448,
+            "cx": 209072,
             "x": 1986,
-            "_total": 247762,
-            "_ccx": 8192
+            "_total": 255954,
+            "_ccx": 0
           }
         },
         "provenance": "HYBRID",
@@ -3069,16 +3062,16 @@
           "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
           "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
           "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
-          "Circuit uses 36,952 Gidney temporary ANDs (4 T each) with 36,952 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
+          "Circuit uses 45,144 Gidney temporary ANDs (4 T each) with 45,144 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
           "T-count is ANALYTICAL (measured Toffoli count times the model's T-count); the circuit was not transpiled at this size. T-depth is a serial upper bound.",
           "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:52:40+00:00"
+          "timestamp": "2026-08-17T14:03:56+00:00"
         },
         "reproduce": ""
       }
@@ -3203,11 +3196,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:50:32+00:00"
+          "timestamp": "2026-08-17T14:01:46+00:00"
         },
         "reproduce": ""
       },
@@ -3283,11 +3276,11 @@
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:53:27+00:00"
+          "timestamp": "2026-08-17T14:04:43+00:00"
         },
         "reproduce": ""
       },
@@ -3305,41 +3298,40 @@
           "rewrites": [],
           "label": "gidney/load/rolling/serial"
         },
-        "width": 1087,
+        "width": 1119,
         "data_qubits": 1024,
-        "ancilla_qubits": 63,
-        "max_live_qubits": 1087,
+        "ancilla_qubits": 95,
+        "max_live_qubits": 1119,
         "gate_counts": {
-          "and_g": 18600,
-          "and_g_dg": 18600,
-          "ccx": 8192,
-          "cx": 202584,
+          "and_g": 22696,
+          "and_g_dg": 22696,
+          "cx": 210776,
           "x": 1986
         },
-        "total_gates": 249962,
-        "toffoli_count": 8192,
-        "cnot_count": 202584,
-        "two_qubit_count": 202584,
+        "total_gates": 258154,
+        "toffoli_count": 0,
+        "cnot_count": 210776,
+        "two_qubit_count": 210776,
         "depth": {
-          "depth": 163424,
-          "two_qubit_depth": 163424,
-          "toffoli_depth": 256,
-          "non_clifford_depth": 18791
+          "depth": 163106,
+          "two_qubit_depth": 163106,
+          "toffoli_depth": 0,
+          "non_clifford_depth": 18728
         },
         "clifford_t": {
-          "toffoli_gates": 8192,
+          "toffoli_gates": 0,
           "rotation_gates": 0,
-          "and_compute_gates": 18600,
-          "and_uncompute_gates": 18600,
-          "t_count": 131744,
+          "and_compute_gates": 22696,
+          "and_uncompute_gates": 22696,
+          "t_count": 90784,
           "t_count_native": 0,
-          "t_count_from_toffoli": 57344,
+          "t_count_from_toffoli": 0,
           "t_count_from_rotations": 0,
-          "t_count_from_temporary_and": 74400,
-          "t_depth_serial_bound": 107168,
-          "clifford_count": 445698,
+          "t_count_from_temporary_and": 90784,
+          "t_depth_serial_bound": 90784,
+          "clifford_count": 417026,
           "decomposition_ancilla": 0,
-          "measurements": 18600,
+          "measurements": 22696,
           "needs_feedforward": true,
           "model": "standard",
           "model_reference": "Nielsen & Chuang Fig. 4.9",
@@ -3356,13 +3348,12 @@
             "_ccx": 0
           },
           "T1": {
-            "and_g": 7936,
-            "and_g_dg": 7936,
-            "ccx": 4096,
-            "cx": 79104,
+            "and_g": 9984,
+            "and_g_dg": 9984,
+            "cx": 83200,
             "x": 1986,
-            "_total": 101058,
-            "_ccx": 4096
+            "_total": 105154,
+            "_ccx": 0
           },
           "d+=T1": {
             "and_g": 1984,
@@ -3372,12 +3363,11 @@
             "_ccx": 0
           },
           "T2": {
-            "and_g": 3968,
-            "and_g_dg": 3968,
-            "ccx": 4096,
-            "cx": 60032,
-            "_total": 72064,
-            "_ccx": 4096
+            "and_g": 6016,
+            "and_g_dg": 6016,
+            "cx": 64128,
+            "_total": 76160,
+            "_ccx": 0
           },
           "schedule": {
             "and_g": 4464,
@@ -3402,16 +3392,16 @@
           "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
           "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
           "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
-          "Circuit uses 18,600 Gidney temporary ANDs (4 T each) with 18,600 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
+          "Circuit uses 22,696 Gidney temporary ANDs (4 T each) with 22,696 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
           "T-count is ANALYTICAL (measured Toffoli count times the model's T-count); the circuit was not transpiled at this size. T-depth is a serial upper bound.",
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:53:30+00:00"
+          "timestamp": "2026-08-17T14:04:47+00:00"
         },
         "reproduce": ""
       },
@@ -3429,51 +3419,47 @@
           "rewrites": [],
           "label": "gidney/load/rolling/serial"
         },
-        "width": 1087,
-        "data_qubits": 1087,
+        "width": 1119,
+        "data_qubits": 1119,
         "ancilla_qubits": 0,
-        "max_live_qubits": 1087,
+        "max_live_qubits": 1119,
         "gate_counts": {
-          "and_g": 18600,
-          "and_g_dg": 18600,
-          "cx": 251736,
-          "h": 16384,
-          "s": 24640,
-          "t": 32768,
-          "x": 1986,
-          "z": 18464
+          "and_g": 22696,
+          "and_g_dg": 22696,
+          "cx": 210776,
+          "x": 1986
         },
-        "total_gates": 383178,
+        "total_gates": 258154,
         "toffoli_count": 0,
-        "cnot_count": 251736,
-        "two_qubit_count": 251736,
+        "cnot_count": 210776,
+        "two_qubit_count": 210776,
         "depth": {
-          "depth": 166038,
-          "two_qubit_depth": 164379,
+          "depth": 163106,
+          "two_qubit_depth": 163106,
           "toffoli_depth": 0,
-          "non_clifford_depth": 19559
+          "non_clifford_depth": 18728
         },
         "clifford_t": {
           "toffoli_gates": 0,
           "rotation_gates": 0,
-          "and_compute_gates": 18600,
-          "and_uncompute_gates": 18600,
-          "t_count": 107168,
-          "t_count_native": 32768,
+          "and_compute_gates": 22696,
+          "and_uncompute_gates": 22696,
+          "t_count": 90784,
+          "t_count_native": 0,
           "t_count_from_toffoli": 0,
           "t_count_from_rotations": 0,
-          "t_count_from_temporary_and": 74400,
-          "t_depth_serial_bound": 107168,
-          "clifford_count": 480610,
+          "t_count_from_temporary_and": 90784,
+          "t_depth_serial_bound": 90784,
+          "clifford_count": 417026,
           "decomposition_ancilla": 0,
-          "measurements": 18600,
+          "measurements": 22696,
           "needs_feedforward": true,
           "model": "standard",
           "model_reference": "Nielsen & Chuang Fig. 4.9",
           "rotation_epsilon": null,
           "exact": true,
           "transpiler_can_reproduce": false,
-          "already_clifford_t": true
+          "already_clifford_t": false
         },
         "t_count_provenance": "ANALYTICAL",
         "component_costs": {},
@@ -3485,16 +3471,16 @@
           "All-to-all connectivity assumed; no routing or SWAP overhead is charged. Depth on limited-connectivity hardware will be larger.",
           "Rotations and shifts are counted as zero-cost wire permutations (see qsha256.quantum.primitives.rotate / .shift for why).",
           "T-count model: standard: T-count 7, T-depth 4, 0 ancilla, 0 measurement(s) [Nielsen & Chuang Fig. 4.9].",
-          "Circuit uses 18,600 Gidney temporary ANDs (4 T each) with 18,600 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
+          "Circuit uses 22,696 Gidney temporary ANDs (4 T each) with 22,696 measurement-based uncomputations (0 T each). This requires mid-circuit measurement and classical feedforward, and cannot be run on measurement-free hardware.",
           "T-count is ANALYTICAL (measured Toffoli count times the model's T-count); the circuit was not transpiled at this size. T-depth is a serial upper bound.",
           "Circuit is NOT garbage-free: work registers hold intermediate state on output. This is a forward evaluation only and cannot be used directly inside a Grover oracle."
         ],
         "environment": {
-          "qsha256_version": "2.1.0",
+          "qsha256_version": "2.2.0",
           "qiskit_version": "2.5.2",
           "python_version": "3.14.6",
           "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-          "timestamp": "2026-08-16T22:53:54+00:00"
+          "timestamp": "2026-08-17T14:05:07+00:00"
         },
         "reproduce": ""
       }
@@ -3677,11 +3663,11 @@
         "Circuit is garbage-free: work registers, message schedule and message are restored, at the cost of running the forward computation twice."
       ],
       "environment": {
-        "qsha256_version": "2.1.0",
+        "qsha256_version": "2.2.0",
         "qiskit_version": "2.5.2",
         "python_version": "3.14.6",
         "platform": "Linux-7.0.12-arch1-1-x86_64-with-glibc2.43",
-        "timestamp": "2026-08-16T22:54:08+00:00"
+        "timestamp": "2026-08-17T14:05:22+00:00"
       },
       "reproduce": "qsha256 oracle --rounds 64"
     },
@@ -3868,9 +3854,9 @@
             "label": "gidney/load/rolling/serial",
             "achievable": true,
             "code_distance": 19,
-            "physical_qubits": 1384814,
-            "runtime_seconds": 0.357029,
-            "spacetime_qubit_seconds": 494418.757606
+            "physical_qubits": 1407918,
+            "runtime_seconds": 0.355832,
+            "spacetime_qubit_seconds": 500982.277776
           },
           {
             "label": "cdkm/load/rolling/serial/uncomp",
@@ -3884,9 +3870,9 @@
             "label": "gidney/load/rolling/serial/uncomp",
             "achievable": true,
             "code_distance": 19,
-            "physical_qubits": 1569646,
-            "runtime_seconds": 0.7105619999999999,
-            "spacetime_qubit_seconds": 1115330.801052
+            "physical_qubits": 1592750,
+            "runtime_seconds": 0.7045009999999999,
+            "spacetime_qubit_seconds": 1122093.9677499998
           }
         ]
       },
@@ -3954,9 +3940,9 @@
             "label": "gidney/load/rolling/serial",
             "achievable": true,
             "code_distance": 9,
-            "physical_qubits": 1776094,
-            "runtime_seconds": 0.0169119,
-            "spacetime_qubit_seconds": 30037.1241186
+            "physical_qubits": 1781278,
+            "runtime_seconds": 0.0168552,
+            "spacetime_qubit_seconds": 30023.796945600003
           },
           {
             "label": "cdkm/load/rolling/serial/uncomp",
@@ -3970,9 +3956,9 @@
             "label": "gidney/load/rolling/serial/uncomp",
             "achievable": true,
             "code_distance": 9,
-            "physical_qubits": 1817566,
-            "runtime_seconds": 0.0336582,
-            "spacetime_qubit_seconds": 61175.999941199996
+            "physical_qubits": 1822750,
+            "runtime_seconds": 0.0333711,
+            "spacetime_qubit_seconds": 60827.172525
           }
         ]
       }
@@ -4096,5 +4082,5 @@
       ]
     }
   },
-  "elapsed_seconds": 263.2
+  "elapsed_seconds": 261.9
 }

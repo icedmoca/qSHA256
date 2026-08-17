@@ -264,6 +264,88 @@ def cmd_leaderboard(args) -> int:
     return 0
 
 
+def cmd_prove(args) -> int:
+    from .formal.sha256_proofs import run_proofs
+
+    spec = get_spec(args.spec)
+    report = run_proofs(
+        args.scope,
+        progress=lambda cp: print(
+            f"  {'PROVED ' if cp.proved else 'REFUTED'} {cp.target:<48} "
+            f"aig={cp.aig_nodes:>8,}  {cp.seconds:6.2f}s",
+            flush=True,
+        ),
+        spec=spec,
+    )
+    print(
+        f"\n{report.obligations} proof obligations, "
+        f"{'ALL PROVED' if report.proved else 'REFUTED'}, {report.seconds:.1f}s"
+    )
+    print(
+        "\nEach obligation is universally quantified: UNSAT means the property\n"
+        "holds for every input, not that a sample passed."
+    )
+    return 0 if report.proved else 1
+
+
+def cmd_bounds(args) -> int:
+    from .formal.bounds import circuit_bound_report
+
+    spec = get_spec(args.spec)
+    print(circuit_bound_report(spec, _strategy(args), args.rounds or spec.rounds))
+    return 0
+
+
+def cmd_pebble(args) -> int:
+    from .formal.pebbling import minimise_pebbles, schedule_dag
+
+    spec = get_spec(args.spec)
+    dag = schedule_dag(spec, args.rounds)
+    print(f"{dag.name}: {len(dag)} nodes, {len(dag.inputs)} inputs, {len(dag.targets)} targets")
+    print(f"qSHA256's rolling schedule uses {spec.block_words} registers.\n")
+    best, trace = minimise_pebbles(
+        dag, steps=args.steps, timeout=args.timeout, allow_inplace=not args.classical_game
+    )
+    for result in trace:
+        print(f"  {result}")
+    print(f"\nminimum registers over {args.steps} steps: {best}")
+    if best is not None and best == spec.block_words:
+        print("The implemented schedule is optimal.")
+    return 0
+
+
+def cmd_crosscheck(args) -> int:
+    from .interop import cross_validate
+
+    spec, rounds, comp = _build(args)
+    result = cross_validate(comp.circuit, f"{spec.name} compression r={rounds}")
+    print(result)
+    return 0 if result.agree else 1
+
+
+def cmd_layout(args) -> int:
+    from .quantum.resources import analyze, compare_layouts
+
+    spec, rounds, comp = _build(args)
+    report = analyze(comp, spec=spec, strategy=comp.strategy, rounds=rounds, transpile_t=False)
+    print(f"{spec.name} compression, {rounds} rounds, {comp.strategy.label()}")
+    print(f"  {report.width:,} logical qubits, T-count {report.t_count:,}\n")
+    header = (
+        f"{'layout':<14}{'tiles':>9}{'d':>4}{'physical':>14}"
+        f"{'cycles':>12}{'runtime':>12}{'tile-cycles':>14}"
+    )
+    print(header)
+    print("-" * len(header))
+    for estimate in compare_layouts(report, args.model):
+        print(
+            f"{estimate.layout:<14}{estimate.tiles:>9,}{estimate.code_distance:>4}"
+            f"{estimate.physical_qubits_total:>14,}{estimate.code_cycles:>12,}"
+            f"{estimate.runtime_seconds:>11.3g}s{estimate.tile_cycles:>14.4g}"
+        )
+    print("\nASSUMPTION-DEPENDENT. See qsha256/quantum/resources/layout.py for the model.")
+    return 0
+
+
 def cmd_grover_demo(args) -> int:
     from .validation.grover_demo import run_grover_demo
 
@@ -352,6 +434,45 @@ def build_parser() -> argparse.ArgumentParser:
     _add_common(p)
     p.add_argument("--against", nargs="+", default=None)
     p.set_defaults(func=cmd_leaderboard)
+
+    p = sub.add_parser("prove", help="SAT proofs that circuits match the specification")
+    p.add_argument("--spec", default="sha256", choices=sorted(SPECS))
+    p.add_argument(
+        "--scope",
+        default="standard",
+        choices=("quick", "standard", "full"),
+        help="quick: primitives; standard: adds sigmas and rounds; full: adds schedule",
+    )
+    p.set_defaults(func=cmd_prove)
+
+    p = sub.add_parser("bounds", help="achieved cost against proven lower bounds")
+    _add_common(p)
+    p.set_defaults(func=cmd_bounds)
+
+    p = sub.add_parser("pebble", help="optimal register count for the message schedule")
+    p.add_argument("--spec", default="sha256", choices=sorted(SPECS))
+    p.add_argument("--rounds", type=int, default=None)
+    p.add_argument("--steps", type=int, default=48, help="move budget")
+    p.add_argument("--timeout", type=float, default=60.0)
+    p.add_argument(
+        "--classical-game",
+        action="store_true",
+        help="disallow in-place moves, i.e. the textbook reversible pebble game",
+    )
+    p.set_defaults(func=cmd_pebble)
+
+    p = sub.add_parser("crosscheck", help="compare against independent estimators")
+    _add_common(p)
+    p.set_defaults(func=cmd_crosscheck)
+
+    p = sub.add_parser("layout", help="surface-code floor plans and spacetime volume")
+    _add_common(p)
+    p.add_argument(
+        "--model",
+        default="superconducting",
+        choices=("superconducting", "optimistic", "conservative"),
+    )
+    p.set_defaults(func=cmd_layout)
 
     p = sub.add_parser("grover-demo", help="run the toy Grover search for real")
     p.add_argument("--iterations", type=int, default=None)

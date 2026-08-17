@@ -4,8 +4,10 @@
                                   SHA-256?
 
 
-qSHA256 builds SHA-256 out of reversible quantum circuits, executes them to
-prove they are correct, measures what they cost, and searches for cheaper ones.
+qSHA256 builds SHA-2 and SHA-3 out of reversible quantum circuits, PROVES them
+correct with a SAT-based equivalence checker, measures what they cost, and
+searches for cheaper ones. Where the optimum is known, it says how close it got
+-- and for the best configuration, it reaches the proven lower bound exactly.
 
 The usual answer to "how does SHA-256 fare against quantum computers" is 2^128,
 Grover's query count for a 256-bit preimage. That number says nothing about what
@@ -39,6 +41,18 @@ is constructed, executed, and verified against hashlib:
       [PASS] Gidney temporary-AND circuits == classical (preconditions checked)
     ...
     17/17 checks passed, 6,129 cases
+
+And where testing stops, proof begins:
+
+    $ qsha256 prove --scope standard
+      PROVED  adder gidney w=32
+      PROVED  ch w=32
+      PROVED  sha256 round[0] cdkm/load/rolling/serial
+      ...
+      58 proof obligations, ALL PROVED
+
+    Each obligation is universally quantified: UNSAT means the property
+    holds for every input, not that a sample passed.
 
 This is not a scaled-down proxy. Every SHA-256 compute circuit here is a
 permutation circuit, using only X, CNOT and Toffoli, so it can be executed
@@ -92,8 +106,11 @@ function, which is the core idea of T-par.
                           ------  -------   -----   -------  -------  --------
     cdkm (baseline)        1,057   46,592       0   326,144        -    38,528
     cdkm + phase folding   1,057        0       0   181,568   -44.3%   149,312
-    gidney temporary AND   1,087    8,192  18,600   131,744   -59.6%    18,791
-    gidney + phase fold    1,087        0  18,600   107,168   -67.1%    19,559
+    gidney temporary AND   1,119        0  22,696    90,784   -72.2%    18,728
+
+Note the Toffoli column: the Gidney configuration contains NO Toffoli gates at
+all. Every non-linear operation is a measurement-based temporary AND. Phase
+folding adds nothing on top of it, because there is nothing left to expand.
 
     NC depth = non-Clifford depth: Toffolis, T gates and AND-computes together.
 
@@ -104,6 +121,35 @@ once, but only on hardware with mid-circuit measurement and classical
 feedforward, an assumption the other designs do not make.
 
 A single 32-bit addition goes from 448 T (CDKM) to 124 T (Gidney).
+
+
+How close is that to optimal?
+-----------------------------
+
+Multiplicative complexity -- the minimum AND count over {AND, XOR, NOT} -- is a
+floor on any reversible implementation's Toffoli count, because XOR, NOT and the
+free wire permutations contribute nothing non-linear.
+
+    Component (32-bit)      Achieved    Floor
+    ------------------      --------    -----
+    Ch                            32       32   optimal
+    Maj                           32       32   optimal
+    sigma functions                0        0   optimal (affine)
+    Gidney adder                  31       31   optimal
+    CDKM adder                    64       31   2.06x
+    VBE adder                    124       31   4.00x
+
+    Full 64-round compression
+    -------------------------
+    CDKM                      46,592   22,696   2.05x
+    Gidney                    22,696   22,696   1.00x  EXACTLY OPTIMAL
+
+MC(Ch) = MC(Maj) = 1 is proved here by exhaustive search, not assumed. No
+reversible circuit built from these components can use fewer non-linear gates
+than the Gidney configuration does.
+
+The message schedule's register count is likewise provably optimal: 16 suffices
+and 15 is proved impossible, via the reversible pebble game solved by SAT.
 
 
 The three circuits that matter
@@ -151,8 +197,7 @@ Their T-par-optimized circuit reports 228,992 T at 2,402 logical qubits.
     --------------        ------   -------  ------------  -------------------
     default (as built)     1,057   326,144        +42.4%  yes, unitary
     + phase folding        1,057   181,568        -20.7%  yes, unitary
-    + Gidney ANDs          1,087   131,744        -42.5%  no, needs feedforward
-    + Gidney and folding   1,087   107,168        -53.2%  no, needs feedforward
+    + Gidney ANDs          1,119    90,784        -60.4%  no, needs feedforward
 
 The like-for-like comparison is the "+ phase folding" row. Both are unitary
 Clifford+T circuits with phase-polynomial optimization applied, so it is a fair
@@ -230,6 +275,34 @@ and_g target is |0> and every and_g_dg target holds exactly x AND y, since
 violating either is a silent correctness trap.
 
 
+OTHER HASH FAMILIES
+===============================================================================
+
+Everything is written against a parameterised spec, so new SHA-2 members are
+nearly free and the contrast with SHA-3 is sharp.
+
+    Circuit                        Qubits   Toffoli   Gidney ANDs   T-count
+    -------                        ------   -------   -----------   -------
+    SHA-256, 64 rounds              1,057    46,592             0   326,144
+    SHA-512, 80 rounds              2,113   117,760             0   824,320
+    SHA-512, Gidney                 2,175    20,480        47,880   334,880
+    SHA-3 / Keccak-f[1600]         10,944   153,600             0         -
+    Bitcoin double-SHA-256 oracle   2,399         0        90,784   363,990
+
+SHA-3 is worth having because it is built differently. Keccak has no arithmetic
+at all: rho and pi are pure wire permutations and cost nothing, theta and iota
+are CNOT and X only, and every non-linear gate in the whole permutation comes
+from chi -- one AND per state bit. It trades a few expensive carry chains for
+many cheap independent ANDs.
+
+Both are verified by execution: SHA-512's 80-round circuit against
+hashlib.sha512, Keccak against the classical reference at every round count, and
+the Bitcoin reference against the real genesis block (which it reproduces
+exactly, including its 43 leading zero bits).
+
+See docs/hash-families.md.
+
+
 GROVER, WITHOUT THE HYPE
 ===============================================================================
 
@@ -270,7 +343,13 @@ INSTALL AND USE
     qsha256 leaderboard                  # compare against published circuits
     qsha256 grover-demo                  # run the toy Grover search
 
-    qsha256 analyze --rounds 64 --adder gidney --phase-fold   # lowest T-count
+    qsha256 prove                        # SAT proofs, not samples
+    qsha256 bounds --adder gidney        # achieved against the proven floor
+    qsha256 pebble                       # optimal register count
+    qsha256 crosscheck                   # vs independent estimators
+    qsha256 layout                       # surface-code floor plans
+
+    qsha256 analyze --rounds 64 --adder gidney   # lowest T-count
 
 As a library:
 
@@ -318,11 +397,17 @@ REPOSITORY LAYOUT
                           carry-save addition
         sha256/           sigma functions, message schedule, round,
                           compression
+        keccak/           reversible Keccak-f[1600] for SHA-3
         oracle/           digest comparison, preimage oracle, toy Grover
         resources/        gate/depth metrics, Clifford+T models, physical
                           estimator, leaderboard, report rendering
         optimization/     rewriting, phase-polynomial folding, equivalence
                           checking, Pareto search, hardware ranking
+      formal/             XOR-aware AIG, SAT equivalence proofs, reversible
+                          pebbling, multiplicative-complexity bounds,
+                          superoptimization
+      applications/       Bitcoin double-SHA-256 mining oracle
+      interop/            cross-validation against independent estimators
       validation/         exact basis-state simulator, layered validation
                           suite
       cli.py
@@ -330,7 +415,7 @@ REPOSITORY LAYOUT
                           Grover, limitations
     benchmarks/results/   generated tables (JSON / CSV / Markdown)
     examples/             runnable, self-contained demonstrations
-    tests/                360 tests
+    tests/                445 tests
 
 
 DOCUMENTATION
@@ -345,6 +430,9 @@ DOCUMENTATION
     docs/grover.md                 what 2^128 leaves out
     docs/fault-tolerance.md        logical versus physical
     docs/leaderboard.md            comparison against published circuits
+    docs/formal-verification.md    how correctness became a proof
+    docs/optimality.md             lower bounds, pebbling, superoptimization
+    docs/hash-families.md          SHA-512, SHA-3 and Bitcoin
     docs/limitations.md            what has and has not been demonstrated
 
 
@@ -353,10 +441,12 @@ LIMITATIONS, BRIEFLY
 
 Nothing has run on quantum hardware. Full-scale SHA-256 has never been simulated
 in superposition, only on basis states. Grover has never been run against real
-SHA-256. Phase folding merges phases but does not re-synthesise the CNOT
-network, so it captures only part of what full T-par does. The Gidney designs
-assume mid-circuit measurement and feedforward. Depth assumes all-to-all
-connectivity with no routing overhead. Multi-block hashing is chained
+SHA-256. The whole-circuit proof is compositional rather than one monolithic
+query. Phase folding merges phases but does not re-synthesise the CNOT network.
+The Gidney designs assume mid-circuit measurement and feedforward. Keccak's
+theta scratch is not uncomputed, costing 320 qubits per round. The composed
+AND-count floor bounds this architecture, not the function itself. Depth assumes
+all-to-all connectivity with no routing overhead. Multi-block hashing is chained
 classically.
 
 Read docs/limitations.md before quoting anything.
@@ -412,8 +502,21 @@ REFERENCES
       noisy qubits
       arXiv:1905.09749
 
+    G. Meuli, M. Soeken, M. Roetteler, N. Bjorner, G. De Micheli
+      Reversible pebbling game for quantum memory management
+      DATE 2019
+
+    J. Boyar, R. Peralta, D. Pochuev
+      On the multiplicative complexity of Boolean functions
+      Theoretical Computer Science 235(1), 2000
+
+    D. Litinski
+      A Game of Surface Codes
+      arXiv:1808.02892
+
     NIST
       FIPS 180-4, Secure Hash Standard
+      FIPS 202, SHA-3 Standard
 
 
 LICENSE

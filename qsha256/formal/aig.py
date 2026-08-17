@@ -121,6 +121,16 @@ class AIG:
     input_names: list[str] = field(default_factory=list)
     #: Ceiling on AND nodes; exceeding it raises :class:`AIGTooLarge`.
     max_nodes: int = DEFAULT_MAX_NODES
+    #: Track XOR decompositions so repeated terms cancel structurally.
+    #:
+    #: This is a real tradeoff, measured rather than assumed. Cancellation makes
+    #: a compute/uncompute pair collapse to the constant false with no solver
+    #: call at all, which is exactly what the ancilla guard wants. But it also
+    #: enlarges the graph -- 10,671 nodes becomes 15,917 on a SHA-256 round --
+    #: and a bigger graph makes an equivalence miter harder, taking that proof
+    #: from 1.3 seconds to 39. So the guard turns it on and the equivalence
+    #: prover turns it off.
+    xor_aware: bool = True
 
     # -- construction ------------------------------------------------------
 
@@ -202,9 +212,7 @@ class AIG:
             acc = CONST_FALSE
             for atom in sorted(atoms):
                 acc = self._raw_xor(acc, atom)
-            self._xor_cache[(atoms, 0)] = acc
-            self._xor_atoms[acc] = (atoms, 0)
-            self._xor_atoms[negate(acc)] = (atoms, 1)
+            self._remember(acc, atoms, 0)
             cached = acc
         return negate(cached) if parity else cached
 
@@ -225,16 +233,43 @@ class AIG:
         return self.or_(self.and_(a, negate(b)), self.and_(negate(a), b))
 
     def xor(self, a: Lit, b: Lit) -> Lit:
-        """XOR, canonicalised over its atoms.  The workhorse of this project.
+        """XOR, canonicalised over its atoms *only where that pays*.
 
         Because operands are reduced to a parity of atoms, repeated terms cancel
         structurally: ``xor(xor(x, y), x)`` returns exactly the literal for
         ``y``. That is what makes a correct compute/uncompute pair collapse to
         the constant false without any search.
+
+        But canonicalising unconditionally is a trap. Rebuilding a chain from
+        the sorted atom set discards the sharing that incremental construction
+        gives, and measurably *doubled* the graph on a SHA-256 round -- which in
+        turn made the equivalence miter much harder for the solver. So when no
+        atoms cancel, the literal is built incrementally on top of ``a`` and only
+        its decomposition is recorded; the canonical rebuild is reserved for the
+        case where cancellation actually occurred, which is precisely when it is
+        needed.
         """
+        if not self.xor_aware:
+            return self._raw_xor(a, b)
+
         sa, pa = self._atoms(a)
         sb, pb = self._atoms(b)
-        return self._materialise_xor(sa ^ sb, pa ^ pb)
+        atoms, parity = sa ^ sb, pa ^ pb
+
+        if len(atoms) == len(sa) + len(sb):
+            # Disjoint: nothing cancelled, so keep the incremental structure.
+            result = self._raw_xor(a, b)
+            if result not in (CONST_FALSE, CONST_TRUE) and len(atoms) <= MAX_XOR_ATOMS:
+                self._remember(result, atoms, parity)
+            return result
+
+        return self._materialise_xor(atoms, parity)
+
+    def _remember(self, lit: Lit, atoms: frozenset[Lit], parity: int) -> None:
+        """Record a literal's XOR decomposition, and its negation's."""
+        self._xor_atoms.setdefault(lit, (atoms, parity))
+        self._xor_atoms.setdefault(negate(lit), (atoms, parity ^ 1))
+        self._xor_cache.setdefault((atoms, parity), lit)
 
     def mux(self, sel: Lit, if_true: Lit, if_false: Lit) -> Lit:
         return self.or_(self.and_(sel, if_true), self.and_(negate(sel), if_false))
@@ -348,6 +383,7 @@ def symbolic_execute(
     aig: AIG | None = None,
     check_and_preconditions: bool = True,
     max_nodes: int = DEFAULT_MAX_NODES,
+    xor_aware: bool = False,
 ) -> SymbolicState:
     """Propagate Boolean functions through a permutation circuit.
 
@@ -360,6 +396,11 @@ def symbolic_execute(
         :meth:`AIG.and_` prune enormous amounts of the graph.
     zero_qubits:
         Explicitly constant-zero qubits.  Defaults to "everything not free".
+    xor_aware:
+        Track XOR decompositions so repeated terms cancel structurally. Off by
+        default here: it shrinks nothing and enlarges the graph, which slows
+        equivalence miters considerably. The ancilla guard enables it, because
+        for that use it removes the solver call entirely. See :class:`AIG`.
     check_and_preconditions:
         Collect, for every Gidney ``and_g``, the function that must be
         identically false for its precondition to hold (namely the target's
@@ -367,7 +408,7 @@ def symbolic_execute(
         discharged as separate SAT queries by
         :func:`qsha256.formal.equivalence.prove_and_preconditions`.
     """
-    aig = aig if aig is not None else AIG(max_nodes=max_nodes)
+    aig = aig if aig is not None else AIG(max_nodes=max_nodes, xor_aware=xor_aware)
     free = list(free_qubits) if free_qubits is not None else list(circuit.qubits)
     free_set = set(free)
     explicit_zero = set(zero_qubits) if zero_qubits is not None else None

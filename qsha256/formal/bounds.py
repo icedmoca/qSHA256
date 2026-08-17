@@ -225,7 +225,7 @@ class ComponentBound:
         }
 
 
-def component_bounds(width: int = 32, timeout: float = 30.0) -> list[ComponentBound]:
+def component_bounds(width: int = 32, timeout: float = 30.0, spec=None) -> list[ComponentBound]:
     """Achieved versus optimal AND count for every non-linear component."""
     from ..classical.sha256 import ch, maj
     from ..quantum.primitives.add import add_into
@@ -276,10 +276,13 @@ def component_bounds(width: int = 32, timeout: float = 30.0) -> list[ComponentBo
     from ..quantum.primitives.xor import xor_terms
     from ..spec import SHA256
 
+    # The sigma terms must come from the spec being analysed: SHA-256's
+    # SHR^10 is meaningless on a 4-bit toy word.
+    sigma_spec = spec if spec is not None else SHA256
     for which in ("big_sigma0", "big_sigma1", "small_sigma0", "small_sigma1"):
         builder = CircuitBuilder(which)
         x, t = builder.add_word(width, "x"), builder.add_word(width, "t")
-        xor_terms(builder, x, getattr(SHA256, which), t)
+        xor_terms(builder, x, getattr(sigma_spec, which), t)
         bounds.append(
             ComponentBound(
                 component=f"{which} ({width}-bit)",
@@ -364,7 +367,7 @@ def circuit_bound_report(
     ops = comp.circuit.count_ops()
     achieved = ops.get("ccx", 0) + ops.get("and_g", 0)
 
-    components = component_bounds(width, timeout)
+    components = component_bounds(width, timeout, spec)
 
     # Per round: Ch and Maj computed and uncomputed, plus seven additions.
     adds_per_round = 7

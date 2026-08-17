@@ -3,6 +3,74 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-08-17
+
+### Added
+
+**Formal verification** (`qsha256/formal/`) -- correctness becomes a proof
+rather than a sample. Circuits are symbolically executed into an XOR-aware
+And-Inverter Graph, Tseitin-encoded into CNF, and discharged by SAT. Functional
+equivalence against an independently written specification, ancilla cleanliness,
+and Gidney AND preconditions are each established over all inputs. Whole
+circuits are proved compositionally, with a structural check that the circuit
+really is the composition of the proved parts.
+
+**A borrow checker for uncomputation** (`quantum/ancilla_check.py`). Releasing
+an ancilla that is not provably zero raises at the release site.
+
+**Reversible pebbling** (`formal/pebbling.py`). Proves 16 registers optimal for
+the SHA-256 message schedule; 15 is impossible. Required extending the classical
+game with an in-place move, without which the model declares the working circuit
+impossible.
+
+**Multiplicative-complexity bounds** (`formal/bounds.py`). Proves MC(Ch) =
+MC(Maj) = 1 by exhaustive search. With Gidney ANDs throughout, the full
+64-round circuit uses 22,696 ANDs against a floor of 22,696 -- exactly optimal.
+
+**Superoptimization** (`formal/superopt.py`) by meet-in-the-middle synthesis.
+Finding: the shortest Ch is 3 gates using 2 Toffolis, the shortest Maj 3 gates
+using 3, while qSHA256 uses 1 Toffoli in each. Minimising gate count is the
+wrong objective under fault tolerance.
+
+**SHA-512** -- a new parameter set, and the whole stack applies unchanged.
+Verified against hashlib at 80 rounds.
+
+**SHA-3 / Keccak-f[1600]** -- a genuinely different structure, where every
+non-linear gate comes from chi. Verified against hashlib including the 0x86
+pad10*1 edge case.
+
+**Bitcoin double SHA-256** (`applications/bitcoin.py`) with midstate folding,
+constant padding and a threshold predicate. Validated against the genesis block.
+
+**Lattice-surgery layout** (`resources/layout.py`) following Litinski, replacing
+the 2d^2 shortcut with concrete floor plans and spacetime volume.
+
+**Cross-validation** (`interop/`) against Qualtran, Qiskit and a QASM-text
+counter. All three agree on qubits, Toffoli and Clifford counts.
+
+**Resource regression checking** (`scripts/check_regression.py`) with a
+committed baseline, wired into CI.
+
+**CITATION.cff** so results are citable.
+
+### Changed
+
+- Gidney temporary ANDs now cover Ch and Maj, so the 64-round circuit contains
+  zero Toffoli gates and its T-count falls from 131,744 to 90,784.
+- T-par matroid partitioning reports achievable T-depth: 93,184 against a
+  186,368 serial bound.
+- XOR-awareness in the AIG is now opt-in, because it helps cancellation and
+  hurts equivalence miters -- measured, and documented at the flag.
+- CI grew jobs for proofs, regression and cross-validation.
+
+### Fixed
+
+- CaDiCaL cannot be interrupted, so SAT timeouts against it were silently
+  ignored; interruptible solvers are now selected when a timeout is requested.
+- The QASM-text counter was counting gate-definition bodies as invocations.
+- Qualtran's Clifford total was being compared against our CNOT count, which is
+  a definitional mismatch rather than a disagreement.
+
 ## [2.1.0] - 2026-08-16
 
 ### Added

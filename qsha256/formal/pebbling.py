@@ -182,7 +182,8 @@ def solve_pebbling(
     """
     from pysat.card import CardEnc, EncType
     from pysat.formula import IDPool
-    from pysat.solvers import Solver
+
+    from .cnf import solve_bounded
 
     started = time.time()
     pool = IDPool()
@@ -264,19 +265,10 @@ def solve_pebbling(
             if node not in inputs:
                 clauses.append([-pebbled(node, steps)])
 
-    with Solver(name=solver, bootstrap_with=clauses, use_timer=True) as sat:
-        if timeout:
-            from threading import Timer
-
-            timer = Timer(timeout, lambda s: s.interrupt(), [sat])
-            timer.start()
-            try:
-                answer = sat.solve_limited(expect_interrupt=True)
-            finally:
-                timer.cancel()
-        else:
-            answer = sat.solve()
-        model = sat.get_model() if answer else None
+    # Bounded in a subprocess so the strongest solver can still be used: on
+    # these instances CaDiCaL answers in a fraction of a second where the
+    # interruptible solvers do not finish at all.
+    answer, model = solve_bounded(clauses, solver, timeout)
 
     elapsed = time.time() - started
     status = "UNKNOWN" if answer is None else ("STRATEGY" if answer else "IMPOSSIBLE")

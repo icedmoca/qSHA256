@@ -48,6 +48,53 @@ jobs:
       - name: validation suite (quick)
         run: qsha256 validate --quick
 
+  prove:
+    name: formal proofs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      # UNSAT here is a proof over every input, not a sample.
+      - name: prove primitives and the round function
+        run: qsha256 prove --scope standard
+      - name: prove the message schedule's register count optimal
+        run: qsha256 pebble --steps 48 --timeout 120
+
+  regression:
+    name: resource regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      # Fails the build if T-count, qubits or depth regress against the
+      # committed baseline. Optimization claims are easy to lose silently.
+      - name: check against baseline
+        run: python scripts/check_regression.py
+
+  crosscheck:
+    name: independent estimators
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: install a third-party estimator
+        run: pip install qualtran
+        continue-on-error: true
+      - name: compare gate counts against Qualtran and a QASM-text counter
+        run: qsha256 crosscheck --spec sha256 --rounds 4
+
   full-scale:
     name: full-scale 64-round verification
     runs-on: ubuntu-latest
@@ -63,6 +110,10 @@ jobs:
         run: pytest tests/ -q -m "slow"
       - name: full validation suite
         run: qsha256 validate
+      - name: SHA-512 and SHA-3
+        run: |
+          qsha256 analyze --spec sha512 --rounds 80 --no-transpile
+          python -c "import hashlib; from qsha256.quantum.keccak.keccak import sha3_256; assert sha3_256(b'abc') == hashlib.sha3_256(b'abc').digest()"
 
   examples:
     name: examples

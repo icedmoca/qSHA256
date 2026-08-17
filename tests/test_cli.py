@@ -33,7 +33,14 @@ class TestBasics:
 
     def test_unknown_spec_is_rejected(self):
         with pytest.raises(SystemExit):
-            main(["analyze", "--spec", "sha512"])
+            main(["analyze", "--spec", "blake3"])
+
+    def test_sha512_is_a_known_spec(self, capsys):
+        """It was a rejection case until SHA-512 was actually implemented."""
+        out, _ = run(capsys, "analyze", "--spec", "sha512", "--rounds", "2", "--format", "json")
+        import json
+
+        assert json.loads(out)["spec_name"] == "sha512"
 
 
 class TestAnalyze:

@@ -1,0 +1,30 @@
+{
+  "sha256-forward-cdkm": {
+    "qubits": 1057,
+    "toffoli": 46592,
+    "and_g": 0,
+    "t_count": 326144,
+    "non_clifford_depth": 38528
+  },
+  "sha256-forward-gidney": {
+    "qubits": 1119,
+    "toffoli": 0,
+    "and_g": 22696,
+    "t_count": 90784,
+    "non_clifford_depth": 18728
+  },
+  "sha256-garbage-free-cdkm": {
+    "qubits": 1313,
+    "toffoli": 92672,
+    "and_g": 0,
+    "t_count": 648704,
+    "non_clifford_depth": 76514
+  },
+  "sha256-garbage-free-gidney": {
+    "qubits": 1375,
+    "toffoli": 0,
+    "and_g": 45144,
+    "t_count": 180576,
+    "non_clifford_depth": 37079
+  }
+}

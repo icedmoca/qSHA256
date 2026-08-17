@@ -64,7 +64,9 @@ class AncillaLeak(Exception):
 class AncillaGuard:
     """Tracks each qubit's Boolean function while a circuit is built."""
 
-    aig: AIG = field(default_factory=AIG)
+    #: XOR-aware, so a correct compute/uncompute pair proves itself with no
+    #: solver call. See AIG.xor_aware for why the equivalence prover differs.
+    aig: AIG = field(default_factory=lambda: AIG(xor_aware=True))
     values: dict[Qubit, Lit] = field(default_factory=dict)
     #: Release sites that needed a SAT call rather than folding alone.
     solver_calls: int = 0

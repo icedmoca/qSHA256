@@ -1,0 +1,78 @@
+cff-version: 1.2.0
+title: >-
+  qSHA256: reversible quantum circuit construction, verification and
+  resource analysis for SHA-2 and SHA-3
+message: If you use this software or its results, please cite it.
+type: software
+authors:
+  - alias: icedmoca
+    email: blazehavenservers@gmail.com
+repository-code: https://github.com/icedmoca/qSHA256
+license: Apache-2.0
+version: 2.2.0
+date-released: 2026-08-17
+keywords:
+  - quantum computing
+  - reversible computing
+  - resource estimation
+  - SHA-256
+  - SHA-3
+  - Grover
+  - Clifford+T
+  - fault tolerance
+  - formal verification
+abstract: >-
+  qSHA256 builds SHA-2 and SHA-3 out of reversible quantum circuits, proves
+  them correct with a SAT-based equivalence checker, measures their logical
+  resource requirements, and searches a design space for cheaper
+  implementations. Correctness is established by symbolic execution into an
+  XOR-aware And-Inverter Graph followed by SAT: functional equivalence against
+  an independently written specification, ancilla cleanliness, and Gidney AND
+  preconditions are each proved over all inputs rather than sampled. The
+  message schedule's register count is shown optimal via the reversible pebble
+  game, and Ch, Maj and the Gidney adder are shown optimal in AND count against
+  proven multiplicative-complexity lower bounds. Reported figures distinguish
+  measured, transpiled, analytical, extrapolated and assumption-dependent
+  quantities throughout.
+references:
+  - type: article
+    title: >-
+      Estimating the cost of generic quantum pre-image attacks on SHA-2 and
+      SHA-3
+    authors:
+      - family-names: Amy
+        given-names: Matthew
+      - family-names: Di Matteo
+        given-names: Olivia
+      - family-names: Gheorghiu
+        given-names: Vlad
+      - family-names: Mosca
+        given-names: Michele
+      - family-names: Parent
+        given-names: Alex
+      - family-names: Schanck
+        given-names: John
+    year: 2016
+    url: https://arxiv.org/abs/1603.09383
+  - type: article
+    title: Halving the cost of quantum addition
+    authors:
+      - family-names: Gidney
+        given-names: Craig
+    year: 2018
+    url: https://arxiv.org/abs/1709.06648
+  - type: article
+    title: Reversible pebbling game for quantum memory management
+    authors:
+      - family-names: Meuli
+        given-names: Giulia
+      - family-names: Soeken
+        given-names: Mathias
+      - family-names: Roetteler
+        given-names: Martin
+      - family-names: Bjorner
+        given-names: Nikolaj
+      - family-names: De Micheli
+        given-names: Giovanni
+    year: 2019
+    url: https://doi.org/10.23919/DATE.2019.8715260

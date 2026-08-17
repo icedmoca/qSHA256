@@ -63,7 +63,7 @@ class LayoutModel:
     reference: str = "Litinski, 'A Game of Surface Codes', arXiv:1808.02892"
 
     def tile_count(self, logical_qubits: int) -> int:
-        return int(math.ceil(self.tiles(logical_qubits)))
+        return math.ceil(self.tiles(logical_qubits))
 
 
 LAYOUTS: dict[str, LayoutModel] = {
@@ -204,7 +204,7 @@ def lattice_surgery_layout(
 
     # A T gate every `cycles_per_t` cycles is what the floor plan permits; the
     # circuit's own T-depth is what it demands. The larger binds.
-    cycles_layout = int(math.ceil(t_count * layout.cycles_per_t))
+    cycles_layout = math.ceil(t_count * layout.cycles_per_t)
 
     distance = None
     cycles = max(1, cycles_layout)

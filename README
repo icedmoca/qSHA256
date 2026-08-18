@@ -208,31 +208,85 @@ are wire relabellings rather than gates.
 COMPARISON WITH PUBLISHED WORK
 ===============================================================================
 
-Against Amy, Di Matteo, Gheorghiu, Mosca, Parent and Schanck (SAC 2016,
-arXiv:1603.09383), Table 1. Figures are transcribed with per-metric
-comparability verdicts, so a Toffoli-level depth is never silently divided by a
-Clifford+T depth.
+Prior work is not quoted here. It is rebuilt, and then compared.
 
-Their T-par-optimized circuit reports 228,992 T at 2,402 logical qubits.
+Amy, Di Matteo, Gheorghiu, Mosca, Parent and Schanck (SAC 2016,
+arXiv:1603.09383) is reconstructed from their Figures 3, 4 and 5 and their
+Algorithms 1 and 2, then run through the same expansion and the same
+phase-polynomial optimizer qSHA256 applies to its own circuits. Run it with
 
-    qSHA256 design        Qubits   T-count  vs published  Same machine model?
-    --------------        ------   -------  ------------  -------------------
-    default (as built)     1,057   326,144        +42.4%  yes, unitary
-    + phase folding        1,057   181,568        -20.7%  yes, unitary
-    + Gidney ANDs          1,119    90,784        -60.4%  no, needs feedforward
+    $ qsha256 baseline
 
-The like-for-like comparison is the "+ phase folding" row. Both are unitary
-Clifford+T circuits with phase-polynomial optimization applied, so it is a fair
-contest: qSHA256 reaches a 20.7% lower T-count at 44% of the qubits.
+WHAT REPRODUCED EXACTLY
 
-The Gidney rows go further, but they assume mid-circuit measurement and
-feedforward, a capability the 2016 circuit did not assume, since Gidney's
-construction postdates it by two years. That is a comparison between machine
-models, not between two circuits for the same machine, and the leaderboard says
-so wherever it appears.
+Their message schedule, which they call the stretch function, closes end to end
+with nothing transcribed in the middle:
 
-Against their pre-T-par circuit the default design already wins on every
-comparable metric: 56% fewer qubits, 19% fewer T gates, 10% lower T-depth.
+    Algorithm 2  ->  rebuild  ->  186 Toffoli  ->  expand at 7 T each
+                 ->  1,302 T  ->  qSHA256 phase folding  ->  744 T, 372 H
+
+Their Table 1 reports 744 T and 372 H for "Stretch (Opt.)". Both match to the
+gate. An independent implementation, an independent expansion and an
+independent optimizer land on a published optimized figure exactly.
+
+WHAT DID NOT REPRODUCE
+
+Their round did not. Their H column implies 754 Toffoli per round; the
+architecture their own figures describe accounts for 626, and the rebuild is
+verified correct against the classical round function. The 128-Toffoli residual
+is unexplained and is reported rather than tuned away.
+
+This matters for the direction of the error. Their reported cost is HIGHER than
+their described architecture, so quoting their published total would credit
+qSHA256 with a gap that belongs to their reporting, not to its design.
+
+Two further arithmetic problems in their Table 1 turned up on the way. The
+unoptimized T-depth adds the 48 stretch iterations while the optimized T-depth
+does not, so the T-par improvement is 2.06x like-for-like, not the 2.44x the
+two printed numbers suggest. And their unoptimized stretch T of 1,329 is
+inconsistent with its own H count, which implies 1,302; their own optimized 744
+confirms 1,302 is right. That error inflates their reported SHA-256 T-count by
+48 x 27 = 1,296.
+
+THE LIKE-FOR-LIKE NUMBER
+
+    architecture                    Toffoli/AND         T     vs Amy
+    ------------------------------  -----------  --------  ---------
+    Amy et al. 2016, rebuilt here        48,992   342,944      1.00x
+    qSHA256 CDKM, unitary                45,392   317,744      0.93x
+    qSHA256 Gidney, feedforward          22,696    90,784      0.46x
+
+With phase folding applied to both, qSHA256 reaches 179,584 T against their
+architecture's 195,968: an 8.4 percent lead. Against their PUBLISHED 228,992
+the lead looks like 21.6 percent, and roughly two thirds of that difference is
+the unreproducible residual above. The honest figure is 8.4 percent.
+
+The Gidney row is a different machine model, not a better circuit for the same
+one: its uncomputation is a mid-circuit measurement with classical feedforward,
+which their 2016 circuit does not assume.
+
+WHERE qSHA256 LOSES
+
+A ten-year-old baseline is not the state of the art. Against the depth-and-width
+line of work, qSHA256 is behind:
+
+    circuit                            Qubits  Toffoli-depth
+    ---------------------------------  ------  -------------
+    Lee et al. 2022, SHA-Z1               768         38,360
+    Lee et al. 2022, SHA-Z2               799         12,024
+    Kim et al. 2018, SHA-C1               801         36,368
+    Kim et al. 2018, SHA-C5 & C6          938         10,112
+    qSHA256 gidney/wide                 1,215         14,136
+    qSHA256 gidney/serial               1,119         18,728
+    qSHA256 cdkm/serial                 1,057         37,328
+
+Every qSHA256 configuration is Pareto-dominated on this pair: SHA-Z2 is both
+narrower and shallower than all of them. qSHA256 leads on T-count and AND-count,
+which is the axis that line of work does not report at all.
+
+That is the real position. Ahead on the metric it optimizes for, behind on the
+two it does not, and unable to compare directly on either side's strong axis
+because the two literatures report different quantities.
 
 
 AUTOMATED DESIGN SEARCH
@@ -369,6 +423,7 @@ INSTALL AND USE
     qsha256 bounds --adder gidney        # achieved against the composed floor
     qsha256 pebble                       # register-count lower bound
     qsha256 claims                       # re-derive every claim from code
+    qsha256 baseline                     # rebuild published work and compare
     qsha256 crosscheck                   # vs independent estimators
     qsha256 layout                       # surface-code floor plans
 

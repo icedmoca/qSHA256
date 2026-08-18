@@ -144,9 +144,15 @@ def c3_gidney_adder_floor() -> ClaimResult:
         "C3",
         "Gidney adder attains the n-1 floor",
         UNCONDITIONAL,
-        {"gidney": 31, "cdkm": 64, "vbe": 124},
+        {"gidney": 31, "cdkm": 62, "vbe": 124},
         actual,
-        detail="floor MC(add mod 2^n) = n-1 is published (Boyar-Peralta), not proved here",
+        detail=(
+            "floor MC(add mod 2^n) = n-1 is published (Boyar-Peralta), not proved "
+            "here. CDKM is 2(n-1) = 62, not 2n: the top MAJ/UMA pair cancels "
+            "when the carry out is discarded. The rewriter was already removing "
+            "those, so this is not a resource saving -- the construction now "
+            "reaches the published cost without needing a later pass."
+        ),
         conditions=["adder floor cited, not re-proved"],
     )
 
@@ -258,24 +264,120 @@ def c8_t_count() -> ClaimResult:
 
 
 def c9_versus_published() -> ClaimResult:
-    from qsha256.quantum.resources.leaderboard import PUBLISHED
+    """Like-for-like against Amy et al., with their circuit REBUILT, not quoted.
 
-    published = PUBLISHED["amy2016-opt"].t_count
-    ours_unitary, ours_best = 181568, 90784
+    The previous version of this claim compared a qSHA256 number against a
+    figure transcribed from their table, and hard-coded our own side of the
+    comparison as a literal. Both halves are now derived: their architecture is
+    rebuilt from their published figures and run through the same expansion and
+    the same phase-polynomial optimizer as ours.
+
+    The margin got smaller. That is the point of doing it properly.
+    """
+    from qsha256 import SHA256
+    from qsha256.interop.baselines.amy2016 import build_amy_round, build_amy_stretch
+    from qsha256.quantum.optimization.phase_fold import phase_fold, to_clifford_t
+    from qsha256.quantum.sha256.compression import build_compression
+    from qsha256.quantum.sha256.round import build_round_circuit
+    from qsha256.quantum.strategies import Strategy
+
+    def folded(circuit) -> int:
+        return phase_fold(to_clifford_t(circuit), already_clifford_t=True).t_after
+
+    amy_round, _, _, _ = build_amy_round(SHA256)
+    amy_stretch, _ = build_amy_stretch(SHA256)
+    theirs = 64 * folded(amy_round.circuit) + 48 * folded(amy_stretch.circuit)
+
+    ours_round = build_round_circuit(SHA256, Strategy(adder="cdkm"), t=0)
+    ours_round = ours_round[0].circuit if isinstance(ours_round, tuple) else ours_round.circuit
+    ours_unitary = 64 * folded(ours_round) + 48 * folded(amy_stretch.circuit)
+
+    ops = dict(build_compression(SHA256, Strategy(adder="gidney"), rounds=64).circuit.count_ops())
+    ours_best = ops.get("and_g", 0) * 4
+
     return _check(
         "C9",
-        "below the published T-par figure",
-        ANALYTICAL,
-        {"published": 228992, "unitary_delta_pct": -20.7, "best_delta_pct": -60.4},
+        "below the Amy et al. architecture, rebuilt and measured here",
+        MEASURED,
+        {"rebuilt": 195968, "unitary_delta_pct": -8.4, "best_delta_pct": -53.7},
         {
-            "published": published,
-            "unitary_delta_pct": round(100 * (ours_unitary / published - 1), 1),
-            "best_delta_pct": round(100 * (ours_best / published - 1), 1),
+            "rebuilt": theirs,
+            "unitary_delta_pct": round(100 * (ours_unitary / theirs - 1), 1),
+            "best_delta_pct": round(100 * (ours_best / theirs - 1), 1),
         },
-        detail="transcribed from Table 1, ePrint 2016/992 p.10",
+        detail=(
+            f"their architecture rebuilt = {theirs:,} T; qSHA256 unitary = "
+            f"{ours_unitary:,} T; qSHA256 with feedforward = {ours_best:,} T. "
+            f"Their PUBLISHED figure is 228,992, against which the margins look "
+            f"larger -- but see the conditions."
+        ),
         conditions=[
-            "the 60.4% figure assumes measurement + feedforward, which their "
-            "unitary circuit does not; the like-for-like number is 20.7%",
+            "both sides expanded at 7 T per Toffoli and folded by the SAME "
+            "optimizer; no number is transcribed from their table",
+            "the rebuild reaches 626 Toffoli/round where their H column implies "
+            "754, so their published total is 17% above their own architecture; "
+            "comparing against 228,992 would credit qSHA256 with that gap",
+            "the -53.7% figure assumes measurement and feedforward, which their "
+            "circuit does not use; the like-for-like number is -8.4%",
+        ],
+    )
+
+
+def c11_reproduce_published_row() -> ClaimResult:
+    """An entire published optimized row, reproduced end to end."""
+    from qsha256.interop.baselines.amy2016 import reproduce_optimized_stretch
+
+    got = reproduce_optimized_stretch()
+    return _check(
+        "C11",
+        "their Stretch (Opt.) row reproduces exactly",
+        EXECUTED,
+        {"t": 744, "h": 372},
+        {"t": got["t_after_folding"], "h": got["our_h"]},
+        detail=(
+            "rebuilt from Algorithm 2 -> 186 Toffoli -> 1,302 T -> phase folding "
+            "-> 744 T and 372 H, matching Table 1 'Stretch (Opt.)' on both"
+        ),
+        conditions=[
+            "this also shows their unoptimized Stretch T of 1,329 is wrong: "
+            "744 is consistent with 1,302, and the error inflates their "
+            "reported SHA-256 total by 48 x 27 = 1,296 T",
+        ],
+    )
+
+
+def c12_pareto_position() -> ClaimResult:
+    """Where qSHA256 sits against the best published designs. Behind, on two axes."""
+    from qsha256 import SHA256
+    from qsha256.quantum.resources import analyze
+    from qsha256.quantum.resources.leaderboard import pareto_position
+    from qsha256.quantum.sha256.compression import build_compression
+    from qsha256.quantum.strategies import Strategy
+
+    dominated = {}
+    for adder, layout in (("gidney", "wide"), ("gidney", "serial"), ("cdkm", "serial")):
+        comp = build_compression(SHA256, Strategy(adder=adder, round_layout=layout), rounds=64)
+        report = analyze(comp, spec=SHA256, rounds=64, transpile_t=False)
+        position = pareto_position(
+            f"{adder}/{layout}", report.width, report.depth["non_clifford_depth"]
+        )
+        dominated[f"{adder}/{layout}"] = position.dominated
+    return _check(
+        "C12",
+        "qSHA256 is Pareto-dominated on width and depth",
+        MEASURED,
+        {"gidney/wide": True, "gidney/serial": True, "cdkm/serial": True},
+        dominated,
+        detail=(
+            "Every configuration is beaten on BOTH width and non-Clifford depth "
+            "by Lee et al. 2022 SHA-Z2 (799 qubits, Toffoli-depth 12,024). "
+            "qSHA256 leads on T-count; that line of work does not report one."
+        ),
+        conditions=[
+            "our non-Clifford depth is compared against their Toffoli-depth; "
+            "these are close but not identical quantities",
+            "Kim et al.'s figures are read from Lee et al.'s Table 2, not from "
+            "the 2018 paper directly",
         ],
     )
 
@@ -327,6 +429,8 @@ def main() -> int:
         c8_t_count,
         c9_versus_published,
         c10_oracle_ratio,
+        c11_reproduce_published_row,
+        c12_pareto_position,
     ]
 
     results: list[ClaimResult] = []

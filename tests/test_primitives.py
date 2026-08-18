@@ -178,14 +178,20 @@ class TestAdders:
 
     @pytest.mark.parametrize("name,ccx,cx", [("cdkm", 2, 4), ("vbe", 4, 4)])
     def test_published_gate_counts(self, name, ccx, cx):
-        """CDKM: 2n Toffoli / 4n CNOT. VBE: 4(n-1) Toffoli / 4n-2 CNOT."""
+        """CDKM: 2(n-1) Toffoli / 4n-2 CNOT. VBE: 4(n-1) Toffoli / 4n-2 CNOT.
+
+        The CDKM figure is 2(n-1) and not 2n because the top MAJ/UMA pair
+        cancels once the carry out is discarded, which is what makes this
+        addition modular. Amy et al. 2016's circuit reaches the same 62 for
+        n=32, and comparing against it is how the discrepancy was found.
+        """
         n = 32
         b = CircuitBuilder("count")
         a, t = b.add_word(n, "a"), b.add_word(n, "b")
         add_into(b, a, t, name)
         ops = b.circuit.count_ops()
-        expected_ccx = 2 * n if name == "cdkm" else 4 * (n - 1)
-        expected_cx = 4 * n if name == "cdkm" else 4 * n - 2
+        expected_ccx = 4 * (n - 1) if name == "vbe" else 2 * (n - 1)
+        expected_cx = 4 * n - 2
         assert ops["ccx"] == expected_ccx
         assert ops["cx"] == expected_cx
 
@@ -418,7 +424,7 @@ class TestTemporaryAnd:
             a, t = b.add_word(32, "a"), b.add_word(32, "b")
             add_into(b, a, t, name)
             counts[name] = clifford_t_cost(dict(b.circuit.count_ops()))["t_count"]
-        assert counts["cdkm"] == 448
+        assert counts["cdkm"] == 434  # 7 adders x 2(n-1), the Cuccaro cost
         assert counts["gidney"] == 124
         assert counts["gidney"] < counts["cdkm"] / 3
 

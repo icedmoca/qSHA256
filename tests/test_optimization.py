@@ -147,10 +147,20 @@ class TestRewrite:
         assert check_equivalence(comp.circuit, result.circuit, free_qubits=free, trials=64)
 
     def test_rewriting_actually_removes_gates(self):
+        """The rewriter must still earn its place.
+
+        This used to assert that Toffolis specifically came out, which held
+        because the CDKM adder emitted a cancelling top MAJ/UMA pair for the
+        rewriter to find. The adder now elides that pair at construction time,
+        so there are no redundant Toffolis left in this circuit -- the pass is
+        no longer needed for them. It must still remove *something*, or it is
+        dead weight.
+        """
         comp = build_compression(TOY4, Strategy(), rounds=8)
         result = apply_rewrites(comp.builder)
         assert result.removed > 0
-        assert result.after["ccx"] < result.before["ccx"]
+        assert sum(result.after.values()) < sum(result.before.values())
+        assert result.after["ccx"] <= result.before["ccx"]
         assert "-" in result.summary(), "a reduction must be reported as negative"
 
     def test_rewriting_finds_the_hand_written_constant_specialisation(self):

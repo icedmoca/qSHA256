@@ -3,6 +3,52 @@
 All notable changes to this project are documented here. This project follows
 [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] - 2026-08-18
+
+### Added
+
+**Baseline reconstruction** (`qsha256/interop/baselines/`). Published circuits
+are rebuilt from the primitives their papers specify and measured with the same
+analyzer used here, instead of being compared against transcribed numbers. Run
+it with `qsha256 baseline`.
+
+Amy et al. 2016 reconstructed from their Figures 3-5 and Algorithms 1-2. Their
+message-schedule row reproduces exactly: 186 Toffoli, and after expansion and
+phase folding 744 T and 372 H, matching their published "Stretch (Opt.)" row to
+the gate. Their round does not: their H column implies 754 Toffoli where their
+figures account for 626, and the residual is reported rather than tuned away.
+
+**Two internal inconsistencies found in that paper's Table 1.** The unoptimized
+T-depth counts the 48 stretch iterations while the optimized T-depth does not,
+so the T-par improvement is 2.06x like-for-like rather than 2.44x. And the
+unoptimized stretch T-count of 1,329 disagrees with its own H count, which
+implies 1,302; their own optimized 744 confirms 1,302. That inflates their
+reported SHA-256 T-count by 1,296.
+
+**Modern baselines on the leaderboard.** Kim, Han and Jeong 2018 and Lee, Lee,
+Lee and Choi 2022, with a Pareto check. Every qSHA256 configuration is
+dominated on (width, Toffoli-depth) by SHA-Z2 at 799 qubits and depth 12,024.
+qSHA256 leads on T-count, which that line of work does not report.
+
+### Changed
+
+**The comparison against Amy et al. is restated downward.** The previous claim
+of a 20.7% T-count lead compared a hard-coded literal against their published
+figure. Both halves are now derived, with their circuit rebuilt and both sides
+folded by the same optimizer: the like-for-like lead is **8.4%**.
+
+**The CDKM adder now emits 2(n-1) Toffoli rather than 2n.** The top MAJ/UMA
+pair cancels once the carry out is discarded. This is not a resource saving --
+the rewriter was already removing all 1,200 of them from the 64-round circuit,
+so optimized counts are unchanged -- but unoptimized counts were 2 per adder
+too high, and the construction now reaches the published Cuccaro cost without
+depending on a later pass.
+
+### Fixed
+
+`scripts/reproduce.py` no longer reproduces claim C9 by comparing a constant
+against itself.
+
 ## [2.2.0] - 2026-08-17
 
 ### Added

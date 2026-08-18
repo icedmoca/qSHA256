@@ -28,11 +28,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 __all__ = [
+    "PARETO_POINTS",
     "PUBLISHED",
     "Comparability",
     "LeaderboardRow",
+    "ParetoPosition",
     "PublishedCircuit",
     "build_leaderboard",
+    "pareto_position",
     "render_leaderboard",
 ]
 
@@ -63,6 +66,9 @@ class PublishedCircuit:
     toffoli_count: int | None = None
     t_count: int | None = None
     t_depth: int | None = None
+    #: Depth counted in Toffoli layers rather than Clifford+T layers. Reported
+    #: by the depth-optimization line of work, which often omits T-count.
+    toffoli_depth: int | None = None
     cnot_count: int | None = None
     h_count: int | None = None
     depth: int | None = None
@@ -214,7 +220,11 @@ PUBLISHED: dict[str, PublishedCircuit] = {
         h_count=114_368,
         depth=528_768,
         # 401584 / 7 -- inferred, flagged as such in the comparability note.
-        toffoli_count=57_369,
+        # Recovered from their H column, not from their T column: their stated
+        # T-depth-3 Toffoli costs 2 H each, so 114368/2 = 57184. The T column
+        # would give 401584/7 = 57369.1, which is not an integer -- the two
+        # disagree, and qsha256.interop.baselines.amy2016 explains why.
+        toffoli_count=57_184,
         comparability=_AMY_COMPARABILITY,
         notes=_AMY_COMMON_NOTES,
     ),
@@ -245,6 +255,90 @@ PUBLISHED: dict[str, PublishedCircuit] = {
             + " Note that T-par lowered the T-count and T-depth substantially while "
             "*raising* both CNOT count and total depth -- a reminder that "
             "'optimized' is always relative to a chosen objective."
+        ),
+    ),
+    "kim2018-c1": PublishedCircuit(
+        key="kim2018-c1",
+        label="Kim, Han, Jeong 2018 (SHA-256, narrowest CDKM variant)",
+        citation=(
+            "P. Kim, D. Han, K. C. Jeong, 'Time-space complexity of quantum "
+            "search algorithms in symmetric cryptanalysis: applying to AES and "
+            "SHA-2', Quantum Information Processing 17:339, 2018."
+        ),
+        source=(
+            "Figures as tabulated by Lee, Lee, Lee and Choi, Table 2 (their "
+            "rows SHA-C1 and SHA-C5&C6), which is where this project read them; "
+            "they have NOT been checked against the 2018 paper directly."
+        ),
+        scope="Full 64-round SHA-256, CDKM adders, narrowest of their variants.",
+        logical_qubits=801,
+        toffoli_depth=36_368,
+        comparability={
+            "logical_qubits": (
+                Comparability.DIRECT,
+                "Both are logical qubit counts for a full 64-round SHA-256.",
+            ),
+            "toffoli_depth": (
+                Comparability.DIRECT,
+                "Both are Toffoli-depths of a Toffoli-level circuit.",
+            ),
+            "t_count": (
+                Comparability.INCOMPARABLE,
+                "Not reported. This line of work optimizes depth and width and "
+                "does not publish T-counts, so no T comparison is possible.",
+            ),
+        },
+        notes=(
+            "Reported second-hand, and marked as such. Toffoli-depth 36,368 at "
+            "width 801. Their widest QCLA variant reaches Toffoli-depth 10,112 "
+            "at width 938."
+        ),
+    ),
+    "lee2022-z2": PublishedCircuit(
+        key="lee2022-z2",
+        label="Lee, Lee, Lee, Choi 2022 (SHA-Z2)",
+        citation=(
+            "J. Lee, S. Lee, Y.-S. Lee, D. Choi, 'T-depth reduction method for "
+            "efficient SHA-256 quantum circuit construction', WISA 2022, LNCS; "
+            "journal version IET Information Security 17(1), 2023."
+        ),
+        source="Table 2, row 'SHA-Z2'.",
+        scope=(
+            "Full 64-round SHA-256 with a critical path of only three adders "
+            "per round, against seven or nine in prior work. VBE adder for the "
+            "constant K[t], CDKM elsewhere."
+        ),
+        logical_qubits=799,
+        t_depth=16_121,
+        toffoli_depth=12_024,
+        comparability={
+            "logical_qubits": (
+                Comparability.DIRECT,
+                "Both are logical qubit counts for a full 64-round SHA-256.",
+            ),
+            "t_depth": (
+                Comparability.QUALIFIED,
+                "Theirs follows their own T-depth reduction applied per adder. "
+                "qSHA256 must supply a transpiled T-depth, not a serial upper "
+                "bound, for this to mean anything.",
+            ),
+            "toffoli_depth": (
+                Comparability.DIRECT,
+                "Both are Toffoli-depths of a Toffoli-level circuit.",
+            ),
+            "t_count": (
+                Comparability.INCOMPARABLE,
+                "They do not report a T-count, only widths and depths. This is "
+                "the single biggest obstacle to comparing qSHA256 against the "
+                "current state of the art, because T-count is where qSHA256 is "
+                "strongest and it is the number this line of work omits.",
+            ),
+        },
+        notes=(
+            "The best published width/depth tradeoff this project is aware of. "
+            "Their companion SHA-Z1 is narrower still at 768 qubits, with "
+            "Toffoli-depth 38,360. qSHA256 is Pareto-dominated by SHA-Z2 on "
+            "(width, Toffoli-depth) and says so; see docs/leaderboard.md."
         ),
     ),
 }
@@ -388,3 +482,55 @@ def render_leaderboard(report, entry: str = "amy2016", our_label: str = "qSHA256
         ]
     out += ["", "Notes on the published circuit", "-" * 30, f"  {published.notes}"]
     return "\n".join(out)
+
+
+# --------------------------------------------------------------------------
+# Where does qSHA256 actually sit?
+# --------------------------------------------------------------------------
+
+#: Published (width, Toffoli-depth) points for full 64-round SHA-256, used for
+#: the Pareto check. Read from Table 2 of Lee et al. 2022, which tabulates both
+#: their own circuits and Kim et al.'s; the Kim figures are therefore
+#: second-hand and are labelled as such wherever they are shown.
+PARETO_POINTS: list[tuple[str, int, int]] = [
+    ("Kim et al. 2018 SHA-C1", 801, 36_368),
+    ("Kim et al. 2018 SHA-C4", 834, 27_584),
+    ("Kim et al. 2018 SHA-C2&C3", 853, 13_280),
+    ("Kim et al. 2018 SHA-C5&C6", 938, 10_112),
+    ("Lee et al. 2022 SHA-Z1", 768, 38_360),
+    ("Lee et al. 2022 SHA-Z2", 799, 12_024),
+]
+
+
+@dataclass
+class ParetoPosition:
+    """Whether a qSHA256 configuration is dominated by published work.
+
+    Domination is the only honest summary of a multi-objective comparison. A
+    circuit that is worse on *every* reported axis is behind, whatever its
+    headline number says, and this says so rather than selecting the axis where
+    qSHA256 happens to win.
+    """
+
+    label: str
+    width: int
+    toffoli_depth: int
+    dominated_by: list[str] = field(default_factory=list)
+
+    @property
+    def dominated(self) -> bool:
+        return bool(self.dominated_by)
+
+
+def pareto_position(label: str, width: int, toffoli_depth: int) -> ParetoPosition:
+    """Check one qSHA256 configuration against every published (width, depth)."""
+    return ParetoPosition(
+        label=label,
+        width=width,
+        toffoli_depth=toffoli_depth,
+        dominated_by=[
+            name
+            for name, w, d in PARETO_POINTS
+            if w <= width and d <= toffoli_depth and (w, d) != (width, toffoli_depth)
+        ],
+    )

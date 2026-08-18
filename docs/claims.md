@@ -24,8 +24,10 @@ sometimes a rebuttal, sometimes a concession.
 | C6 | 16 registers suffice for the message schedule | **Proved** (witness) |
 | C7 | 15 registers do not | **Conditional** — within a bounded move budget |
 | C8 | T-count 90,784 at 1,119 logical qubits | **Analytical**, from a stated decomposition |
-| C9 | Below Amy et al.'s 228,992 T | **Conditional** — different machine model |
+| C9 | Below the Amy et al. architecture, rebuilt here | **Measured** — 8.4% like-for-like, was overstated as 20.7% |
 | C10 | Grover oracle costs 2.02x a forward hash | **Measured** |
+| C11 | A published optimized row reproduces exactly | **Verified by execution** — 744 T, 372 H, to the gate |
+| C12 | qSHA256 is Pareto-dominated on width and depth | **Measured** — a claim against this project |
 
 ---
 
@@ -291,38 +293,62 @@ Toffoli decompositions are offered rather than one hard-coded.
 
 ---
 
-## C9 — Below Amy et al.'s published figure
+## C9 — Below the Amy et al. architecture, rebuilt here
 
-**Statement.** Amy et al. (SAC 2016) report 228,992 T at 2,402 logical qubits
-for SHA-256 after T-par optimization. This project reaches 90,784 T at 1,119
-logical qubits — 60.4% lower — **under a different machine model**, and 181,568
-T (20.7% lower) under a comparable one.
+**Statement.** With their circuit reconstructed from their own figures and run
+through the same expansion and the same phase-polynomial optimizer as ours,
+qSHA256 reaches **179,584 T against their architecture's 195,968 — an 8.4%
+lead**, unitary, same machine model. With measurement-based uncomputation it
+reaches 90,784 T, 53.7% lower, under a *different* machine model.
 
-**Assumptions, and the one that matters.** The 90,784 figure uses
-measurement-based uncomputation, which requires mid-circuit measurement and
-classical feedforward. Amy et al.'s circuit is unitary and assumes no such
-capability — Gidney's construction postdates their paper by two years.
-Comparing the two is a comparison between *machine models*.
+**This claim used to be stronger and was wrong to be.** The previous version
+compared against their *published* 228,992 and asserted a 20.7% lead. Two
+things were wrong with it: our own side was a hard-coded literal rather than a
+derived quantity, and their side was a transcribed number that we now know
+their own architecture does not account for.
 
-The like-for-like comparison is the unitary phase-folded circuit at 181,568 T,
-which is 20.7% below their figure at 44% of the qubits.
+**How established.** `qsha256/interop/baselines/amy2016.py` rebuilds their
+round from Figure 3, their Maj from Figure 4, their Ch from Figure 5, and their
+message schedule from Algorithm 2. The rebuilt round is verified against the
+classical round function by basis simulation. Both circuits are then expanded
+at 7 T per Toffoli and folded by the same optimizer.
 
-**Reproduce.** `qsha256 leaderboard`
+**Assumptions.**
+
+- Both sides use their Toffoli decomposition (7 T, 2 H) so the column means one
+  thing throughout.
+- The 53.7% figure assumes mid-circuit measurement and classical feedforward,
+  which their 2016 circuit does not; Gidney's construction postdates it.
+- The reconstruction of their *round* does not reproduce their reported cost —
+  see C11 — so the comparison against their published total is not used.
+
+**Reproduce.** `qsha256 baseline`
+
+**Falsification.** Rebuild their round and get 754 Toffoli from their published
+figures, or show the reconstruction computes something other than the SHA-256
+round.
 
 **Hostile review.**
 
-> *You are comparing your best case against their published case.*
+> *You reconstructed their circuit to be cheaper than they reported, then
+> claimed a smaller lead over your own reconstruction. That is unfalsifiable
+> either way.*
 
-Which is why the leaderboard prints both rows, annotates the machine-model
-difference on every affected metric, and refuses to compute ratios for metrics
-that are not comparable (a Toffoli-level depth is never divided by a Clifford+T
-depth).
+The direction is the answer. The reconstruction is **cheaper** than their
+report, which makes the comparison *harder* for qSHA256, not easier. If we
+wanted a flattering number we would have kept quoting 228,992 and claimed
+21.6%. The 8.4% figure is the conservative one.
 
-> *Their figures were transcribed by you.*
+> *Your phase folding might just be weaker than T-par, making both sides look
+> different for reasons unrelated to architecture.*
 
-From Table 1 of ePrint 2016/992, page 10, cited to the row. Quantities the paper
-does not report are `None`, never inferred. The one inferred value — their
-Toffoli count as T-count/7 — is flagged as an inference.
+It is not: on their rebuilt round our folding removes 42.9% of T gates where
+their T-par removed 42.8%, and on their stretch it lands on their published
+optimized value exactly. See C11.
+
+> *You picked the axis where you win.*
+
+See C12, which is the axis where we lose.
 
 ---
 
@@ -337,6 +363,85 @@ behaviour is verified **exhaustively** over an entire toy search space: it
 flips exactly the true preimages and leaves no garbage.
 
 **Reproduce.** `qsha256 oracle`
+
+---
+
+## C11 — A published optimized row reproduces exactly
+
+**Statement.** Amy et al.'s Table 1 row "Stretch (Opt.)" reports **744 T and
+372 H**. Rebuilding that circuit from their Algorithm 2, expanding it, and
+folding it with qSHA256's own optimizer gives **744 T and 372 H**.
+
+**How established.** 3 modular additions → 186 Toffoli (matching the 186 their
+own H column implies) → 1,302 T → phase folding → 744 T. Nothing is transcribed
+in the middle of that chain.
+
+**What it buys.** Three separate things are validated at once: the
+reconstruction is right, the Clifford+T expansion is right, and the
+phase-polynomial optimizer is as strong as T-par on this circuit.
+
+**A by-product: an error in the published table.** Their *unoptimized* stretch
+T of 1,329 is inconsistent with its own H count of 372, which implies 186
+Toffoli and hence 1,302 T. Their own optimized 744 confirms 1,302 is the right
+starting point. The 27-per-iteration error inflates their reported SHA-256
+T-count of 401,584 by 48 × 27 = 1,296.
+
+A second problem: their unoptimized T-depth (171,552) adds the 48 stretch
+iterations while their optimized T-depth (70,400) counts rounds only. Like for
+like, T-par improves T-depth 144,768 → 70,400 (2.06×), not 2.44×.
+
+**Reproduce.** `qsha256 baseline`
+
+**Falsification.** Show the rebuilt stretch does not compute the schedule
+recurrence, or that 744 is reached by a coincidence of two compensating errors.
+
+**Hostile review.**
+
+> *One row out of six is not a reproduction of the paper.*
+
+Correct, and the claim is scoped to one row. The round did not reproduce and
+C9 says so. What this row establishes is that the *method* is sound, which is
+what makes the round's 128-Toffoli residual interesting rather than suspect.
+
+---
+
+## C12 — qSHA256 is Pareto-dominated on width and depth
+
+**Statement.** Every qSHA256 configuration is beaten on **both** logical qubits
+and non-Clifford depth by Lee et al. 2022's SHA-Z2 (799 qubits, Toffoli-depth
+12,024). This is a claim *against* this project.
+
+| circuit | qubits | Toffoli-depth |
+|---|---:|---:|
+| Lee et al. 2022 SHA-Z1 | 768 | 38,360 |
+| Lee et al. 2022 SHA-Z2 | 799 | 12,024 |
+| Kim et al. 2018 SHA-C5&C6 | 938 | 10,112 |
+| qSHA256 gidney/wide | 1,215 | 14,136 |
+| qSHA256 gidney/serial | 1,119 | 18,728 |
+| qSHA256 cdkm/serial | 1,057 | 37,328 |
+
+**Assumptions.** Our non-Clifford depth is compared against their Toffoli-depth;
+these are close but not identical quantities. Kim et al.'s figures are read from
+Lee et al.'s Table 2, not from the 2018 paper directly, and are labelled
+second-hand everywhere they appear.
+
+**Why the comparison stops there.** That line of work reports widths and depths
+and does **not** report T-counts. qSHA256's strength is T-count and AND-count.
+So neither side can be compared on the other's strong axis, and no overall
+ranking is available. Saying "qSHA256 has the lowest T-count" is true and nearly
+content-free if the circuits it beats were optimizing for something else.
+
+**Reproduce.** `python scripts/reproduce.py` (claim C12)
+
+**Falsification.** Publish a T-count for SHA-Z2, or reach 799 qubits here.
+
+**Hostile review.**
+
+> *Then what is the contribution?*
+
+A verified-correct construction with the lowest AND-count and T-count the
+project is aware of, with every claim reproducible from source. Not the best
+circuit on every axis, and this register is where that is written down.
 
 ---
 

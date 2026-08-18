@@ -82,6 +82,11 @@ jobs:
         run: python scripts/reproduce.py --json claims.json
       - name: the qualifications survive too, not just the numbers
         run: pytest tests/test_claims.py -q
+      # Rebuilds Amy et al. 2016 from their published figures and compares.
+      # A change that makes their round suddenly reproduce is a change that
+      # needs the claims register updated, so it fails here first.
+      - name: rebuild the published baseline
+        run: qsha256 baseline
       - uses: actions/upload-artifact@v4
         if: always()
         with:

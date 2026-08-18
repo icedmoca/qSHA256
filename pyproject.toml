@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qsha256"
-version = "2.2.0"
+version = "2.3.0"
 description = "Reversible quantum circuit construction and logical resource analysis for SHA-256"
 readme = { file = "README", content-type = "text/plain" }
 license = "Apache-2.0"

@@ -91,14 +91,42 @@ def _uma(b: CircuitBuilder, c, y, x) -> None:
 
 
 def _cdkm_add(b: CircuitBuilder, a: Word, target: Word, anc: Word) -> None:
-    """``target += a  (mod 2^n)`` -- 2n Toffoli, 4n CNOT, 1 ancilla."""
+    """``target += a  (mod 2^n)`` -- 2(n-1) Toffoli, 4n-2 CNOT, 1 ancilla.
+
+    The top MAJ/UMA pair is elided, which is where the ``-2`` comes from.
+
+    The forward sweep ends with ``MAJ(c, y, x)`` on the most significant bit and
+    the reverse sweep begins with ``UMA`` on the same three wires, so the two
+    circuits meet:
+
+        MAJ: cx(x,y) cx(x,c) ccx(c,y,x)  |  UMA: ccx(c,y,x) cx(x,c) cx(c,y)
+
+    The two ``ccx`` are adjacent and identical, so they cancel; the two
+    ``cx(x,c)`` then become adjacent and cancel too. What survives is
+    ``cx(x,y) cx(c,y)``. That is sound precisely because this is addition
+    *modulo* ``2^n``: the only thing the top MAJ computes is the carry out of
+    the high bit, which is discarded, and UMA immediately un-computes it.
+
+    **This is not a resource saving.** The rewriter's peephole pass was already
+    finding this pair and removing all 1,200 of them from the 64-round CDKM
+    circuit, so the *optimized* count is unchanged at 45,392. What changes is
+    that the construction now reaches the published Cuccaro cost on its own
+    instead of depending on a later pass to get there -- which matters because
+    unoptimized counts are what most papers report, and ours were 2 per adder
+    too high.
+
+    Reproducing Amy et al. 2016 is what surfaced it: their stretch row pins
+    their adder at 62 while ours was emitting 64. See
+    :mod:`qsha256.interop.baselines.amy2016`.
+    """
     n = len(a)
     carry_in = [anc[0]] + list(a.bits[: n - 1])
-    for i in range(n):
+    for i in range(n - 1):
         _maj(b, carry_in[i], target[i], a[i])
-    # The outgoing carry now sits in a[n-1] and is simply not used: discarding
-    # it *is* the reduction mod 2^n.  The UMA sweep restores a[n-1] regardless.
-    for i in reversed(range(n)):
+    # The elided top MAJ/UMA pair, reduced to the two CNOTs that survive it.
+    b.cx(a[n - 1], target[n - 1])
+    b.cx(carry_in[n - 1], target[n - 1])
+    for i in reversed(range(n - 1)):
         _uma(b, carry_in[i], target[i], a[i])
 
 

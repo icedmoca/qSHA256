@@ -92,3 +92,59 @@ a `comparability` verdict plus caveat for every metric. Leave unreported
 quantities as `None`.
 
 Regenerate with `python scripts/generate_benchmarks.py`.
+
+
+## Reconstruction, not transcription
+
+Every figure on this page that came out of a paper is marked with the table it
+came from. That is necessary but not sufficient: a transcribed number cannot be
+interrogated, and if the source's conventions differ from ours the difference
+propagates silently into every ratio computed from it.
+
+So `qsha256/interop/baselines/` rebuilds published circuits from the primitives
+their papers specify and measures them with the same analyzer used on qSHA256's
+own work. Run it with `qsha256 baseline`.
+
+### Amy et al. 2016
+
+Reconstructed from Figures 3, 4 and 5 and Algorithms 1 and 2. Results:
+
+- **Their stretch reproduces exactly.** 186 Toffoli, matching what their own H
+  column implies; expanded and folded with qSHA256's optimizer it reaches 744 T
+  and 372 H, which is their published "Stretch (Opt.)" row to the gate.
+- **Their round does not.** Their H column implies 754 Toffoli; their figures
+  account for 626. The rebuild is verified correct against the classical round
+  function, and the 128-Toffoli residual is unexplained.
+- **Their Table 1 has two internal inconsistencies.** The unoptimized T-depth
+  counts the 48 stretch iterations and the optimized T-depth does not; and the
+  unoptimized stretch T (1,329) disagrees with its own H count (which implies
+  1,302), inflating their reported total by 1,296 T.
+
+Because their reported cost is *higher* than their described architecture,
+quoting their published total would credit qSHA256 with a gap belonging to
+their reporting. The like-for-like margin is therefore stated as 8.4%, not the
+21.6% the published figure would allow.
+
+### What reproducing a baseline bought us
+
+qSHA256's CDKM adder was emitting `2n = 64` Toffoli for a 32-bit modular
+addition. Calibrating against their stretch row pinned the Cuccaro cost at
+`2(n-1) = 62`: the top MAJ/UMA pair cancels once the carry out is discarded.
+
+Honesty requires the next sentence. This is **not** a resource saving: the
+peephole rewriter was already finding all 1,200 of those pairs, so the
+optimized 64-round figure is unchanged at 45,392 Toffoli. What changed is that
+the construction now reaches the published Cuccaro cost on its own rather than
+depending on a later pass, and the *unoptimized* counts -- which is what most
+papers report, including the one being reproduced -- are no longer 2 per adder
+too high.
+
+## Where qSHA256 loses
+
+The depth-and-width line of work is ahead. Every qSHA256 configuration is
+Pareto-dominated on (logical qubits, non-Clifford depth) by Lee et al. 2022's
+SHA-Z2 at 799 qubits and Toffoli-depth 12,024.
+
+qSHA256 leads on T-count and AND-count. That line of work does not report
+T-counts at all, so neither side can be compared on the other's strong axis and
+no overall ranking exists. See claim C12.

@@ -10,6 +10,7 @@ qsha256 physical      fault-tolerant estimate under a hardware model
 qsha256 leaderboard   comparison against published circuits
 qsha256 grover-demo   run the toy Grover search for real
 qsha256 claims        re-derive every claim in docs/claims.md
+qsha256 baseline      rebuild a published circuit and compare
 """
 
 from __future__ import annotations
@@ -163,6 +164,56 @@ def cmd_validate(args) -> int:
 
     ok = run_validation(quick=args.quick, verbose=True)
     return 0 if ok else 1
+
+
+def cmd_baseline(args) -> int:
+    """Rebuild a published circuit from its paper and compare against it."""
+    from .interop.baselines.amy2016 import (
+        check_table_consistency,
+        compare_architectures,
+        reconstruction_report,
+        reproduce_optimized_stretch,
+    )
+
+    print("Amy et al. 2016 (ePrint 2016/992), rebuilt from Figures 3-5 and")
+    print("Algorithms 1-2. Nothing below is transcribed except their own table,")
+    print("which is checked rather than trusted.")
+    print()
+    print("1. Does their Table 1 agree with itself?")
+    print("-" * 74)
+    findings = check_table_consistency()
+    for finding in findings:
+        if not finding.consistent or args.verbose:
+            print(finding)
+    print(f"\n   {sum(1 for f in findings if not f.consistent)} of {len(findings)} checks failed.")
+
+    print("\n2. Does the architecture their figures describe cost what they report?")
+    print("-" * 74)
+    for result in reconstruction_report():
+        mark = "REPRODUCED" if result.reproduced else f"RESIDUAL {result.residual:+,}"
+        print(
+            f"  {result.component:24} rebuilt {result.reconstructed_toffoli:5,} Toffoli, "
+            f"published {result.published_toffoli:5,}   [{mark}]"
+        )
+        for line in result.accounted:
+            print(f"        {line}")
+
+    print("\n3. End to end: rebuild, expand, optimize, compare.")
+    print("-" * 74)
+    stretch = reproduce_optimized_stretch()
+    print(
+        f"  Stretch: {stretch['toffoli']} Toffoli -> {stretch['t_before_folding']:,} T "
+        f"-> folded {stretch['t_after_folding']:,} T"
+    )
+    print(
+        f"  Their Table 1 'Stretch (Opt.)': T={stretch['published_t']:,} "
+        f"H={stretch['published_h']:,}  "
+        f"[{'EXACT MATCH on both' if stretch['t_matches'] and stretch['h_matches'] else 'differs'}]"
+    )
+
+    print()
+    print(compare_architectures())
+    return 0
 
 
 def cmd_claims(args) -> int:
@@ -435,6 +486,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("validate", help="check circuits against the classical reference")
     p.add_argument("--quick", action="store_true", help="skip the slower full-scale checks")
     p.set_defaults(func=cmd_validate)
+
+    p = sub.add_parser("baseline", help="rebuild a published circuit and compare")
+    p.add_argument("--verbose", action="store_true", help="show passing checks too")
+    p.set_defaults(func=cmd_baseline)
 
     p = sub.add_parser("claims", help="re-derive every claim in docs/claims.md")
     p.add_argument("--quick", action="store_true", help="skip the slower checks")

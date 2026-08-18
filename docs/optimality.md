@@ -35,19 +35,35 @@ adder floor is `MC(add mod 2^n) = n - 1` (Boyar–Peralta).
 
 For the whole 64-round compression:
 
-| Architecture | Achieved ANDs | Floor | Overhead |
-|---|---:|---:|---:|
+| Architecture | Achieved ANDs | Floor | |
+|---|---:|---:|---|
 | CDKM | 46,592 | 22,696 | 2.05x |
-| **Gidney** | **22,696** | **22,696** | **1.00x** |
+| **Gidney** | **22,696** | **22,696** | attains the composed bound |
 
-The Gidney configuration attains the floor **exactly**. It is not merely a good
-implementation; no reversible circuit built from these components can use fewer
-non-linear gates.
+**This is a weaker statement than it looks, and the difference matters.**
 
-Two caveats the report states rather than glosses: the composed floor bounds
-circuits built from these components *separately*, since a cleverer circuit
-might share non-linear work between them; and MC bounds the **AND count**, so a
-T-count floor follows only once a decomposition is fixed.
+The composed floor is a lower bound for circuits that (a) compute `Ch`, `Maj`
+and the sigma functions as separate bitwise operations, and (b) form every sum
+as a chain of *pairwise* modular additions. Within that class, the Gidney
+construction wastes nothing: every AND it computes is one the decomposition
+demands.
+
+It is **not** a lower bound on the multiplicative complexity of SHA-256's
+compression function. Two gaps, both conceded:
+
+- A circuit could share non-linear work *across* component boundaries — reusing
+  an AND from inside `Ch` to help a neighbouring carry chain. Nothing rules that
+  out, and general non-linear lower bounds are hard.
+- The floor charges `n-1` per *pairwise* addition, so a round's five-operand
+  `T1` is charged `4(n-1)`. But `MC` of the five-operand sum mod `2^n` is not
+  known to be `4(n-1)` — the degree bound gives only `n-1`. A different
+  multi-operand construction might beat the composed figure. (This project even
+  has a hint in that direction: carry-save reduction has a lower *forward* AND
+  count, and lost here only once uncomputation was charged.)
+
+A third, smaller caveat: MC bounds the **AND count**, so a T-count floor follows
+only once a decomposition is fixed. And the unit is AND *computations* — each is
+paired with an uncomputation that is free in T but is a real measurement.
 
 ## Reversible pebbling
 
@@ -61,9 +77,28 @@ pebble game** (Bennett 1989), solvable exactly by SAT following Meuli et al.
   means running the computation backwards;
 - the pebble count is the register count.
 
-**Result: 16 registers is provably optimal for SHA-256.** 15 is proved
-impossible. The rolling schedule is not just good, it is optimal. Likewise 4 for
-toy4 and toy8.
+**Result: 16 registers suffice, and 15 do not — within a bounded move budget.**
+The impossibility was checked at budgets of 48, 64, 96, 128, 192 and 256 moves,
+the last being 5.3x the 48-move minimum, and holds at every one.
+
+That bound is load-bearing and the claim is stated with it. Extra moves buy
+recomputation, and recomputation is exactly what trades against registers, so
+UNSAT at `S` steps proves only that no strategy exists *within `S` moves*. An
+unbounded-step lower bound is not established here.
+
+### The rules are part of the theorem
+
+1. Initially the input nodes are pebbled, nothing else.
+2. `place(v)` requires every predecessor of `v` pebbled.
+3. `remove(v)` requires the same — uncomputing runs the computation backwards.
+4. `move(u -> v)` transforms `u`'s register into `v` in place, requiring `u` to
+   be a predecessor of `v` and every other predecessor pebbled.
+5. One move per step. For a *space* question this is without loss of generality:
+   simultaneous moves cannot lower the peak number of pebbled nodes.
+6. Cost is the maximum number of simultaneously-pebbled nodes.
+7. The DAG is the schedule's dependency graph at **word** granularity. A circuit
+   restructuring the recurrence algebraically, or working at bit granularity, is
+   outside the model entirely.
 
 ### The move the textbook game is missing
 

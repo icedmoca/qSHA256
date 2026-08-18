@@ -35,6 +35,42 @@ Answers come in two flavours, and the code never conflates them:
   so no strategy exists within it.
 
 A timeout is neither, and is reported as ``UNKNOWN``.
+
+What an impossibility does and does not establish
+-------------------------------------------------
+
+Read the step bound carefully.  UNSAT at ``k`` pebbles and ``S`` steps proves
+that no strategy exists **using at most S moves**.  It does not prove that none
+exists with more, and that distinction is the whole subject: extra steps buy
+recomputation, and recomputation is exactly what trades against registers.  A
+result quoted without its step budget is not a result.
+
+For SHA-256 the impossibility at 15 registers has been checked at step budgets
+of 48, 64, 96, 128, 192 and 256 -- the last being 5.3x the 48-move minimum --
+and holds at every one.  That is strong evidence and it is still a bounded
+statement; an unbounded-step lower bound is not established here.
+
+The move set is also part of the theorem
+----------------------------------------
+
+Change the moves and the answer changes; this module learned that the hard way
+(see ``allow_inplace``).  The rules in force are stated exactly:
+
+1. Initially the input nodes are pebbled and nothing else.
+2. **place(v)** -- pebble ``v``; requires every predecessor of ``v`` pebbled.
+3. **remove(v)** -- unpebble ``v``; requires the same, since uncomputing means
+   running the computation backwards.
+4. **move(u -> v)** -- transform ``u``'s register into ``v`` in place; requires
+   ``u`` to be a predecessor of ``v`` and every other predecessor pebbled.
+   Enabled by ``allow_inplace``; not part of the classical game.
+5. At most one move per step.  For a question about *space* this is without
+   loss of generality: allowing simultaneous moves cannot lower the peak
+   number of simultaneously-pebbled nodes.
+6. The cost measured is the maximum number of simultaneously-pebbled nodes.
+
+The DAG is the schedule's dependency graph at **word** granularity.  A circuit
+that restructured the recurrence algebraically, or worked at bit granularity,
+is outside the model entirely.
 """
 
 from __future__ import annotations
@@ -95,7 +131,11 @@ def schedule_dag(spec: ShaSpec = SHA256, rounds: int | None = None) -> PebbleDAG
 
 @dataclass
 class PebblingResult:
-    """Outcome of one pebbling query."""
+    """Outcome of one pebbling query.
+
+    Always carries its ``steps`` budget, because an impossibility is only ever
+    an impossibility *within that budget*.
+    """
 
     status: str  # "STRATEGY" | "IMPOSSIBLE" | "UNKNOWN"
     pebbles: int
@@ -120,6 +160,9 @@ class PebblingResult:
         """Placements: how many times a value is computed, recomputation included."""
         return sum(1 for _, _, placed in self.moves if placed)
 
+    #: The move set the result is relative to; part of the theorem statement.
+    allow_inplace: bool = True
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "status": self.status,
@@ -127,6 +170,14 @@ class PebblingResult:
             "steps": self.steps,
             "dag": self.dag,
             "computations": self.computations,
+            "allow_inplace": self.allow_inplace,
+            "claim": (
+                f"{self.pebbles} registers suffice within {self.steps} moves"
+                if self.found
+                else f"no strategy with {self.pebbles} registers within {self.steps} moves"
+                if self.proved_impossible
+                else "undetermined (timeout)"
+            ),
             "seconds": round(self.seconds, 2),
             "cnf_vars": self.num_vars,
             "cnf_clauses": self.num_clauses,
@@ -140,8 +191,8 @@ class PebblingResult:
             )
         if self.proved_impossible:
             return (
-                f"{self.pebbles} pebbles, {self.steps} steps: PROVED IMPOSSIBLE "
-                f"({self.seconds:.1f}s)"
+                f"{self.pebbles} pebbles: PROVED IMPOSSIBLE WITHIN {self.steps} "
+                f"STEPS ({self.seconds:.1f}s)"
             )
         return (
             f"{self.pebbles} pebbles, {self.steps} steps: UNKNOWN "
@@ -292,6 +343,7 @@ def solve_pebbling(
         seconds=elapsed,
         num_vars=pool.top,
         num_clauses=len(clauses),
+        allow_inplace=allow_inplace,
     )
 
 

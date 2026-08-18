@@ -47,7 +47,12 @@ from ..quantum.sha256.round import build_round_circuit
 from ..quantum.strategies import Strategy
 from ..spec import SHA256, TOY4, TOY8, ShaSpec
 from .basis_sim import BasisSimulator
-from .vectors import NIST_VECTORS
+from .vectors import (
+    NIST_CAVP_SHA3_256,
+    NIST_CAVP_SHA256,
+    NIST_CAVP_SHA512,
+    NIST_VECTORS,
+)
 
 __all__ = ["Check", "ValidationReport", "run_validation"]
 
@@ -60,10 +65,13 @@ class Check:
     cases: int = 0
     exhaustive: bool = False
     seconds: float = 0.0
+    #: Overrides the exhaustive/randomized label. Fixed published vectors are
+    #: neither, and calling them "randomized" misdescribes where they came from.
+    scope: str = ""
 
     def __str__(self) -> str:
         mark = "PASS" if self.passed else "FAIL"
-        scope = "exhaustive" if self.exhaustive else "randomized"
+        scope = self.scope or ("exhaustive" if self.exhaustive else "randomized")
         cases = f"{self.cases:,} cases, {scope}" if self.cases else self.detail
         return f"  [{mark}] {self.name:<52} {cases}  ({self.seconds:.2f}s)"
 
@@ -111,6 +119,49 @@ def check_classical() -> Check:
         not failures,
         "; ".join(failures[:3]),
         cases=len(NIST_VECTORS) + n,
+    )
+
+
+def check_cavp() -> Check:
+    """Third-party published expected outputs, for SHA-256, SHA-512 and SHA3-256.
+
+    NIST_VECTORS are the two examples printed in FIPS 180-4 itself.  These come
+    from the CAVP response files instead: longer messages, byte lengths that
+    cross the padding boundary, and hashes nobody here computed.  The point is
+    that the expected side of the comparison has an origin outside this project.
+
+    Every vector is also checked against ``hashlib``, so a transcription error
+    on our side shows up as a disagreement rather than as a passing test.  That
+    check has already caught one -- a mistyped SHA3-256 digest.
+    """
+    from ..classical.sha256 import sha256 as sha_generic
+    from ..spec import SHA512
+
+    failures = []
+    cases = 0
+    for label, vectors, fn in (
+        ("SHA-256", NIST_CAVP_SHA256, lambda m: sha_generic(m).hex()),
+        ("SHA-512", NIST_CAVP_SHA512, lambda m: sha_generic(m, SHA512).hex()),
+        ("SHA3-256", NIST_CAVP_SHA3_256, lambda m: hashlib.sha3_256(m).hexdigest()),
+    ):
+        reference = {
+            "SHA-256": hashlib.sha256,
+            "SHA-512": hashlib.sha512,
+            "SHA3-256": hashlib.sha3_256,
+        }[label]
+        for hexmsg, expected in vectors:
+            message = bytes.fromhex(hexmsg)
+            cases += 1
+            if reference(message).hexdigest() != expected:
+                failures.append(f"{label} {len(message)}B: vector mis-transcribed")
+            elif fn(message) != expected:
+                failures.append(f"{label} {len(message)}B: model disagrees")
+    return Check(
+        "NIST CAVP vectors (third-party expected outputs)",
+        not failures,
+        "; ".join(failures[:3]),
+        cases=cases,
+        scope="published, dual-checked",
     )
 
 

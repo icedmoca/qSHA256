@@ -6,8 +6,14 @@
 
 qSHA256 builds SHA-2 and SHA-3 out of reversible quantum circuits, PROVES them
 correct with a SAT-based equivalence checker, measures what they cost, and
-searches for cheaper ones. Where the optimum is known, it says how close it got
--- and for the best configuration, it reaches the proven lower bound exactly.
+searches for cheaper ones. Where a lower bound can be established, it says how
+close the construction gets -- and states precisely what the bound is relative
+to, because a bound without its assumptions is not a bound.
+
+Every claim is registered, with its conditions and the strongest objections we
+know of, in docs/claims.md. Re-derive them all with:
+
+    python scripts/reproduce.py
 
 The usual answer to "how does SHA-256 fare against quantum computers" is 2^128,
 Grover's query count for a 256-bit preimage. That number says nothing about what
@@ -142,14 +148,30 @@ free wire permutations contribute nothing non-linear.
     Full 64-round compression
     -------------------------
     CDKM                      46,592   22,696   2.05x
-    Gidney                    22,696   22,696   1.00x  EXACTLY OPTIMAL
+    Gidney                    22,696   22,696   1.00x  attains the bound
 
-MC(Ch) = MC(Maj) = 1 is proved here by exhaustive search, not assumed. No
-reversible circuit built from these components can use fewer non-linear gates
-than the Gidney configuration does.
+Read those two blocks differently, because they are different kinds of claim.
 
-The message schedule's register count is likewise provably optimal: 16 suffices
-and 15 is proved impossible, via the reversible pebble game solved by SAT.
+The COMPONENT rows are unconditional. MC(Ch) = MC(Maj) = 1 is proved here by
+exhaustive search over affine decompositions, and MC(add mod 2^n) = n-1 is
+published. Those are facts about the functions: no circuit anyone writes can
+beat them.
+
+The TOTAL row is conditional, and the condition is load-bearing. Summing
+component floors lower-bounds only circuits that compute those components
+separately and form every sum as a chain of pairwise additions. It is NOT a
+lower bound on the multiplicative complexity of SHA-256's compression function.
+A circuit sharing non-linear work across component boundaries could go lower,
+and the multiplicative complexity of the five-operand sum a round actually
+performs is not known to be 4(n-1). So the honest statement is that the
+construction wastes nothing relative to its own decomposition -- a real
+engineering result and a weak mathematical one.
+
+The message schedule's register count is bounded the same way: 16 suffices
+(witness), and 15 is impossible within move budgets up to 256, which is 5.3x
+the minimum. That is relative to a stated move set -- including an in-place
+move the textbook game lacks -- and is not an unbounded-step result. The rules
+are listed in docs/optimality.md and printed by "qsha256 pebble".
 
 
 The three circuits that matter
@@ -344,8 +366,9 @@ INSTALL AND USE
     qsha256 grover-demo                  # run the toy Grover search
 
     qsha256 prove                        # SAT proofs, not samples
-    qsha256 bounds --adder gidney        # achieved against the proven floor
-    qsha256 pebble                       # optimal register count
+    qsha256 bounds --adder gidney        # achieved against the composed floor
+    qsha256 pebble                       # register-count lower bound
+    qsha256 claims                       # re-derive every claim from code
     qsha256 crosscheck                   # vs independent estimators
     qsha256 layout                       # surface-code floor plans
 
@@ -433,6 +456,8 @@ DOCUMENTATION
     docs/formal-verification.md    how correctness became a proof
     docs/optimality.md             lower bounds, pebbling, superoptimization
     docs/hash-families.md          SHA-512, SHA-3 and Bitcoin
+    docs/claims.md                 every claim, its conditions, and the
+                                   strongest objections we know of
     docs/limitations.md            what has and has not been demonstrated
 
 

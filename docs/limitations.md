@@ -39,12 +39,38 @@ input, not a sample:
 - all four adders, Ch, Maj and the four sigma functions, at full 32-bit width;
 - the compression round in every layout, and both schedule strategies;
 - ancilla cleanliness and every Gidney AND precondition;
-- the message schedule's 16 registers are **optimal** (15 proved impossible);
-- `MC(Ch) = MC(Maj) = 1`, proved by exhaustive search, and the Gidney
-  configuration attains the AND-count floor **exactly** for the full circuit.
+- the message schedule needs 16 registers and not 15, within the stated move
+  set and at every move budget tested up to 256;
+- `MC(Ch) = MC(Maj) = 1`, by exhaustive search over affine decompositions.
 
 The whole-circuit proof is compositional, not one monolithic query. See
 `docs/formal-verification.md` for exactly what that does and does not establish.
+
+## What the optimality results do NOT prove
+
+This is the section to read before quoting a bound.
+
+**`MC(Ch) = MC(Maj) = 1` is unconditional.** So is `MC(add mod 2^n) = n-1`,
+which is published rather than proved here. These are facts about the functions.
+
+**The 22,696 composed floor is not.** It bounds only circuits that compute the
+components separately and form each sum as a chain of pairwise additions. It is
+*not* a lower bound on the multiplicative complexity of SHA-256's compression
+function. A circuit sharing non-linear work across component boundaries could
+be cheaper, and `MC` of the five-operand round sum is not known to be `4(n-1)`.
+The right reading is that the construction wastes nothing relative to its own
+decomposition -- an engineering result, not a complexity-theoretic one.
+
+**The pebbling impossibility is bounded in steps.** UNSAT at `S` moves proves
+no strategy exists within `S` moves. Extra moves buy recomputation, and
+recomputation is exactly what trades against registers, so an unbounded-step
+result would be a strictly stronger theorem and is not established. The move
+set also includes an in-place move the textbook game lacks, added because
+without it the model declared the working circuit impossible; the move set is
+therefore part of the statement.
+
+Every claim, with its conditions and the strongest objections we know of, is in
+`docs/claims.md`. Re-derive them with `qsha256 claims`.
 
 ## Known weaknesses in the implementation
 

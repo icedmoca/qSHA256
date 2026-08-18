@@ -18,14 +18,18 @@ really is the composition of the proved parts.
 **A borrow checker for uncomputation** (`quantum/ancilla_check.py`). Releasing
 an ancilla that is not provably zero raises at the release site.
 
-**Reversible pebbling** (`formal/pebbling.py`). Proves 16 registers optimal for
-the SHA-256 message schedule; 15 is impossible. Required extending the classical
-game with an in-place move, without which the model declares the working circuit
-impossible.
+**Reversible pebbling** (`formal/pebbling.py`). 16 registers suffice for the
+SHA-256 message schedule and 15 do not, at every move budget tested up to 256
+(5.3x the minimum). Required extending the classical game with an in-place move,
+without which the model declares the working circuit impossible -- so the move
+set is part of the theorem and is stated with it.
 
 **Multiplicative-complexity bounds** (`formal/bounds.py`). Proves MC(Ch) =
-MC(Maj) = 1 by exhaustive search. With Gidney ANDs throughout, the full
-64-round circuit uses 22,696 ANDs against a floor of 22,696 -- exactly optimal.
+MC(Maj) = 1 by exhaustive search -- an unconditional result. With Gidney ANDs
+throughout, the full 64-round circuit uses 22,696 ANDs against a composed floor
+of 22,696, so it wastes nothing relative to its own decomposition. The composed
+figure is a bound for that architecture class, not for SHA-256's multiplicative
+complexity; the report states both gaps.
 
 **Superoptimization** (`formal/superopt.py`) by meet-in-the-middle synthesis.
 Finding: the shortest Ch is 3 gates using 2 Toffolis, the shortest Maj 3 gates

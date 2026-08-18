@@ -61,8 +61,32 @@ jobs:
       # UNSAT here is a proof over every input, not a sample.
       - name: prove primitives and the round function
         run: qsha256 prove --scope standard
-      - name: prove the message schedule's register count optimal
+      - name: 16 registers suffice for the message schedule, 15 do not
         run: qsha256 pebble --steps 48 --timeout 120
+
+  claims:
+    name: claims register
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      # Every headline number in README and docs/claims.md is re-derived from
+      # the code here. Documentation that has drifted away from the circuit
+      # fails the build, which is the only thing that keeps a claims register
+      # honest over time.
+      - name: re-derive every claim
+        run: python scripts/reproduce.py --json claims.json
+      - name: the qualifications survive too, not just the numbers
+        run: pytest tests/test_claims.py -q
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: claims
+          path: claims.json
 
   regression:
     name: resource regression

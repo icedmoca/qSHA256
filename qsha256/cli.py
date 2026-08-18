@@ -9,6 +9,7 @@ qsha256 oracle        preimage oracle cost and Grover extrapolation
 qsha256 physical      fault-tolerant estimate under a hardware model
 qsha256 leaderboard   comparison against published circuits
 qsha256 grover-demo   run the toy Grover search for real
+qsha256 claims        re-derive every claim in docs/claims.md
 """
 
 from __future__ import annotations
@@ -164,6 +165,41 @@ def cmd_validate(args) -> int:
     return 0 if ok else 1
 
 
+def cmd_claims(args) -> int:
+    """Re-derive every claim in the register, from the code, right now.
+
+    Lives in ``scripts/`` rather than in the package because it is deliberately
+    written against the *public* interface, as an outside reader would: if it
+    could reach into internals, it could reproduce a number by reproducing the
+    bug that produced it. Only available from a source checkout.
+    """
+    import runpy
+
+    script = Path(__file__).resolve().parent.parent / "scripts" / "reproduce.py"
+    if not script.exists():
+        print(
+            "scripts/reproduce.py is not present. It ships with the source "
+            "repository, not the wheel:\n"
+            "  git clone https://github.com/icedmoca/qSHA256 && "
+            "python scripts/reproduce.py",
+            file=sys.stderr,
+        )
+        return 2
+    argv = ["reproduce.py"]
+    if args.quick:
+        argv.append("--quick")
+    if args.json:
+        argv += ["--json", args.json]
+    saved, sys.argv = sys.argv, argv
+    try:
+        runpy.run_path(str(script), run_name="__main__")
+    except SystemExit as exit_code:
+        return int(exit_code.code or 0)
+    finally:
+        sys.argv = saved
+    return 0
+
+
 def cmd_benchmark(args) -> int:
     from .quantum.resources import render
     from .validation.benchmark import run_scaling_benchmark
@@ -308,9 +344,22 @@ def cmd_pebble(args) -> int:
     )
     for result in trace:
         print(f"  {result}")
-    print(f"\nminimum registers over {args.steps} steps: {best}")
+    print(f"\nminimum registers within {args.steps} moves: {best}")
     if best is not None and best == spec.block_words:
-        print("The implemented schedule is optimal.")
+        print(
+            f"The implemented rolling schedule uses {spec.block_words}, so it attains this bound."
+        )
+    print(
+        "\nThe bound is relative to a stated model, not absolute:\n"
+        f"  * move budget: {args.steps} (an impossibility is only an\n"
+        "    impossibility within the budget; more moves buy recomputation,\n"
+        "    which is what trades against registers)\n"
+        f"  * in-place moves: {'allowed' if not args.classical_game else 'disallowed'}\n"
+        "  * one move per step; cost is peak simultaneously-pebbled nodes\n"
+        "  * word-granularity dependency graph; an algebraically restructured\n"
+        "    recurrence is outside the model\n"
+        "See qsha256/formal/pebbling.py for the exact rules."
+    )
     return 0
 
 
@@ -386,6 +435,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("validate", help="check circuits against the classical reference")
     p.add_argument("--quick", action="store_true", help="skip the slower full-scale checks")
     p.set_defaults(func=cmd_validate)
+
+    p = sub.add_parser("claims", help="re-derive every claim in docs/claims.md")
+    p.add_argument("--quick", action="store_true", help="skip the slower checks")
+    p.add_argument("--json", default=None, metavar="PATH", help="write results as JSON")
+    p.set_defaults(func=cmd_claims)
 
     p = sub.add_parser("benchmark", help="resource scaling across round counts")
     _add_common(p, rounds=False)

@@ -31,17 +31,42 @@ a lower bound rather than assuming one.  Used here on ``Ch`` and ``Maj``.
 Modular addition is the important one: ``MC(add mod 2^n) = n - 1``, since each
 carry beyond the first needs one AND and the standard construction meets it.
 
-What comes out of this is worth stating plainly: **``Ch``, ``Maj`` and the
-Gidney adder all achieve the lower bound exactly.** They are not merely good
-implementations, they are optimal in AND count. The CDKM and VBE adders are
-not: they use ``2n`` and ``4(n-1)`` Toffolis against a floor of ``n-1``.
+What comes out of this is worth stating plainly, and just as importantly, worth
+stating *precisely*.
 
-A caveat this module is careful about: MC bounds the *AND count*, and the step
-from AND count to T-count depends on the decomposition. With the standard 7-T
-Toffoli, ``c`` ANDs cost ``7c`` T gates; with Gidney's construction a
-compute/uncompute pair costs 4. So an MC lower bound gives a T-count lower
-bound only once a decomposition is fixed, and this module never quotes one
-without saying which.
+**At the component level the results are unconditional.** ``MC(Ch)`` and
+``MC(Maj)`` are 1, proved here by exhausting the affine decompositions, and both
+implementations use exactly one AND per bit. ``MC(add mod 2^n) = n - 1`` is
+published, and the Gidney adder uses exactly ``n - 1``. The sigma functions are
+affine, so their floor is zero and they meet it. These are statements about the
+*functions*, and they hold whatever circuit anyone writes.
+
+**At the whole-circuit level the result is conditional, and the condition is
+load-bearing.** Summing component floors gives a lower bound only for circuits
+that compute those components *separately*. It is emphatically **not** a lower
+bound on the multiplicative complexity of SHA-256's compression function. Two
+specific gaps:
+
+* A circuit could share non-linear work *across* component boundaries -- reusing
+  an AND computed inside ``Ch`` to help a neighbouring carry chain, say. Nothing
+  here rules that out, and general non-linear lower bounds are notoriously hard
+  to establish.
+* The floor charges ``n - 1`` per *pairwise* modular addition. A SHA-256 round
+  forms ``T1 = h + Sigma1(e) + Ch + K + W`` as four chained pairwise additions
+  and is charged ``4(n - 1)``. But the multiplicative complexity of the
+  *five-operand* sum modulo ``2^n`` is not known to be ``4(n - 1)``; the degree
+  bound only yields ``n - 1``. A fundamentally different multi-operand
+  construction might beat the composed figure.
+
+So the honest phrasing, used throughout, is **"attains the composed bound for
+this architecture class"** rather than "optimal". :attr:`BoundReport.model`
+records exactly which class.
+
+A further caveat: MC bounds the *AND count*, and the step from AND count to
+T-count depends on the decomposition. With the standard 7-T Toffoli, ``c`` ANDs
+cost ``7c`` T gates; with Gidney's construction a compute/uncompute pair costs
+4. So an MC lower bound gives a T-count lower bound only once a decomposition is
+fixed, and this module never quotes one without saying which.
 
 References
 ----------
@@ -205,8 +230,19 @@ class ComponentBound:
     exact_bound: bool = True
 
     @property
-    def optimal(self) -> bool:
+    def attains_bound(self) -> bool:
+        """True when the achieved count equals the proven floor for this component.
+
+        Named for what it asserts. At component level this really is optimality,
+        because the floor is a statement about the function; the composed
+        whole-circuit figure is weaker and is reported separately.
+        """
         return self.achieved_ands == self.lower_bound
+
+    @property
+    def optimal(self) -> bool:
+        """Deprecated alias for :attr:`attains_bound`."""
+        return self.attains_bound
 
     @property
     def overhead(self) -> float:
@@ -304,6 +340,13 @@ class BoundReport:
     lower_bound: int
     components: list[ComponentBound] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    #: The architecture class the composed bound applies to. The bound holds for
+    #: circuits in this class and says nothing about circuits outside it.
+    model: str = ""
+
+    @property
+    def attains_bound(self) -> bool:
+        return self.achieved_ands == self.lower_bound
 
     @property
     def overhead(self) -> float:
@@ -328,7 +371,7 @@ class BoundReport:
             "-" * 72,
         ]
         for c in self.components:
-            mark = "  optimal" if c.optimal else ""
+            mark = "  attains floor" if c.attains_bound else ""
             over = "-" if c.lower_bound == 0 else f"{c.overhead:.2f}x"
             lines.append(
                 f"{c.component:<34}{c.achieved_ands:>10,}{c.lower_bound:>10,}{over:>11}{mark}"
@@ -338,6 +381,14 @@ class BoundReport:
             f"{'TOTAL':<34}{self.achieved_ands:>10,}{self.lower_bound:>10,}{self.overhead:>10.2f}x",
             "",
         ]
+        # The component rows are unconditional; the TOTAL row is not. Printing
+        # the architecture class next to the total is the only thing stopping a
+        # reader from quoting the second as though it were the first.
+        if self.attains_bound:
+            lines.append("  TOTAL attains the composed bound for this architecture class:")
+        else:
+            lines.append("  The composed bound applies to this architecture class:")
+        lines += [f"    {self.model}", ""]
         lines += [f"  * {n}" for n in self.notes]
         return "\n".join(lines)
 
@@ -381,13 +432,32 @@ def circuit_bound_report(
         achieved_ands=achieved,
         lower_bound=add_floor + bool_floor,
         components=components,
+        model=(
+            "circuits that compute Ch, Maj and the sigma functions as separate "
+            "bitwise operations, and form every sum as a chain of pairwise "
+            f"modular additions ({adds_per_round} per round)"
+        ),
         notes=[
-            "The floor sums each component's proven minimum AND count. It bounds "
-            "any circuit built from these components separately; a circuit that "
-            "shared non-linear work between them could in principle go lower, so "
-            "this is a floor for the architecture, not for the function itself.",
+            "COMPONENT-LEVEL floors are unconditional: they are properties of the "
+            "Boolean functions, proved by exhaustive search (Ch, Maj) or published "
+            "(modular addition). Whatever circuit anyone writes, it cannot beat "
+            "them.",
+            "The COMPOSED floor is conditional. It sums the component minima, "
+            "which lower-bounds only circuits that compute those components "
+            "separately. It is NOT a lower bound on the multiplicative complexity "
+            "of SHA-256's compression function.",
+            "Specifically, a circuit could share non-linear work across component "
+            "boundaries; nothing here rules that out, and general non-linear "
+            "lower bounds are hard.",
+            "Specifically, the floor charges n-1 per PAIRWISE addition. A round "
+            "forms T1 from five operands as four chained additions and is charged "
+            "4(n-1), but the multiplicative complexity of the five-operand sum mod "
+            "2^n is not known to be 4(n-1) -- the degree bound gives only n-1. A "
+            "different multi-operand construction might beat the composed figure.",
             f"Additions counted: {adds_per_round} per round x {rounds} rounds, "
             f"+{schedule_adds} in the schedule, +{chaining_adds} chaining.",
+            "The unit is AND *computations*. Each is paired with an uncomputation "
+            "that costs no T gates but is a real mid-circuit measurement.",
             "MC bounds the AND count. Converting to a T-count floor requires "
             "fixing a decomposition: 7 T per Toffoli for the standard circuit, "
             "or 4 T per compute/uncompute pair with Gidney's construction.",
